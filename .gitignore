@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.env
+.env.local
+backend/.cache/
+backend/.tmp/
+backend/build/
+backend/.env
+frontend/.env.local
+LMS-Build-Spec-and-Prompt.md
