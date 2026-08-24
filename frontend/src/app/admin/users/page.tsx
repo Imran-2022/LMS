@@ -1,2 +1,44 @@
 import Link from "next/link";
-export default function UsersPage() { return <main className="min-h-screen bg-[#f5f7f2] px-6 py-10 text-[#14221b] lg:px-10"><div className="mx-auto max-w-6xl"><Link href="/admin" className="text-sm font-bold">← Dashboard</Link><h1 className="mt-20 text-5xl font-semibold tracking-[-.05em]">Users</h1><div className="mt-14 overflow-x-auto border-t border-[#dce3d8]"><div className="grid min-w-[600px] grid-cols-3 border-b border-[#dce3d8] py-4 text-xs font-bold uppercase tracking-[.14em] text-[#708074]"><span>Name</span><span>Email</span><span>Role</span></div>{[['Amina Yusuf', 'amina@example.com', 'student'], ['Jon Bell', 'jon@example.com', 'instructor'], ['Maya Chen', 'maya@example.com', 'content_manager']].map(user => <div key={user[1]} className="grid min-w-[600px] grid-cols-3 items-center border-b border-[#dce3d8] py-5 text-sm"><span className="font-semibold">{user[0]}</span><span className="text-[#607066]">{user[1]}</span><select defaultValue={user[2]} className="w-fit bg-transparent p-2"><option>student</option><option>instructor</option><option>content_manager</option><option>admin</option></select></div>)}</div></div></main>; }
+export default function UsersPage() {
+  return (
+    <main className="min-h-screen bg-[#f5f7f2] px-6 py-10 text-[#14221b] lg:px-10">
+      <div className="mx-auto max-w-6xl">
+        <Link href="/admin" className="text-sm font-bold">
+          ← Dashboard
+        </Link>
+        <h1 className="mt-20 text-5xl font-semibold tracking-[-.05em]">
+          Users
+        </h1>
+        <div className="mt-14 overflow-x-auto border-t border-[#dce3d8]">
+          <div className="grid min-w-[600px] grid-cols-3 border-b border-[#dce3d8] py-4 text-xs font-bold uppercase tracking-[.14em] text-[#708074]">
+            <span>Name</span>
+            <span>Email</span>
+            <span>Role</span>
+          </div>
+          {[
+            ["Amina Yusuf", "amina@example.com", "student"],
+            ["Jon Bell", "jon@example.com", "instructor"],
+            ["Maya Chen", "maya@example.com", "content_manager"],
+          ].map((user) => (
+            <div
+              key={user[1]}
+              className="grid min-w-[600px] grid-cols-3 items-center border-b border-[#dce3d8] py-5 text-sm"
+            >
+              <span className="font-semibold">{user[0]}</span>
+              <span className="text-[#607066]">{user[1]}</span>
+              <select
+                defaultValue={user[2]}
+                className="w-fit bg-transparent p-2"
+              >
+                <option>student</option>
+                <option>instructor</option>
+                <option>content_manager</option>
+                <option>admin</option>
+              </select>
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
+  );
+}

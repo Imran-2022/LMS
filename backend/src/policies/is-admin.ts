@@ -1,1 +1,2 @@
-export default async (policyContext: any) => policyContext.state.user?.role?.type === 'admin';
+export default async (policyContext: any) =>
+  policyContext.state.user?.role?.type === "admin";

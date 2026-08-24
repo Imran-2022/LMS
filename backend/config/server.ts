@@ -1,1 +1,9 @@
-export default ({ env }: { env: (key: string, fallback?: string) => string }) => ({ host: env('HOST', '0.0.0.0'), port: env('PORT', '1337'), app: { keys: env('APP_KEYS', 'lms-key-1,lms-key-2').split(',') } });
+export default ({
+  env,
+}: {
+  env: (key: string, fallback?: string) => string;
+}) => ({
+  host: env("HOST", "0.0.0.0"),
+  port: env("PORT", "1337"),
+  app: { keys: env("APP_KEYS", "lms-key-1,lms-key-2").split(",") },
+});

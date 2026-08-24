@@ -1,1 +1,5 @@
-{"collectionName":"components_quiz_options","info":{"displayName":"Option"},"attributes":{"text":{"type":"string"}}}
+{
+  "collectionName": "components_quiz_options",
+  "info": { "displayName": "Option" },
+  "attributes": { "text": { "type": "string" } }
+}

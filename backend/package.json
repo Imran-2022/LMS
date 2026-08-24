@@ -1,1 +1,17 @@
-{"name":"lms-backend","private":true,"version":"0.1.0","scripts":{"develop":"strapi develop","start":"strapi start","build":"strapi build","typecheck":"tsc --noEmit"},"dependencies":{"@strapi/strapi":"^5.22.0","pg":"^8.13.1","typescript":"^5.6.3"},"devDependencies":{}}
+{
+  "name": "lms-backend",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@strapi/strapi": "^5.22.0",
+    "pg": "^8.13.1",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {}
+}
