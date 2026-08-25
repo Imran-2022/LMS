@@ -4,7 +4,11 @@
   "info": {
     "singularName": "lesson-progress",
     "pluralName": "lesson-progresses",
-    "displayName": "Lesson Progress"
+    "displayName": "Lesson Progress",
+    "description": "One row per (student, lesson). This table is the durable record that makes progress survive a refresh — the percentage itself is always recomputed from it, never stored."
+  },
+  "options": {
+    "draftAndPublish": false
   },
   "attributes": {
     "student": {
@@ -15,14 +19,22 @@
     "lesson": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::lesson.lesson"
+      "target": "api::lesson.lesson",
+      "inversedBy": "progressRecords"
     },
     "course": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::course.course"
+      "target": "api::course.course",
+      "description": "Denormalised from the lesson so counting a course's completions is a single indexed query."
     },
-    "completed": { "type": "boolean", "default": false },
-    "completedAt": { "type": "datetime" }
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "completedAt": {
+      "type": "datetime"
+    }
   }
 }

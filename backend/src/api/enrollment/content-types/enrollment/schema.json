@@ -4,13 +4,18 @@
   "info": {
     "singularName": "enrollment",
     "pluralName": "enrollments",
-    "displayName": "Enrollment"
+    "displayName": "Enrollment",
+    "description": "Join row between a student and a course. Its existence is what unlocks lesson content and quiz taking."
+  },
+  "options": {
+    "draftAndPublish": false
   },
   "attributes": {
     "student": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "plugin::users-permissions.user"
+      "target": "plugin::users-permissions.user",
+      "description": "Always taken from the JWT, never from the request body."
     },
     "course": {
       "type": "relation",
@@ -18,6 +23,12 @@
       "target": "api::course.course",
       "inversedBy": "enrollments"
     },
-    "enrolledAt": { "type": "datetime" }
+    "enrolledAt": {
+      "type": "datetime"
+    },
+    "completedAt": {
+      "type": "datetime",
+      "description": "Stamped by the progress endpoint the moment the student reaches 100%."
+    }
   }
 }

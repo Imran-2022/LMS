@@ -1,13 +1,31 @@
 {
   "collectionName": "components_quiz_questions",
-  "info": { "displayName": "Question" },
+  "info": {
+    "displayName": "Question",
+    "description": "A multiple-choice question. `correctOptionIndex` points at the position of the right answer inside `options` and is stripped from every student-facing response before it leaves the server."
+  },
+  "options": {},
   "attributes": {
-    "text": { "type": "string" },
+    "text": {
+      "type": "string",
+      "required": true
+    },
     "options": {
       "type": "component",
       "repeatable": true,
-      "component": "quiz.option"
+      "component": "quiz.option",
+      "required": true,
+      "min": 2
     },
-    "correctOptionIndex": { "type": "integer" }
+    "correctOptionIndex": {
+      "type": "integer",
+      "required": true,
+      "default": 0,
+      "min": 0
+    },
+    "explanation": {
+      "type": "text",
+      "description": "Optional note shown on the results screen after grading."
+    }
   }
 }

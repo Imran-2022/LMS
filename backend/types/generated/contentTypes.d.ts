@@ -446,6 +446,7 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
 export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
   collectionName: 'blog_posts';
   info: {
+    description: "Public-facing article. `status` is an explicit field rather than Strapi's draft/publish system so the visibility rule lives in code we can point at and explain.";
     displayName: 'Blog Post';
     pluralName: 'blog-posts';
     singularName: 'blog-post';
@@ -463,6 +464,10 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    excerpt: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 300;
+      }>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -470,9 +475,25 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    publishedDate: Schema.Attribute.DateTime;
+    readingMinutes: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<3>;
+    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     status: Schema.Attribute.Enumeration<['draft', 'published']> &
+      Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'draft'>;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
+    tags: Schema.Attribute.String;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 180;
+      }>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -482,23 +503,41 @@ export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
 export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
   collectionName: 'courses';
   info: {
+    description: 'A course owned by an instructor (or created by staff), containing ordered lessons and quizzes.';
     displayName: 'Course';
     pluralName: 'courses';
     singularName: 'course';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
+    category: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 60;
+      }>;
+    coverImageUrl: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.RichText;
+    durationMinutes: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
     enrollments: Schema.Attribute.Relation<
       'oneToMany',
       'api::enrollment.enrollment'
     >;
     lessons: Schema.Attribute.Relation<'oneToMany', 'api::lesson.lesson'>;
+    level: Schema.Attribute.Enumeration<
+      ['beginner', 'intermediate', 'advanced']
+    > &
+      Schema.Attribute.DefaultTo<'beginner'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -511,7 +550,19 @@ export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
     >;
     publishedAt: Schema.Attribute.DateTime;
     quizzes: Schema.Attribute.Relation<'oneToMany', 'api::quiz.quiz'>;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
+    slug: Schema.Attribute.UID<'title'>;
+    status: Schema.Attribute.Enumeration<['draft', 'published']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'draft'>;
+    summary: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 280;
+      }>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160;
+      }>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -521,6 +572,7 @@ export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
 export interface ApiEnrollmentEnrollment extends Struct.CollectionTypeSchema {
   collectionName: 'enrollments';
   info: {
+    description: 'Join row between a student and a course. Its existence is what unlocks lesson content and quiz taking.';
     displayName: 'Enrollment';
     pluralName: 'enrollments';
     singularName: 'enrollment';
@@ -529,6 +581,7 @@ export interface ApiEnrollmentEnrollment extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    completedAt: Schema.Attribute.DateTime;
     course: Schema.Attribute.Relation<'manyToOne', 'api::course.course'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -555,6 +608,7 @@ export interface ApiLessonProgressLessonProgress
   extends Struct.CollectionTypeSchema {
   collectionName: 'lesson_progresses';
   info: {
+    description: 'One row per (student, lesson). This table is the durable record that makes progress survive a refresh \u2014 the percentage itself is always recomputed from it, never stored.';
     displayName: 'Lesson Progress';
     pluralName: 'lesson-progresses';
     singularName: 'lesson-progress';
@@ -563,7 +617,9 @@ export interface ApiLessonProgressLessonProgress
     draftAndPublish: false;
   };
   attributes: {
-    completed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    completed: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
     completedAt: Schema.Attribute.DateTime;
     course: Schema.Attribute.Relation<'manyToOne', 'api::course.course'>;
     createdAt: Schema.Attribute.DateTime;
@@ -590,6 +646,7 @@ export interface ApiLessonProgressLessonProgress
 export interface ApiLessonLesson extends Struct.CollectionTypeSchema {
   collectionName: 'lessons';
   info: {
+    description: 'A single unit of course material. `order` drives the sequential viewer and the next/previous links.';
     displayName: 'Lesson';
     pluralName: 'lessons';
     singularName: 'lesson';
@@ -603,24 +660,54 @@ export interface ApiLessonLesson extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    durationMinutes: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<5>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::lesson.lesson'
     > &
       Schema.Attribute.Private;
-    order: Schema.Attribute.Integer;
+    order: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<1>;
+    progressRecords: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::lesson-progress.lesson-progress'
+    >;
     publishedAt: Schema.Attribute.DateTime;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
+    summary: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 280;
+      }>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160;
+      }>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    videoUrl: Schema.Attribute.String;
   };
 }
 
 export interface ApiQuizAttemptQuizAttempt extends Struct.CollectionTypeSchema {
   collectionName: 'quiz_attempts';
   info: {
+    description: 'An immutable record of one submission. Score and correctCount are computed on the server; the client can only ever send the chosen answers.';
     displayName: 'Quiz Attempt';
     pluralName: 'quiz-attempts';
     singularName: 'quiz-attempt';
@@ -630,6 +717,15 @@ export interface ApiQuizAttemptQuizAttempt extends Struct.CollectionTypeSchema {
   };
   attributes: {
     answers: Schema.Attribute.JSON;
+    correctCount: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    course: Schema.Attribute.Relation<'manyToOne', 'api::course.course'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -639,14 +735,31 @@ export interface ApiQuizAttemptQuizAttempt extends Struct.CollectionTypeSchema {
       'api::quiz-attempt.quiz-attempt'
     > &
       Schema.Attribute.Private;
+    passed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     publishedAt: Schema.Attribute.DateTime;
     quiz: Schema.Attribute.Relation<'manyToOne', 'api::quiz.quiz'>;
-    score: Schema.Attribute.Integer;
+    score: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 100;
+          min: 0;
+        },
+        number
+      >;
     student: Schema.Attribute.Relation<
       'manyToOne',
       'plugin::users-permissions.user'
     >;
     submittedAt: Schema.Attribute.DateTime;
+    totalQuestions: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -656,6 +769,7 @@ export interface ApiQuizAttemptQuizAttempt extends Struct.CollectionTypeSchema {
 export interface ApiQuizQuiz extends Struct.CollectionTypeSchema {
   collectionName: 'quizzes';
   info: {
+    description: 'A multiple-choice quiz attached to a course. Correct answers live here and are removed from student-facing responses by the controller.';
     displayName: 'Quiz';
     pluralName: 'quizzes';
     singularName: 'quiz';
@@ -664,16 +778,37 @@ export interface ApiQuizQuiz extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    attempts: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::quiz-attempt.quiz-attempt'
+    >;
     course: Schema.Attribute.Relation<'manyToOne', 'api::course.course'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    description: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::quiz.quiz'> &
       Schema.Attribute.Private;
+    passingScore: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 100;
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<70>;
     publishedAt: Schema.Attribute.DateTime;
     questions: Schema.Attribute.Component<'quiz.question', true>;
-    title: Schema.Attribute.String;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160;
+      }>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1139,6 +1274,11 @@ export interface PluginUsersPermissionsUser
     timestamps: true;
   };
   attributes: {
+    avatarUrl: Schema.Attribute.String;
+    bio: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 400;
+      }>;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -1149,6 +1289,10 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
+      }>;
+    fullName: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 120;
       }>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<

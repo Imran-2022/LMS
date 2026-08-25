@@ -4,17 +4,51 @@
   "info": {
     "singularName": "lesson",
     "pluralName": "lessons",
-    "displayName": "Lesson"
+    "displayName": "Lesson",
+    "description": "A single unit of course material. `order` drives the sequential viewer and the next/previous links."
+  },
+  "options": {
+    "draftAndPublish": false
   },
   "attributes": {
-    "title": { "type": "string", "required": true },
-    "content": { "type": "richtext" },
-    "order": { "type": "integer" },
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 160
+    },
+    "summary": {
+      "type": "text",
+      "maxLength": 280
+    },
+    "content": {
+      "type": "richtext"
+    },
+    "videoUrl": {
+      "type": "string"
+    },
+    "durationMinutes": {
+      "type": "integer",
+      "min": 0,
+      "default": 5
+    },
+    "order": {
+      "type": "integer",
+      "required": true,
+      "default": 1,
+      "min": 1,
+      "description": "1-based position within the course. Assigned server-side on create so two lessons never collide."
+    },
     "course": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::course.course",
       "inversedBy": "lessons"
+    },
+    "progressRecords": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::lesson-progress.lesson-progress",
+      "mappedBy": "lesson"
     }
   }
 }

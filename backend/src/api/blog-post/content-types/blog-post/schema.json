@@ -4,17 +4,51 @@
   "info": {
     "singularName": "blog-post",
     "pluralName": "blog-posts",
-    "displayName": "Blog Post"
+    "displayName": "Blog Post",
+    "description": "Public-facing article. `status` is an explicit field rather than Strapi's draft/publish system so the visibility rule lives in code we can point at and explain."
   },
-  "options": { "draftAndPublish": false },
+  "options": {
+    "draftAndPublish": false
+  },
   "attributes": {
-    "title": { "type": "string", "required": true },
-    "body": { "type": "richtext" },
-    "coverImageUrl": { "type": "string" },
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 180
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "excerpt": {
+      "type": "text",
+      "maxLength": 300
+    },
+    "body": {
+      "type": "richtext"
+    },
+    "coverImageUrl": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "string",
+      "description": "Comma-separated labels. Kept flat deliberately — a tag taxonomy is out of scope for this brief."
+    },
+    "readingMinutes": {
+      "type": "integer",
+      "min": 1,
+      "default": 3
+    },
     "status": {
       "type": "enumeration",
       "enum": ["draft", "published"],
-      "default": "draft"
+      "default": "draft",
+      "required": true
+    },
+    "publishedDate": {
+      "type": "datetime",
+      "description": "Stamped the first time the post flips to published."
     },
     "author": {
       "type": "relation",

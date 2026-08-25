@@ -4,16 +4,61 @@
   "info": {
     "singularName": "course",
     "pluralName": "courses",
-    "displayName": "Course"
+    "displayName": "Course",
+    "description": "A course owned by an instructor (or created by staff), containing ordered lessons and quizzes."
   },
-  "options": { "draftAndPublish": true },
+  "options": {
+    "draftAndPublish": false
+  },
   "attributes": {
-    "title": { "type": "string", "required": true },
-    "description": { "type": "richtext" },
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 160
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "summary": {
+      "type": "text",
+      "maxLength": 280,
+      "description": "One-or-two line pitch shown on catalogue cards."
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "coverImageUrl": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "maxLength": 60
+    },
+    "level": {
+      "type": "enumeration",
+      "enum": ["beginner", "intermediate", "advanced"],
+      "default": "beginner"
+    },
+    "durationMinutes": {
+      "type": "integer",
+      "min": 0,
+      "default": 0
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["draft", "published"],
+      "default": "draft",
+      "required": true
+    },
+    "publishedAt": {
+      "type": "datetime"
+    },
     "owner": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "plugin::users-permissions.user"
+      "target": "plugin::users-permissions.user",
+      "description": "Set server-side from the JWT on create. An instructor may only write courses where this points at them."
     },
     "lessons": {
       "type": "relation",

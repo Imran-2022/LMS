@@ -4,7 +4,11 @@
   "info": {
     "singularName": "quiz-attempt",
     "pluralName": "quiz-attempts",
-    "displayName": "Quiz Attempt"
+    "displayName": "Quiz Attempt",
+    "description": "An immutable record of one submission. Score and correctCount are computed on the server; the client can only ever send the chosen answers."
+  },
+  "options": {
+    "draftAndPublish": false
   },
   "attributes": {
     "student": {
@@ -15,10 +19,42 @@
     "quiz": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::quiz.quiz"
+      "target": "api::quiz.quiz",
+      "inversedBy": "attempts"
     },
-    "answers": { "type": "json" },
-    "score": { "type": "integer" },
-    "submittedAt": { "type": "datetime" }
+    "course": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::course.course",
+      "description": "Denormalised so an instructor can list every attempt in their course without joining through quizzes."
+    },
+    "answers": {
+      "type": "json",
+      "description": "Array of { questionIndex, selectedOptionIndex } exactly as submitted."
+    },
+    "score": {
+      "type": "integer",
+      "min": 0,
+      "max": 100,
+      "required": true,
+      "description": "Percentage, rounded. Server-computed only."
+    },
+    "correctCount": {
+      "type": "integer",
+      "min": 0,
+      "default": 0
+    },
+    "totalQuestions": {
+      "type": "integer",
+      "min": 0,
+      "default": 0
+    },
+    "passed": {
+      "type": "boolean",
+      "default": false
+    },
+    "submittedAt": {
+      "type": "datetime"
+    }
   }
 }

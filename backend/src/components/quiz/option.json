@@ -1,5 +1,14 @@
 {
   "collectionName": "components_quiz_options",
-  "info": { "displayName": "Option" },
-  "attributes": { "text": { "type": "string" } }
+  "info": {
+    "displayName": "Option",
+    "description": "One selectable answer on a multiple-choice question."
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string",
+      "required": true
+    }
+  }
 }
