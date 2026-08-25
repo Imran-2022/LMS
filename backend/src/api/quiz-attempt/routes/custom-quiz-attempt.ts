@@ -4,6 +4,7 @@ export default {
       method: "POST",
       path: "/quiz-attempts",
       handler: "quiz-attempt.create",
+      type: "content-api",
       config: { policies: ["global::is-enrolled-or-privileged"] },
     },
   ],
