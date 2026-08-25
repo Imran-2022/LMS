@@ -1,0 +1,96 @@
+"use server";
+
+/**
+ * Auth actions: sign in, sign up, sign out.
+ *
+ * Every export in a `"use server"` file is a callable HTTP endpoint, so these are
+ * scoped deliberately narrowly and each one validates its own input rather than
+ * trusting the form that called it.
+ *
+ * The shape is React 19's `useActionState`: `(prevState, formData) => state`. Returning
+ * an error object instead of throwing means a wrong password re-renders the form with
+ * the message and the email still filled in, rather than tripping an error boundary.
+ * A *successful* sign-in does not return — it calls `redirect()`.
+ */
+
+import { redirect } from "next/navigation";
+
+import { authenticate, getSession, registerAccount } from "@/lib/api";
+import { homePathFor } from "@/lib/roles";
+import { endSession, startSession } from "@/lib/session";
+
+import { safePath } from "./shared";
+
+export type AuthState = { error?: string; values?: { identifier?: string; email?: string; username?: string } };
+
+function text(form: FormData, key: string): string {
+  const value = form.get(key);
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export async function signIn(_prev: AuthState, form: FormData): Promise<AuthState> {
+  const identifier = text(form, "identifier");
+  const password = String(form.get("password") ?? "");
+
+  if (!identifier || !password) {
+    return { error: "Enter your email and password.", values: { identifier } };
+  }
+
+  const result = await authenticate(identifier, password);
+  if (!result.ok) {
+    // Strapi's own message for bad credentials is "Invalid identifier or password",
+    // which is the right level of vagueness: it does not confirm whether the email
+    // exists, so this cannot be used to enumerate accounts. Passed through as-is.
+    return { error: result.error, values: { identifier } };
+  }
+
+  // `POST /api/auth/local` returns a user object but Strapi strips the `role`
+  // relation from it, so the role has to be read separately. The cookie is written
+  // first because `getSession()` authenticates with it.
+  await startSession(result.data.jwt, null);
+  const user = await getSession();
+  const role = user?.role?.type ?? null;
+  await startSession(result.data.jwt, role);
+
+  redirect(safePath(form.get("next"), homePathFor(role)));
+}
+
+export async function signUp(_prev: AuthState, form: FormData): Promise<AuthState> {
+  const username = text(form, "username");
+  const email = text(form, "email");
+  const password = String(form.get("password") ?? "");
+  const confirm = String(form.get("confirmPassword") ?? "");
+  const values = { username, email };
+
+  if (!username || !email || !password) {
+    return { error: "Fill in every field to create your account.", values };
+  }
+  if (username.length < 3) {
+    return { error: "Your username needs at least 3 characters.", values };
+  }
+  // Mirrors Strapi's own minimum. Checking it here means the user finds out before
+  // the round-trip, not after.
+  if (password.length < 8) {
+    return { error: "Use a password of at least 8 characters.", values };
+  }
+  if (password !== confirm) {
+    return { error: "Those two passwords do not match.", values };
+  }
+
+  const result = await registerAccount({ username, email, password });
+  if (!result.ok) {
+    return { error: result.error, values };
+  }
+
+  // New accounts are Students. That is set by Strapi's `advanced.default_role`
+  // setting, which the backend's bootstrap pins to `student` — the role is never
+  // chosen by the signup form, because a form field is something the client controls
+  // and self-assigning `admin` would be the whole permission model gone.
+  await startSession(result.data.jwt, "student");
+  redirect("/my-courses?ok=registered");
+}
+
+export async function signOut() {
+  await endSession();
+  redirect("/?ok=signed-out");
+}

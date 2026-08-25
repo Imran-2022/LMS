@@ -25,6 +25,7 @@ backend/public/uploads/*
 LMS-Build-Spec-and-Prompt.md
 
 # Editor / OS noise
+.claude/
 .DS_Store
 Thumbs.db
 *.log
