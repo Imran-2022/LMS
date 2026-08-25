@@ -2,21 +2,31 @@
   "name": "lms-backend",
   "private": true,
   "version": "0.1.0",
+  "description": "Strapi API for the LMS: content types, RBAC policies, progress tracking and quiz auto-grading.",
   "scripts": {
     "develop": "strapi develop",
+    "dev": "strapi develop",
     "start": "strapi start",
     "build": "strapi build",
     "typecheck": "tsc --noEmit",
-    "postinstall": "node scripts/patch-strapi-routes.js"
+    "strapi": "strapi"
   },
   "dependencies": {
     "@strapi/plugin-users-permissions": "5.52.1",
-    "@strapi/strapi": "^5.22.0",
+    "@strapi/strapi": "5.52.1",
+    "better-sqlite3": "11.3.0",
     "pg": "^8.13.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.6",
     "styled-components": "^6.5.3",
     "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20.0.0 <=22.x.x",
+    "npm": ">=6.0.0"
+  },
+  "strapi": {
+    "uuid": "lms-project-backend"
   }
 }

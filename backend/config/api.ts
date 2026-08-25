@@ -1,9 +1,8 @@
-export default ({
-  env,
-}: {
-  env: (key: string, fallback?: string) => string;
-}) => ({
+export default ({ env }) => ({
   rest: {
-    prefix: env("API_REST_PREFIX", "/api"),
+    prefix: '/api',
+    defaultLimit: 25,
+    maxLimit: 100,
+    withCount: true,
   },
 });
