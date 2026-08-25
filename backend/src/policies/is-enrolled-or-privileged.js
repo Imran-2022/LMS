@@ -1,0 +1,21 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = async (policyContext) => {
+    const user = policyContext.state.user;
+    if (!user)
+        return false;
+    if (["admin", "content_manager", "instructor"].includes(user.role?.type))
+        return true;
+    let courseId = policyContext.params.courseId || policyContext.params.id;
+    if (policyContext.params.lessonId) {
+        const lesson = await strapi.db.query("api::lesson.lesson").findOne({
+            where: { id: policyContext.params.lessonId },
+            populate: ["course"],
+        });
+        courseId = lesson?.course?.id;
+    }
+    return Boolean(courseId &&
+        (await strapi.db
+            .query("api::enrollment.enrollment")
+            .findOne({ where: { student: user.id, course: courseId } })));
+};

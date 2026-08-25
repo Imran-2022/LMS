@@ -3,7 +3,7 @@ import { factories } from "@strapi/strapi";
 export default factories.createCoreController(
   "api::lesson-progress.lesson-progress",
   ({ strapi }) => ({
-    async complete(ctx: any) {
+    async complete(ctx: any, next: any) {
       const user = ctx.state.user;
       if (!user) return ctx.unauthorized();
       const lesson = await strapi.db
@@ -28,9 +28,12 @@ export default factories.createCoreController(
         await strapi.db
           .query("api::lesson-progress.lesson-progress")
           .create({ data });
-      return this.courseProgress({ ...ctx, params: { id: lesson.course.id } });
+      return this.courseProgress(
+        { ...ctx, params: { id: lesson.course.id } },
+        next,
+      );
     },
-    async courseProgress(ctx: any) {
+    async courseProgress(ctx: any, next: any) {
       const user = ctx.state.user;
       if (!user) return ctx.unauthorized();
       const total = await strapi.db

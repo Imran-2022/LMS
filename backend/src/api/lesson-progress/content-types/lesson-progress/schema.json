@@ -24,12 +24,5 @@
     },
     "completed": { "type": "boolean", "default": false },
     "completedAt": { "type": "datetime" }
-  },
-  "indexes": [
-    {
-      "name": "lesson_progress_student_lesson_unique",
-      "type": "unique",
-      "columns": ["student", "lesson"]
-    }
-  ]
+  }
 }
