@@ -7,6 +7,7 @@ exports.default = {
             path: "/lesson-progress/:lessonId/complete",
             handler: "lesson-progress.complete",
             type: "content-api",
+            info: { type: "content-api" },
             config: { policies: ["global::is-enrolled-or-privileged"] },
         },
     ],

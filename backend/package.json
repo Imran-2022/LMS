@@ -6,7 +6,8 @@
     "develop": "strapi develop",
     "start": "strapi start",
     "build": "strapi build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "node scripts/patch-strapi-routes.js"
   },
   "dependencies": {
     "@strapi/plugin-users-permissions": "5.52.1",
