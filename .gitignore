@@ -1,10 +1,30 @@
+# Dependencies
 node_modules/
+
+# Next.js build output
 .next/
-.env
-.env.local
+frontend/next-env.d.ts
+
+# Strapi build output and runtime scratch space
 backend/.cache/
 backend/.tmp/
 backend/build/
+backend/dist/
+
+# Secrets. `.env.example` files ARE committed; the real ones never are.
+.env
+.env.local
 backend/.env
 frontend/.env.local
+
+# Uploaded media. Railway's filesystem is ephemeral anyway, so these are local-only.
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep
+
+# My own planning notes for this build — kept out of the deliverable.
 LMS-Build-Spec-and-Prompt.md
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.log
