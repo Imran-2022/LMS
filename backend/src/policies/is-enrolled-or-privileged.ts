@@ -1,20 +1,57 @@
-export default async (policyContext: any) => {
-  const user = policyContext.state.user;
-  if (!user) return false;
-  if (["admin", "content_manager", "instructor"].includes(user.role?.type))
-    return true;
-  let courseId = policyContext.params.courseId || policyContext.params.id;
-  if (policyContext.params.lessonId) {
-    const lesson = await strapi.db.query("api::lesson.lesson").findOne({
-      where: { id: policyContext.params.lessonId },
-      populate: ["course"],
-    });
-    courseId = lesson?.course?.id;
+/**
+ * Row-level gate for *reading* course material.
+ *
+ * A student may open a lesson only if an enrollment row links them to that
+ * lesson's course. Staff (Admin/Content Manager) always pass; an Instructor passes
+ * for their own courses.
+ *
+ * Without this, `GET /api/lessons/42` would hand the full lesson body to any
+ * signed-in user who guessed the id — the classic "we only hid the button" bug the
+ * brief warns about.
+ *
+ * Configured per-route the same way as `owns-course-or-privileged`:
+ *   { name: 'global::is-enrolled-or-privileged', config: { resource: 'lesson' } }
+ */
+import { errors } from '@strapi/utils';
+
+import {
+  LESSON_UID,
+  QUIZ_UID,
+  assertCourseReadAccess,
+  findCourse,
+  findParentCourse,
+} from '../utils/authorization';
+
+type Resource = 'course' | 'lesson' | 'quiz';
+
+export default async (
+  policyContext: any,
+  config: { resource?: Resource; param?: string } = {},
+  { strapi }: { strapi: any }
+) => {
+  const user = policyContext.state?.user;
+
+  if (!user) {
+    throw new errors.UnauthorizedError('You must be signed in to do that.');
   }
-  return Boolean(
-    courseId &&
-      (await strapi.db
-        .query("api::enrollment.enrollment")
-        .findOne({ where: { student: user.id, course: courseId } })),
-  );
+
+  const resource: Resource = config.resource ?? 'course';
+  const param = config.param ?? 'id';
+  const key = policyContext.params?.[param];
+
+  const course =
+    resource === 'course'
+      ? await findCourse(strapi, key)
+      : await findParentCourse(strapi, resource === 'lesson' ? LESSON_UID : QUIZ_UID, key);
+
+  if (!course) {
+    throw new errors.NotFoundError('Course not found.');
+  }
+
+  // Throws ForbiddenError when the student has no enrollment row.
+  await assertCourseReadAccess(strapi, user, course);
+
+  policyContext.state.course = course;
+
+  return true;
 };
