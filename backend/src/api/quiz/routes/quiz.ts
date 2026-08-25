@@ -1,5 +1,5 @@
 import { factories } from "@strapi/strapi";
-export default factories.createCoreRouter("api::quiz.quiz", {
+export default factories.createCoreRouter("api::quiz.quiz" as any, {
   config: {
     create: { policies: ["global::is-course-owner-or-privileged"] },
     update: { policies: ["global::is-course-owner-or-privileged"] },

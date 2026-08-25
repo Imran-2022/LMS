@@ -1,7 +1,7 @@
 import { factories } from "@strapi/strapi";
 
 export default factories.createCoreController(
-  "api::lesson-progress.lesson-progress",
+  "api::lesson-progress.lesson-progress" as any,
   ({ strapi }) => ({
     async complete(ctx: any, next: any) {
       const user = ctx.state.user;

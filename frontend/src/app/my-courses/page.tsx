@@ -1,11 +1,19 @@
 import Link from "next/link";
+import { signOut } from "@/app/actions";
 export default function MyCoursesPage() {
   return (
     <main className="min-h-screen bg-[#f5f7f2] px-6 py-10 text-[#14221b] lg:px-10">
       <div className="mx-auto max-w-5xl">
-        <Link href="/courses" className="text-sm font-bold">
-          ← Course library
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link href="/courses" className="text-sm font-bold">
+            ← Course library
+          </Link>
+          <form action={signOut}>
+            <button type="submit" className="text-sm font-semibold underline">
+              Sign out
+            </button>
+          </form>
+        </div>
         <h1 className="mt-20 text-5xl font-semibold tracking-[-.05em]">
           Your learning space.
         </h1>

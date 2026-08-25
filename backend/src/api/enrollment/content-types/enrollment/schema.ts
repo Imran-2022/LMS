@@ -1,0 +1,10 @@
+export default {
+  kind: "collectionType",
+  collectionName: "enrollments",
+  info: { singularName: "enrollment", pluralName: "enrollments", displayName: "Enrollment" },
+  attributes: {
+    student: { type: "relation", relation: "manyToOne", target: "plugin::users-permissions.user" },
+    course: { type: "relation", relation: "manyToOne", target: "api::course.course", inversedBy: "enrollments" },
+    enrolledAt: { type: "datetime" },
+  },
+};

@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const filePath = path.join(
+const usersPermissionsPath = path.join(
   __dirname,
   "..",
   "node_modules",
@@ -13,16 +13,51 @@ const filePath = path.join(
   "users-permissions.js",
 );
 
-if (!fs.existsSync(filePath)) {
-  process.exit(0);
-}
-
-const source = fs.readFileSync(filePath, "utf8");
-const updated = source.replaceAll(
-  ".filter((route)=>route.info.type === 'content-api')",
-  ".filter((route)=>route?.info?.type === 'content-api')",
+const coreRoutesPath = path.join(
+  __dirname,
+  "..",
+  "node_modules",
+  "@strapi",
+  "core",
+  "dist",
+  "services",
+  "server",
+  "register-routes.js",
 );
 
-if (updated !== source) {
-  fs.writeFileSync(filePath, updated);
+if (fs.existsSync(usersPermissionsPath)) {
+  const source = fs.readFileSync(usersPermissionsPath, "utf8");
+  const updated = source
+    .replace(
+      ".filter(() => true)",
+      ".filter((route)=>typeof route?.path === 'string')",
+    )
+    .replace(
+      ".filter((route)=>route?.info?.type === 'content-api' || route?.info?.apiName)",
+      ".filter((route)=>typeof route?.path === 'string')",
+    )
+    .replaceAll(
+      ".filter((route)=>route.info.type === 'content-api')",
+      ".filter((route)=>route?.info?.type === 'content-api' || route?.info?.apiName)",
+    )
+    .replaceAll(
+      ".filter((route)=>route?.info?.type === 'content-api')",
+      ".filter((route)=>typeof route?.path === 'string')",
+    );
+
+  if (updated !== source) {
+    fs.writeFileSync(usersPermissionsPath, updated);
+  }
+}
+
+if (fs.existsSync(coreRoutesPath)) {
+  const source = fs.readFileSync(coreRoutesPath, "utf8");
+  const updated = source.replace(
+    "route.info = {\n                    apiName\n                };",
+    "route.info = {\n                    apiName,\n                    type: 'content-api'\n                };",
+  );
+
+  if (updated !== source) {
+    fs.writeFileSync(coreRoutesPath, updated);
+  }
 }

@@ -1,7 +1,7 @@
 import { factories } from "@strapi/strapi";
 
 export default factories.createCoreController(
-  "api::enrollment.enrollment",
+  "api::enrollment.enrollment" as any,
   ({ strapi }) => ({
     async create(ctx: any) {
       const user = ctx.state.user;

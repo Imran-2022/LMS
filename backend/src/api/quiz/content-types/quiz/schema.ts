@@ -1,0 +1,10 @@
+export default {
+  kind: "collectionType",
+  collectionName: "quizzes",
+  info: { singularName: "quiz", pluralName: "quizzes", displayName: "Quiz" },
+  attributes: {
+    title: { type: "string" },
+    course: { type: "relation", relation: "manyToOne", target: "api::course.course", inversedBy: "quizzes" },
+    questions: { type: "component", repeatable: true, component: "quiz.question" },
+  },
+};

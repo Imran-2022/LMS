@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { strapiFetch, Course } from "@/lib/api";
-import { enroll } from "@/app/actions";
+import { enroll, signOut } from "@/app/actions";
 
 export default async function CoursePage({
   params,
@@ -28,9 +28,16 @@ export default async function CoursePage({
   return (
     <main className="min-h-screen bg-[#f5f7f2] px-6 py-10 text-[#14221b] lg:px-10">
       <div className="mx-auto max-w-4xl">
-        <Link href="/courses" className="text-sm font-bold">
-          ← All courses
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link href="/courses" className="text-sm font-bold">
+            ← All courses
+          </Link>
+          <form action={signOut}>
+            <button type="submit" className="text-sm font-semibold underline">
+              Sign out
+            </button>
+          </form>
+        </div>
         <p className="mt-20 text-xs font-bold uppercase tracking-[.2em] text-[#e58c5a]">
           Course {id}
         </p>

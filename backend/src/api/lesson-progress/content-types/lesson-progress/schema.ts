@@ -1,0 +1,12 @@
+export default {
+  kind: "collectionType",
+  collectionName: "lesson_progresses",
+  info: { singularName: "lesson-progress", pluralName: "lesson-progresses", displayName: "Lesson Progress" },
+  attributes: {
+    student: { type: "relation", relation: "manyToOne", target: "plugin::users-permissions.user" },
+    lesson: { type: "relation", relation: "manyToOne", target: "api::lesson.lesson" },
+    course: { type: "relation", relation: "manyToOne", target: "api::course.course" },
+    completed: { type: "boolean", default: false },
+    completedAt: { type: "datetime" },
+  },
+};

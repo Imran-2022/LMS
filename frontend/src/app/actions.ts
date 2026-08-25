@@ -30,3 +30,10 @@ export async function completeLesson(lessonId: number, courseId: number) {
 export async function submitQuiz(quizId: number, answers: number[]) {
   return request("/api/quiz-attempts", "POST", { quizId, answers });
 }
+
+export async function signOut() {
+  const cookieStore = await cookies();
+  cookieStore.delete("strapi_jwt");
+  cookieStore.delete("user_role");
+  redirect("/");
+}

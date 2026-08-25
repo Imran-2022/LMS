@@ -1,7 +1,7 @@
 import { factories } from "@strapi/strapi";
 
 export default factories.createCoreController(
-  "api::quiz-attempt.quiz-attempt",
+  "api::quiz-attempt.quiz-attempt" as any,
   ({ strapi }) => ({
     async create(ctx: any) {
       const user = ctx.state.user;

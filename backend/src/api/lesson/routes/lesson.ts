@@ -1,5 +1,5 @@
 import { factories } from "@strapi/strapi";
-export default factories.createCoreRouter("api::lesson.lesson", {
+export default factories.createCoreRouter("api::lesson.lesson" as any, {
   config: {
     findOne: { policies: ["global::is-enrolled-or-privileged"] },
     create: { policies: ["global::is-course-owner-or-privileged"] },
