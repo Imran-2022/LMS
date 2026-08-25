@@ -38,6 +38,7 @@ export type NavGroup = { heading: string; items: NavItem[] };
 const ALL: RoleType[] = ["admin", "content_manager", "instructor", "student"];
 const AUTHORS: RoleType[] = ["admin", "content_manager", "instructor"];
 const BLOG: RoleType[] = ["admin", "content_manager"];
+const BLOG_READERS: RoleType[] = ["admin", "content_manager", "student"];
 const ADMIN: RoleType[] = ["admin"];
 const STUDENT: RoleType[] = ["student"];
 
@@ -48,13 +49,14 @@ const GROUPS: NavGroup[] = [
       { label: "My courses", href: "/my-courses", icon: "library", roles: STUDENT, nested: true },
       { label: "My results", href: "/results", icon: "award", roles: STUDENT },
       { label: "Browse catalogue", href: "/courses", icon: "compass", roles: ALL },
+      { label: "Blog", href: "/blog", icon: "pen", roles: BLOG_READERS },
     ],
   },
   {
     heading: "Teaching",
     items: [
       { label: "Courses", href: "/manage/courses", icon: "book", roles: AUTHORS, nested: true },
-      { label: "Blog", href: "/manage/blog", icon: "pen", roles: BLOG, nested: true },
+      { label: "Manage blog", href: "/manage/blog", icon: "pen", roles: BLOG, nested: true },
     ],
   },
   {

@@ -14,6 +14,7 @@ import { BookOpen, Clock, Users } from "lucide-react";
 import Link from "next/link";
 
 import { LevelBadge, StatusBadge } from "@/components/ui/Badge";
+import { Avatar } from "@/components/ui/Avatar";
 import { ProgressBar } from "@/components/ui/Progress";
 import { formatDuration } from "@/lib/format";
 import type { Course } from "@/lib/types";
@@ -62,6 +63,13 @@ export function CourseCard({
         <h3 className="text-[15.5px] font-semibold leading-snug tracking-tight text-ink-900 transition-colors group-hover:text-brand-700">
           {course.title}
         </h3>
+
+        <div className="mt-3 flex items-center gap-2 text-[12.5px] text-ink-500">
+          <Avatar name={course.owner?.fullName ?? course.owner?.username ?? "Lumen LMS"} src={course.owner?.avatarUrl} size="xs" />
+          <span className="truncate">
+            By <span className="font-semibold text-ink-700">{course.owner?.fullName ?? course.owner?.username ?? "Lumen LMS"}</span>
+          </span>
+        </div>
 
         {course.summary ? (
           <p className="mt-2 line-clamp-2 text-[13.5px] leading-relaxed text-ink-500">
