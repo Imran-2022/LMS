@@ -31,7 +31,6 @@ export default async function HomePage() {
 
       <main>
         <section className="relative overflow-hidden bg-white">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-100/60 blur-3xl" />
           <div className="mx-auto grid w-full max-w-[1180px] gap-14 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:py-24">
             <div className="relative z-10 max-w-2xl">
               <p className="mb-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.08em] text-brand-600">
