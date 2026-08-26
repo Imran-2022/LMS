@@ -1,4 +1,5 @@
 import type { Quiz, QuizAttempt } from "@/lib/types";
+import { cx } from "@/lib/format";
 
 import { AnswerMark } from "./AnswerMark";
 
@@ -21,13 +22,6 @@ export function QuizResult({
         <div className="mt-6 space-y-4 border-t border-ink-100 pt-6">
           <h3 className="text-lg font-bold text-ink-900">Review your answers</h3>
           {attempt.breakdown.map((question) => {
-            const selected = question.options.find(
-              (option) => option.index === question.selectedOptionIndex,
-            );
-            const correct = question.options.find(
-              (option) => option.index === question.correctOptionIndex,
-            );
-
             return (
               <article key={question.questionIndex} className="rounded border border-ink-200 p-4">
                 <div className="flex items-start gap-3">
@@ -36,22 +30,37 @@ export function QuizResult({
                     {question.questionIndex + 1}. {question.questionText}
                   </h4>
                 </div>
-                <dl className="mt-3 space-y-2 pl-8 text-sm">
-                  <div>
-                    <dt className="font-semibold text-ink-500">Your answer</dt>
-                    <dd className="text-ink-700">{selected?.text ?? "Not answered"}</dd>
+                <div className="mt-4 space-y-2 pl-8">
+                  {question.options.map((option) => {
+                    const isSelected = option.index === question.selectedOptionIndex;
+                    const isCorrect = option.index === question.correctOptionIndex;
+
+                    return (
+                      <div
+                        key={option.index}
+                        className={cx(
+                          "flex items-center justify-between gap-3 rounded border px-3 py-2.5 text-sm",
+                          isCorrect
+                            ? "border-success-200 bg-success-50/70 text-success-700"
+                            : isSelected
+                              ? "border-danger-200 bg-danger-50/70 text-danger-700"
+                              : "border-ink-200 bg-white text-ink-600",
+                        )}
+                      >
+                        <span>{option.text}</span>
+                        <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wide">
+                          {isCorrect ? "Correct" : isSelected ? "Your answer" : ""}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {question.explanation ? (
+                  <div className="mt-4 rounded bg-brand-50 px-3 py-2.5 pl-11 text-sm text-brand-800">
+                    <p className="font-semibold text-brand-700">Why this is correct</p>
+                    <p className="mt-1">{question.explanation}</p>
                   </div>
-                  <div>
-                    <dt className="font-semibold text-success-600">Correct answer</dt>
-                    <dd className="text-ink-700">{correct?.text ?? "Unavailable"}</dd>
-                  </div>
-                  {question.explanation ? (
-                    <div>
-                      <dt className="font-semibold text-brand-700">Why</dt>
-                      <dd className="text-ink-600">{question.explanation}</dd>
-                    </div>
-                  ) : null}
-                </dl>
+                ) : null}
               </article>
             );
           })}
