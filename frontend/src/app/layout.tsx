@@ -25,12 +25,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "CPS Academy LMS — learn, teach, track",
-    // Every page sets its own title and this frames it, so a tab reads
-    // "Advanced React Patterns · CPS Academy LMS" without each page repeating the suffix.
-    template: "%s · CPS Academy LMS",
-  },
+  title: "CPS Academy LMS",
   description:
     "A role-based learning platform: publish courses, track lesson-by-lesson progress, and auto-grade quizzes.",
   applicationName: "CPS Academy LMS",

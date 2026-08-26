@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { signUp } from "@/lib/actions/auth";
 import { ButtonLink } from "@/components/ui/Button";
 import { FormError, Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function SignupForm() {
@@ -32,19 +33,19 @@ export function SignupForm() {
         placeholder="you@example.com"
         required
       />
-      <Input
+      <PasswordInput
         label="Password"
         name="password"
-        type="password"
         autoComplete="new-password"
+        placeholder="Enter your password"
         minLength={8}
         required
       />
-      <Input
+      <PasswordInput
         label="Confirm password"
         name="confirmPassword"
-        type="password"
         autoComplete="new-password"
+        placeholder="Re-enter your password"
         minLength={8}
         required
       />
@@ -53,7 +54,12 @@ export function SignupForm() {
       </SubmitButton>
       <p className="text-center text-sm text-ink-500">
         Already have an account?{" "}
-        <ButtonLink href="/login" variant="ghost" size="sm" className="px-1.5 text-brand-700">
+        <ButtonLink
+          href="/login"
+          variant="ghost"
+          size="sm"
+          className="px-1.5 text-brand-700 underline decoration-brand-300 underline-offset-4 hover:bg-brand-50 hover:text-brand-800"
+        >
           Sign in
         </ButtonLink>
       </p>
