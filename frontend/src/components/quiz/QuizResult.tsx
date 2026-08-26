@@ -12,7 +12,7 @@ export function QuizResult({
   courseId: number | string;
 }) {
   return (
-    <section className="rounded-2xl border border-ink-200 bg-white p-6 shadow-sm">
+    <section className="rounded border border-ink-200 bg-white p-6 shadow-sm">
       <p className="text-sm font-semibold text-brand-600">Quiz complete</p>
       <h2 className="mt-2 text-2xl font-bold text-ink-950">{quiz.title}</h2>
       <p className="mt-3 text-ink-600">

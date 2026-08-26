@@ -28,6 +28,7 @@ import {
 
 import { Brand } from "./Brand";
 import { cx } from "@/lib/format";
+import { Button } from "@/components/ui/Button";
 import { isActive, navFor, type NavIcon } from "@/lib/nav";
 import type { RoleType } from "@/lib/types";
 
@@ -83,14 +84,16 @@ export function Sidebar({
       >
         <div className="flex h-16 shrink-0 items-center justify-between px-5">
           <Brand />
-          <button
+          <Button
             type="button"
             onClick={onClose}
-            className="grid h-9 w-9 place-items-center rounded-lg text-ink-500 hover:bg-ink-100 lg:hidden"
+            variant="ghost"
+            size="sm"
+            className="h-9 w-9 p-0 lg:hidden"
             aria-label="Close navigation"
           >
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         <nav className="scroll-slim flex-1 overflow-y-auto px-3 pb-6">
@@ -109,7 +112,7 @@ export function Sidebar({
                         href={item.href}
                         aria-current={active ? "page" : undefined}
                         className={cx(
-                          "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-all",
+                          "group flex items-center gap-3 rounded px-3 py-2.5 text-[13.5px] font-medium transition-all",
                           active
                             ? "bg-brand-50 text-brand-700 shadow-[inset_2px_0_0_var(--color-brand-500)]"
                             : "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
@@ -134,7 +137,7 @@ export function Sidebar({
 
         {/* A standing reminder of where authorisation actually lives. It is also the
             honest answer to "why can't I see the admin section" for a demo viewer. */}
-        <div className="mx-3 mb-4 rounded-xl bg-ink-50 p-3.5">
+        <div className="mx-3 mb-4 rounded bg-ink-50 p-3.5">
           <p className="text-[11.5px] leading-relaxed text-ink-500">
             This menu is filtered by your role. The API enforces the same rules
             independently — hidden links are not the protection.

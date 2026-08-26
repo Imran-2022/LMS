@@ -155,7 +155,7 @@ export function QuizForm({
         {questions.map((question, index) => (
           <fieldset
             key={question.key}
-            className="rounded-[18px] border border-ink-200/70 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
+            className="rounded border border-ink-200/70 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
           >
             <legend className="sr-only">Question {index + 1}</legend>
 
@@ -207,7 +207,7 @@ export function QuizForm({
                     <div
                       key={option.key}
                       className={cx(
-                        "flex items-center gap-3 rounded-xl border px-3 py-2 transition-colors",
+                        "flex items-center gap-3 rounded border px-3 py-2 transition-colors",
                         isCorrect
                           ? "border-success-500/40 bg-success-50/60"
                           : "border-ink-200 bg-white",
@@ -237,7 +237,7 @@ export function QuizForm({
                         aria-label={`Option ${slot + 1} text`}
                         className="w-full border-0 bg-transparent text-sm text-ink-800 outline-none placeholder:text-ink-400"
                       />
-                      <button
+                      <Button
                         type="button"
                         // Below the minimum there is nothing to delete: a question needs
                         // at least two options to be answerable.
@@ -257,10 +257,12 @@ export function QuizForm({
                           }))
                         }
                         aria-label={`Remove option ${slot + 1}`}
-                        className="shrink-0 rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-danger-50 hover:text-danger-600 disabled:pointer-events-none disabled:opacity-30"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 shrink-0 p-0 text-ink-400 hover:bg-danger-50 hover:text-danger-600"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      </Button>
                     </div>
                   );
                 })}

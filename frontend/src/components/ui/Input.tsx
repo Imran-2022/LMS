@@ -16,7 +16,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cx } from "@/lib/format";
 
 const CONTROL =
-  "w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-ink-800 transition-all " +
+  "w-full rounded border bg-white px-3.5 py-2.5 text-sm text-ink-800 transition-all " +
   "placeholder:text-ink-400 focus:outline-none disabled:bg-ink-50 disabled:text-ink-500";
 
 const OK = "border-ink-200 focus:border-brand-400 focus:ring-4 focus:ring-brand-500/12";
@@ -175,7 +175,7 @@ export function Checkbox({
     <label
       htmlFor={fieldId}
       className={cx(
-        "flex cursor-pointer items-start gap-3 rounded-xl border border-ink-200 bg-white p-3.5 transition-colors hover:border-brand-200 hover:bg-brand-50/40",
+        "flex cursor-pointer items-start gap-3 rounded border border-ink-200 bg-white p-3.5 transition-colors hover:border-brand-200 hover:bg-brand-50/40",
         className,
       )}
     >
@@ -206,7 +206,7 @@ export function FormError({ children }: { children?: ReactNode }) {
   return (
     <div
       role="alert"
-      className="rounded-xl border border-danger-500/25 bg-danger-50 px-4 py-3 text-[13px] font-medium text-danger-600"
+      className="rounded border border-danger-500/25 bg-danger-50 px-4 py-3 text-[13px] font-medium text-danger-600"
     >
       {children}
     </div>
@@ -216,7 +216,7 @@ export function FormError({ children }: { children?: ReactNode }) {
 export function FormSuccess({ children }: { children?: ReactNode }) {
   if (!children) return null;
   return (
-    <div className="rounded-xl border border-success-500/25 bg-success-50 px-4 py-3 text-[13px] font-medium text-success-600">
+    <div className="rounded border border-success-500/25 bg-success-50 px-4 py-3 text-[13px] font-medium text-success-600">
       {children}
     </div>
   );

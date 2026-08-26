@@ -15,6 +15,7 @@ import { Menu } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { UserMenu } from "./UserMenu";
 import { Brand } from "./Brand";
+import { Button } from "@/components/ui/Button";
 import type { RoleType } from "@/lib/types";
 import type { ReactNode } from "react";
 
@@ -39,16 +40,18 @@ export function AppShell({
 
       {/* Offset by the sidebar width on desktop; full width below it. */}
       <div className="lg:pl-[264px]">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-ink-200/70 bg-white/85 px-4 backdrop-blur-md sm:px-6">
+        <header className="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-ink-200/70 bg-white/90 px-4 backdrop-blur-md sm:px-6 lg:left-[264px]">
           <div className="flex items-center gap-3">
-            <button
+            <Button
               type="button"
               onClick={() => setNavOpen(true)}
-              className="grid h-10 w-10 place-items-center rounded-xl border border-ink-200 text-ink-600 transition-colors hover:border-brand-300 hover:text-brand-600 lg:hidden"
+              variant="secondary"
+              size="sm"
+              className="h-10 w-10 p-0 lg:hidden"
               aria-label="Open navigation"
             >
               <Menu size={18} />
-            </button>
+            </Button>
             <span className="lg:hidden">
               <Brand compact />
             </span>
@@ -57,7 +60,7 @@ export function AppShell({
           <UserMenu name={name} email={email} avatarUrl={avatarUrl} role={role} />
         </header>
 
-        <main className="mx-auto w-full max-w-[1180px] px-4 py-8 sm:px-6 sm:py-10">{children}</main>
+        <main className="mx-auto w-full max-w-[1180px] px-4 pb-8 pt-24 sm:px-6 sm:pb-10 sm:pt-24">{children}</main>
       </div>
     </div>
   );

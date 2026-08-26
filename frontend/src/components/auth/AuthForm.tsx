@@ -34,7 +34,7 @@ export function AuthForm({ next }: { next?: string }) {
         Sign in
       </SubmitButton>
       <p className="text-center text-sm text-ink-500">
-        New to Lumen?{" "}
+        New to CPS Academy?{" "}
         <ButtonLink href="/signup" variant="ghost" size="sm" className="px-1.5 text-brand-700">
           Create an account
         </ButtonLink>

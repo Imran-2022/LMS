@@ -45,7 +45,7 @@ export function EnrollButton({
 
   if (role !== "student") {
     return (
-      <div className="rounded-xl border border-ink-200 bg-ink-50/70 px-4 py-3.5">
+      <div className="rounded border border-ink-200 bg-ink-50/70 px-4 py-3.5">
         <p className="flex items-center gap-2 text-[13px] font-semibold text-ink-700">
           <Lock className="h-4 w-4 text-ink-400" />
           Enrolment is for students

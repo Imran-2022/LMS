@@ -1,6 +1,6 @@
-# Lumen LMS
+# CPS Academy LMS
 
-Lumen LMS is a role-based Learning Management System built for the Junior Software Engineer project round.
+CPS Academy LMS is a role-based Learning Management System built for the Junior Software Engineer project round.
 
 Students can enrol in courses, complete lessons, track progress, and take auto-graded quizzes. Instructors and Content Managers can build course content, while Admins manage the platform and user roles.
 

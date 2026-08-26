@@ -23,7 +23,7 @@ export function TableWrap({
   return (
     <div
       className={cx(
-        "scroll-slim overflow-x-auto rounded-[20px] border border-ink-200/70 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.05)]",
+        "scroll-slim overflow-x-auto rounded border border-ink-200/70 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.05)]",
         className,
       )}
     >

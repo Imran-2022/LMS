@@ -140,6 +140,30 @@ a {
   outline-offset: 2px;
 }
 
+/* Keep the viewport scrollbar aligned with the primary action colour. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-500) var(--color-brand-50);
+}
+
+html::-webkit-scrollbar {
+  width: 11px;
+}
+
+html::-webkit-scrollbar-track {
+  background: var(--color-brand-50);
+}
+
+html::-webkit-scrollbar-thumb {
+  background: var(--color-brand-500);
+  border: 3px solid var(--color-brand-50);
+  border-radius: 9999px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-600);
+}
+
 /* A slim violet scrollbar inside the app shell's scrolling pane. */
 .scroll-slim {
   scrollbar-width: thin;

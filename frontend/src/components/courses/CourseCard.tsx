@@ -38,7 +38,7 @@ export function CourseCard({
   return (
     <Link
       href={href ?? `/courses/${course.id}`}
-      className="group flex flex-col overflow-hidden rounded-[20px] border border-ink-200/70 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-[0_22px_55px_rgba(15,23,42,0.09)] focus-visible:-translate-y-0.5"
+      className="group flex flex-col overflow-hidden rounded border border-ink-200/70 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-[0_22px_55px_rgba(15,23,42,0.09)] focus-visible:-translate-y-0.5"
     >
       <div className="relative">
         <CoverImage src={course.coverImageUrl} alt="" />
@@ -65,9 +65,9 @@ export function CourseCard({
         </h3>
 
         <div className="mt-3 flex items-center gap-2 text-[12.5px] text-ink-500">
-          <Avatar name={course.owner?.fullName ?? course.owner?.username ?? "Lumen LMS"} src={course.owner?.avatarUrl} size="xs" />
+          <Avatar name={course.owner?.fullName ?? course.owner?.username ?? "CPS Academy LMS"} src={course.owner?.avatarUrl} size="xs" />
           <span className="truncate">
-            By <span className="font-semibold text-ink-700">{course.owner?.fullName ?? course.owner?.username ?? "Lumen LMS"}</span>
+            By <span className="font-semibold text-ink-700">{course.owner?.fullName ?? course.owner?.username ?? "CPS Academy LMS"}</span>
           </span>
         </div>
 

@@ -33,7 +33,7 @@ export function LessonRail({
 }) {
   if (lessons.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-ink-200 px-4 py-8 text-center text-[13.5px] text-ink-500">
+      <p className="rounded border border-dashed border-ink-200 px-4 py-8 text-center text-[13.5px] text-ink-500">
         No lessons have been added yet.
       </p>
     );
@@ -53,7 +53,7 @@ export function LessonRail({
           <>
             <span
               className={cx(
-                "grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[12.5px] font-bold tabular-nums transition-colors",
+                "grid h-8 w-8 shrink-0 place-items-center rounded text-[12.5px] font-bold tabular-nums transition-colors",
                 complete
                   ? "bg-success-500 text-white"
                   : mode === "locked"
@@ -94,7 +94,7 @@ export function LessonRail({
         );
 
         const shell =
-          "group flex items-center gap-3.5 rounded-xl border px-3.5 py-3 transition-all";
+          "group flex items-center gap-3.5 rounded border px-3.5 py-3 transition-all";
 
         if (mode === "locked") {
           return (
