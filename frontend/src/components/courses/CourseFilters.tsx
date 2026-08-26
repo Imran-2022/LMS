@@ -79,12 +79,12 @@ export function CourseFilters({
     });
   }
 
-  const active = Boolean(currentQuery || currentCategory || currentLevel);
+  const active = Boolean(query || currentCategory || currentLevel);
 
   return (
     <div
       className={cx(
-        "rounded border border-ink-200/70 bg-white p-4 shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition-opacity",
+        "rounded border-ink-200/70 bg-white p-4 transition-opacity",
         pending && "opacity-70",
       )}
     >
@@ -134,22 +134,21 @@ export function CourseFilters({
             ))}
           </select>
 
-          {active ? (
-            <Button
-              type="button"
-              onClick={() => {
-                typed.current = false;
-                setQuery("");
-                router.replace(basePath, { scroll: false });
-              }}
-              variant="ghost"
-              size="md"
-              className="px-3 text-[13px]"
-            >
-              <X className="h-3.5 w-3.5" />
-              Clear
-            </Button>
-          ) : null}
+          <Button
+            type="button"
+            disabled={!active}
+            onClick={() => {
+              typed.current = false;
+              setQuery("");
+              router.replace(basePath, { scroll: false });
+            }}
+            variant="primary"
+            size="md"
+            className="px-3 text-[13px]"
+          >
+            <X className="h-3.5 w-3.5" />
+            Clear
+          </Button>
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { CoverImage } from "@/components/courses/CoverImage";
 import { LessonRail } from "@/components/courses/LessonRail";
 import { Footer } from "@/components/layout/Footer";
 import { PublicNav } from "@/components/layout/PublicNav";
+import { BackButton } from "@/components/ui/BackButton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from "@/components/ui/Avatar";
 import { apiFetch } from "@/lib/api";
@@ -46,7 +47,12 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <div>
             <PageHeader
-              eyebrow={course.category ?? "Course"}
+              eyebrow={
+                <div className="flex items-center justify-between gap-4">
+                  <span>{course.category ?? "Course"}</span>
+                  <BackButton />
+                </div>
+              }
               title={course.title}
               description={course.summary ?? undefined}
             />
