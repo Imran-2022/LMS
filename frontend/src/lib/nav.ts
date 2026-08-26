@@ -48,7 +48,7 @@ const GROUPS: NavGroup[] = [
     items: [
       { label: "My courses", href: "/my-courses", icon: "library", roles: STUDENT, nested: true },
       { label: "My results", href: "/results", icon: "award", roles: STUDENT },
-      { label: "Browse catalogue", href: "/courses", icon: "compass", roles: ALL },
+      { label: "Course catalogue", href: "/courses", icon: "compass", roles: ALL },
       { label: "Blog", href: "/blog", icon: "pen", roles: BLOG_READERS },
     ],
   },
