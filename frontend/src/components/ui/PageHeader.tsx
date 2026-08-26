@@ -31,14 +31,16 @@ export function PageHeader({
             {eyebrow}
           </div>
         ) : null}
-        <h1 className="text-[26px] font-bold leading-tight tracking-tight text-ink-900 sm:text-[30px]">
-          {title}
-        </h1>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <h1 className="text-[26px] font-bold leading-tight tracking-tight text-ink-900 sm:text-[30px]">
+            {title}
+          </h1>
+          {action ? <div className="flex shrink-0 items-center gap-2">{action}</div> : null}
+        </div>
         {description ? (
           <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-500">{description}</p>
         ) : null}
       </div>
-      {action ? <div className="flex shrink-0 items-center gap-2">{action}</div> : null}
     </header>
   );
 }
