@@ -254,6 +254,20 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
       }
     }
 
+    const attempts = isEnrolled
+      ? await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
+          where: { student: (user as AuthUser).id, course: course.id },
+          populate: ['quiz'],
+          orderBy: [{ createdAt: 'desc' }],
+        })
+      : [];
+    const attemptsByQuiz = new Map(
+      attempts.map((attempt: any) => {
+        const quizId = attempt.quiz?.id ?? attempt.quiz?.documentId ?? attempt.quiz;
+        return [String(quizId), attempt] as const;
+      }),
+    );
+
     ctx.body = {
       data: {
         ...courseDetail(course, {
@@ -265,14 +279,21 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
           progress,
         }),
         lessons: lessons.map((lesson: any) => lessonSummary(lesson)),
-        quizzes: quizzes.map((quiz: any) => ({
-          id: quiz.id,
-          documentId: quiz.documentId,
-          title: quiz.title,
-          description: quiz.description ?? null,
-          passingScore: quiz.passingScore ?? 70,
-          questionCount: quiz.questions?.length ?? 0,
-        })),
+        quizzes: quizzes.map((quiz: any, index: number) => {
+          const attempt = attemptsByQuiz.get(String(quiz.id));
+          return {
+            id: quiz.id,
+            documentId: quiz.documentId,
+            title: quiz.title,
+            description: quiz.description ?? null,
+            passingScore: quiz.passingScore ?? 70,
+            questionCount: quiz.questions?.length ?? 0,
+            position: index + 1,
+            completed: Boolean(attempt),
+            score: attempt?.score ?? null,
+            passed: attempt ? Boolean(attempt.passed) : null,
+          };
+        }),
       },
     };
   },
@@ -432,6 +453,10 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
       throw new ForbiddenError('You cannot view the roster for this course.');
     }
 
+    const quizzes = await strapi.db.query(QUIZ_UID).findMany({
+      where: { course: course.id },
+    });
+
     const enrollments = await strapi.db.query(ENROLLMENT_UID).findMany({
       where: { course: course.id },
       populate: ['student'],
@@ -457,10 +482,13 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
           completedAt: enrollment.completedAt ?? null,
           student: authorSummary(enrollment.student),
           progress,
-          // The learner's best score is the useful signal for an instructor
-          // scanning a roster; the full history lives on the attempts endpoint.
-          bestScore: attempts.length ? Math.max(...attempts.map((a: any) => a.score ?? 0)) : null,
-          attemptCount: attempts.length,
+          // There is one attempt per quiz, so the course score is the average of
+          // every submitted quiz score. Unattempted quizzes are not scored as zero.
+          averageQuizScore: attempts.length
+            ? Math.round(attempts.reduce((sum: number, attempt: any) => sum + (attempt.score ?? 0), 0) / attempts.length)
+            : null,
+          completedQuizCount: attempts.length,
+          totalQuizCount: quizzes.length,
         };
       })
     );

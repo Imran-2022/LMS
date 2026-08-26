@@ -707,7 +707,7 @@ export interface ApiLessonLesson extends Struct.CollectionTypeSchema {
 export interface ApiQuizAttemptQuizAttempt extends Struct.CollectionTypeSchema {
   collectionName: 'quiz_attempts';
   info: {
-    description: 'An immutable record of one submission. Score and correctCount are computed on the server; the client can only ever send the chosen answers.';
+    description: "An immutable record of a student's single submission for a quiz. Score and correctCount are computed on the server; the client can only ever send the chosen answers.";
     displayName: 'Quiz Attempt';
     pluralName: 'quiz-attempts';
     singularName: 'quiz-attempt';
@@ -1291,6 +1291,7 @@ export interface PluginUsersPermissionsUser
         minLength: 6;
       }>;
     fullName: Schema.Attribute.String &
+      Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 120;
       }>;
@@ -1300,6 +1301,11 @@ export interface PluginUsersPermissionsUser
       'plugin::users-permissions.user'
     > &
       Schema.Attribute.Private;
+    mobileNumber: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 30;
+      }>;
     password: Schema.Attribute.Password &
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{

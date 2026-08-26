@@ -18,10 +18,11 @@ export async function PublicNav() {
   const user = await getSession();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-200/70 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-[1180px] items-center justify-between gap-4 px-4 sm:px-6">
-        <div className="flex items-center gap-8">
-          <Brand />
+    <>
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-ink-200/70 bg-white/90 backdrop-blur-md">
+      <div className="relative mx-auto flex h-16 w-full max-w-[1180px] items-center justify-between gap-4 px-4 sm:px-6">
+        <Brand />
+        <div className="absolute left-1/2 hidden -translate-x-1/2 sm:block">
           <PublicNavLinks />
         </div>
 
@@ -46,5 +47,7 @@ export async function PublicNav() {
         </div>
       </div>
     </header>
+    <div className="h-16" aria-hidden="true" />
+    </>
   );
 }

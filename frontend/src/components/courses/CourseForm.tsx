@@ -14,8 +14,9 @@
  */
 import { useActionState } from "react";
 
-import { createCourse, updateCourse } from "@/lib/actions/courses";
+import { createCourse, deleteCourse, updateCourse } from "@/lib/actions/courses";
 import { Button } from "@/components/ui/Button";
+import { DangerousSubmit } from "@/components/ui/DangerousSubmit";
 import { Checkbox, FormError, Input, Select, Textarea } from "@/components/ui/Input";
 import { FieldsetLegend } from "@/components/ui/PageHeader";
 import { SubmitButton } from "@/components/ui/SubmitButton";
@@ -34,7 +35,8 @@ export function CourseForm({
   const [state, action] = useActionState(editing ? updateCourse : createCourse, undefined);
 
   return (
-    <form action={action} className="space-y-5">
+    <>
+      <form id="course-form" action={action} className="space-y-5">
       <FormError>{state?.error}</FormError>
 
       {course ? <input type="hidden" name="courseId" value={course.id} /> : null}
@@ -135,17 +137,30 @@ export function CourseForm({
         defaultChecked={course?.status === "published"}
         hint="Drafts are invisible in the public catalogue — the API filters them out for anyone who can't edit the course, not just the UI."
       />
+      </form>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-ink-100 pt-5">
-        <SubmitButton size="lg" pendingLabel={editing ? "Saving…" : "Creating…"}>
+        <SubmitButton form="course-form" size="lg" pendingLabel={editing ? "Saving…" : "Creating…"}>
           {editing ? "Save changes" : "Create course"}
         </SubmitButton>
         {/* A real reset rather than a link back: on the create form there is nowhere
             useful to go back to, and on the edit form the author may just want to undo. */}
-        <Button type="reset" variant="ghost" size="lg">
+        <Button form="course-form" type="reset" variant="ghost" size="lg">
           Reset
         </Button>
+        {editing ? (
+          <form action={deleteCourse} className="inline">
+            <input type="hidden" name="courseId" value={course?.id} />
+            <DangerousSubmit
+              confirm="Delete this course and all of its lessons, quizzes, and student progress?"
+              pendingLabel="Deleting..."
+              size="lg"
+            >
+              Delete course
+            </DangerousSubmit>
+          </form>
+        ) : null}
       </div>
-    </form>
+    </>
   );
 }

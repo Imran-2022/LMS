@@ -5,22 +5,33 @@ import { useActionState } from "react";
 import { signUp } from "@/lib/actions/auth";
 import { ButtonLink } from "@/components/ui/Button";
 import { FormError, Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function SignupForm() {
   const [state, action] = useActionState(signUp, {});
 
   return (
-    <form action={action} className="mt-8 space-y-5">
+    <form action={action} className="mt-6 space-y-4">
       <FormError>{state?.error}</FormError>
       <Input
-        label="Username"
-        name="username"
+        label="Full name"
+        name="fullName"
         type="text"
-        autoComplete="username"
-        defaultValue={state?.values?.username}
-        placeholder="yourname"
-        minLength={3}
+        autoComplete="name"
+        defaultValue={state?.values?.fullName}
+        placeholder="Your full name"
+        maxLength={120}
+        required
+      />
+      <Input
+        label="Mobile number"
+        name="mobileNumber"
+        type="tel"
+        autoComplete="tel"
+        defaultValue={state?.values?.mobileNumber}
+        placeholder="E.g +88017712078**"
+        inputMode="tel"
         required
       />
       <Input
@@ -32,19 +43,19 @@ export function SignupForm() {
         placeholder="you@example.com"
         required
       />
-      <Input
+      <PasswordInput
         label="Password"
         name="password"
-        type="password"
         autoComplete="new-password"
+        placeholder="Enter your password"
         minLength={8}
         required
       />
-      <Input
+      <PasswordInput
         label="Confirm password"
         name="confirmPassword"
-        type="password"
         autoComplete="new-password"
+        placeholder="Re-enter your password"
         minLength={8}
         required
       />
@@ -53,7 +64,12 @@ export function SignupForm() {
       </SubmitButton>
       <p className="text-center text-sm text-ink-500">
         Already have an account?{" "}
-        <ButtonLink href="/login" variant="ghost" size="sm" className="px-1.5 text-brand-700">
+        <ButtonLink
+          href="/login"
+          variant="ghost"
+          size="sm"
+          className="px-1.5 text-brand-700 underline decoration-brand-300 underline-offset-4 hover:bg-brand-50 hover:text-brand-800"
+        >
           Sign in
         </ButtonLink>
       </p>

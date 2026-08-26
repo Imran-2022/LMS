@@ -28,7 +28,7 @@ export function PublicNavLinks() {
             href={link.href}
             aria-current={active ? "page" : undefined}
             className={cx(
-              "rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors",
+              "rounded px-3 py-2 text-[13.5px] font-medium transition-colors",
               active ? "bg-brand-50 text-brand-700" : "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
             )}
           >

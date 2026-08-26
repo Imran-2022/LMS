@@ -16,6 +16,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 
 import { cx } from "@/lib/format";
+import { Button } from "@/components/ui/Button";
 
 const LEVELS = [
   { value: "", label: "All levels" },
@@ -78,12 +79,12 @@ export function CourseFilters({
     });
   }
 
-  const active = Boolean(currentQuery || currentCategory || currentLevel);
+  const active = Boolean(query || currentCategory || currentLevel);
 
   return (
     <div
       className={cx(
-        "rounded-[20px] border border-ink-200/70 bg-white p-4 shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition-opacity",
+        "rounded border-ink-200/70 bg-white p-4 transition-opacity",
         pending && "opacity-70",
       )}
     >
@@ -99,7 +100,7 @@ export function CourseFilters({
             }}
             placeholder="Search courses by title or summary…"
             aria-label="Search courses"
-            className="h-11 w-full rounded-xl border border-ink-200 bg-white pl-10 pr-3 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-500/10"
+            className="h-11 w-full rounded border border-ink-200 bg-white pl-10 pr-3 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-500/10"
           />
         </div>
 
@@ -109,7 +110,7 @@ export function CourseFilters({
               value={currentCategory}
               onChange={(event) => push({ category: event.target.value })}
               aria-label="Filter by category"
-              className="h-11 min-w-[150px] rounded-xl border border-ink-200 bg-white px-3 text-sm text-ink-900 outline-none transition-colors focus:border-brand-400 focus:ring-4 focus:ring-brand-500/10"
+              className="h-11 min-w-[150px] rounded border border-ink-200 bg-white px-3 text-sm text-ink-900 outline-none transition-colors focus:border-brand-400 focus:ring-4 focus:ring-brand-500/10"
             >
               <option value="">All categories</option>
               {categories.map((category) => (
@@ -124,7 +125,7 @@ export function CourseFilters({
             value={currentLevel}
             onChange={(event) => push({ level: event.target.value })}
             aria-label="Filter by level"
-            className="h-11 min-w-[140px] rounded-xl border border-ink-200 bg-white px-3 text-sm text-ink-900 outline-none transition-colors focus:border-brand-400 focus:ring-4 focus:ring-brand-500/10"
+            className="h-11 min-w-[140px] rounded border border-ink-200 bg-white px-3 text-sm text-ink-900 outline-none transition-colors focus:border-brand-400 focus:ring-4 focus:ring-brand-500/10"
           >
             {LEVELS.map((level) => (
               <option key={level.value} value={level.value}>
@@ -133,20 +134,21 @@ export function CourseFilters({
             ))}
           </select>
 
-          {active ? (
-            <button
-              type="button"
-              onClick={() => {
-                typed.current = false;
-                setQuery("");
-                router.replace(basePath, { scroll: false });
-              }}
-              className="inline-flex h-11 items-center gap-1.5 rounded-xl px-3 text-[13px] font-semibold text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-800"
-            >
-              <X className="h-3.5 w-3.5" />
-              Clear
-            </button>
-          ) : null}
+          <Button
+            type="button"
+            disabled={!active}
+            onClick={() => {
+              typed.current = false;
+              setQuery("");
+              router.replace(basePath, { scroll: false });
+            }}
+            variant="primary"
+            size="md"
+            className="px-3 text-[13px]"
+          >
+            <X className="h-3.5 w-3.5" />
+            Clear
+          </Button>
         </div>
       </div>
     </div>

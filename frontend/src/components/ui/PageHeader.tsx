@@ -21,24 +21,26 @@ export function PageHeader({
   return (
     <header
       className={cx(
-        "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
+        "flex flex-col gap-4",
         className,
       )}
     >
       <div className="min-w-0">
         {eyebrow ? (
-          <p className="mb-2 text-[11.5px] font-bold uppercase tracking-[0.1em] text-brand-500">
+          <div className="mb-2 text-[11.5px] font-bold uppercase tracking-[0.1em] text-brand-500">
             {eyebrow}
-          </p>
+          </div>
         ) : null}
-        <h1 className="text-[26px] font-bold leading-tight tracking-tight text-ink-900 sm:text-[30px]">
-          {title}
-        </h1>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <h1 className="text-[26px] font-bold leading-tight tracking-tight text-ink-900 sm:text-[30px]">
+            {title}
+          </h1>
+          {action ? <div className="flex shrink-0 items-center gap-2">{action}</div> : null}
+        </div>
         {description ? (
           <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-500">{description}</p>
         ) : null}
       </div>
-      {action ? <div className="flex shrink-0 items-center gap-2">{action}</div> : null}
     </header>
   );
 }

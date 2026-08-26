@@ -6,6 +6,7 @@ import { CoverImage } from "@/components/courses/CoverImage";
 import { LessonRail } from "@/components/courses/LessonRail";
 import { Footer } from "@/components/layout/Footer";
 import { PublicNav } from "@/components/layout/PublicNav";
+import { BackButton } from "@/components/ui/BackButton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from "@/components/ui/Avatar";
 import { apiFetch } from "@/lib/api";
@@ -46,7 +47,12 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
           <div>
             <PageHeader
-              eyebrow={course.category ?? "Course"}
+              eyebrow={
+                <div className="flex items-center justify-between gap-4">
+                  <span>{course.category ?? "Course"}</span>
+                  <BackButton />
+                </div>
+              }
               title={course.title}
               description={course.summary ?? undefined}
             />
@@ -57,14 +63,14 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
             </div>
             <div className="mt-6 flex items-center gap-3">
               <Avatar
-                name={course.owner?.fullName ?? course.owner?.username ?? "Lumen LMS"}
+                name={course.owner?.fullName ?? course.owner?.username ?? "CPS Academy LMS"}
                 src={course.owner?.avatarUrl}
                 size="md"
               />
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">Instructor</p>
                 <p className="mt-0.5 font-semibold text-ink-800">
-                  {course.owner?.fullName ?? course.owner?.username ?? "Lumen LMS"}
+                  {course.owner?.fullName ?? course.owner?.username ?? "CPS Academy LMS"}
                 </p>
               </div>
             </div>
@@ -85,7 +91,7 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
             </section>
           </div>
 
-          <aside className="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.06)] lg:sticky lg:top-24">
+          <aside className="overflow-hidden rounded border border-ink-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.06)] lg:sticky lg:top-24">
             <CoverImage src={course.coverImageUrl} alt={course.title} />
             <div className="p-5">
               <p className="mb-4 text-sm font-semibold text-ink-700">Ready to learn?</p>

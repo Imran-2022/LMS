@@ -16,11 +16,11 @@ import type { ComponentProps, ReactNode } from "react";
 import { cx } from "@/lib/format";
 
 const CONTROL =
-  "w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-ink-800 transition-all " +
+  "w-full rounded border bg-white px-3.5 py-2.5 text-sm text-ink-800 transition-colors " +
   "placeholder:text-ink-400 focus:outline-none disabled:bg-ink-50 disabled:text-ink-500";
 
-const OK = "border-ink-200 focus:border-brand-400 focus:ring-4 focus:ring-brand-500/12";
-const BAD = "border-danger-500/60 focus:border-danger-500 focus:ring-4 focus:ring-danger-500/12";
+const OK = "border-ink-200 focus:border-brand-500";
+const BAD = "border-danger-500/60 focus:border-danger-500";
 
 function Field({
   label,
@@ -62,6 +62,7 @@ type FieldExtras = {
   hint?: ReactNode;
   error?: string | null;
   wrapperClassName?: string;
+  suffix?: ReactNode;
 };
 
 export function Input({
@@ -72,6 +73,7 @@ export function Input({
   className,
   id,
   name,
+  suffix,
   ...rest
 }: FieldExtras & ComponentProps<"input">) {
   const fieldId = id ?? name;
@@ -84,13 +86,16 @@ export function Input({
       required={rest.required}
       className={wrapperClassName}
     >
-      <input
-        id={fieldId}
-        name={name}
-        className={cx(CONTROL, error ? BAD : OK, className)}
-        aria-invalid={error ? true : undefined}
-        {...rest}
-      />
+      <div className="relative">
+        <input
+          id={fieldId}
+          name={name}
+          className={cx(CONTROL, suffix ? "pr-11" : undefined, error ? BAD : OK, className)}
+          aria-invalid={error ? true : undefined}
+          {...rest}
+        />
+        {suffix ? <div className="absolute inset-y-0 right-0 flex items-center pr-2">{suffix}</div> : null}
+      </div>
     </Field>
   );
 }
@@ -175,7 +180,7 @@ export function Checkbox({
     <label
       htmlFor={fieldId}
       className={cx(
-        "flex cursor-pointer items-start gap-3 rounded-xl border border-ink-200 bg-white p-3.5 transition-colors hover:border-brand-200 hover:bg-brand-50/40",
+        "flex cursor-pointer items-start gap-3 rounded border border-ink-200 bg-white p-3.5 transition-colors hover:bg-brand-50/40",
         className,
       )}
     >
@@ -206,7 +211,7 @@ export function FormError({ children }: { children?: ReactNode }) {
   return (
     <div
       role="alert"
-      className="rounded-xl border border-danger-500/25 bg-danger-50 px-4 py-3 text-[13px] font-medium text-danger-600"
+      className="rounded border border-danger-500/25 bg-danger-50 px-4 py-3 text-[13px] font-medium text-danger-600"
     >
       {children}
     </div>
@@ -216,7 +221,7 @@ export function FormError({ children }: { children?: ReactNode }) {
 export function FormSuccess({ children }: { children?: ReactNode }) {
   if (!children) return null;
   return (
-    <div className="rounded-xl border border-success-500/25 bg-success-50 px-4 py-3 text-[13px] font-medium text-success-600">
+    <div className="rounded border border-success-500/25 bg-success-50 px-4 py-3 text-[13px] font-medium text-success-600">
       {children}
     </div>
   );

@@ -20,24 +20,24 @@ type Size = "sm" | "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-brand-500 text-white shadow-[0_10px_24px_rgba(124,58,237,0.28)] hover:bg-brand-600 hover:shadow-[0_14px_30px_rgba(124,58,237,0.34)]",
+    "bg-brand-500 !text-white  hover:bg-brand-600",
   secondary:
     "bg-white text-ink-700 border border-ink-200 hover:border-brand-300 hover:text-brand-700 hover:bg-brand-50/60",
   ghost: "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
   danger:
-    "bg-danger-500 text-white shadow-[0_10px_24px_rgba(220,38,38,0.22)] hover:bg-danger-600",
+    "bg-danger-500 !text-white  hover:bg-danger-600",
   subtle: "bg-brand-50 text-brand-700 border border-brand-100 hover:bg-brand-100",
 };
 
 const SIZES: Record<Size, string> = {
-  sm: "h-9 px-3.5 text-[13px] gap-1.5 rounded-lg",
-  md: "h-11 px-5 text-sm gap-2 rounded-xl",
-  lg: "h-12 px-6 text-[15px] gap-2 rounded-xl",
+  sm: "h-9 px-3.5 text-[13px] gap-1.5 rounded",
+  md: "h-11 px-5 text-sm gap-2 rounded",
+  lg: "h-12 px-6 text-[15px] gap-2 rounded",
 };
 
 const BASE =
-  "inline-flex items-center justify-center font-semibold transition-all duration-150 " +
-  "active:translate-y-px disabled:pointer-events-none disabled:opacity-55 whitespace-nowrap";
+  "inline-flex cursor-pointer items-center justify-center font-semibold transition-all duration-150 " +
+  "active:translate-y-px disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-55 whitespace-nowrap focus-visible:ring-4 focus-visible:ring-brand-500/15";
 
 type BaseProps = {
   variant?: Variant;

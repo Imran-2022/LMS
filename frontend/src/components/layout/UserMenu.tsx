@@ -18,6 +18,7 @@ import { ChevronDown, LayoutDashboard, LogOut } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import { Avatar } from "@/components/ui/Avatar";
 import { RoleBadge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { cx } from "@/lib/format";
 import { homePathFor } from "@/lib/roles";
 import type { RoleType } from "@/lib/types";
@@ -58,14 +59,21 @@ export function UserMenu({
 
   return (
     <div className="relative" ref={wrapper}>
-      <button
+      <Button
         type="button"
         onClick={() => setOpen((value) => !value)}
+        variant="secondary"
+        size="sm"
         aria-expanded={open}
         aria-haspopup="menu"
-        className="flex items-center gap-2.5 rounded-full border border-ink-200 bg-white py-1 pl-1 pr-2.5 transition-colors hover:border-brand-300 hover:bg-brand-50/50"
+        className="h-auto rounded-full py-1 pl-1 pr-2.5"
       >
-        <Avatar name={name} src={avatarUrl} size="sm" />
+        <Avatar
+          name={name}
+          src={avatarUrl}
+          size="sm"
+          className="!bg-brand-500 !text-white"
+        />
         <span className="hidden text-left sm:block">
           <span className="block max-w-[140px] truncate text-[13px] font-semibold leading-tight text-ink-800">
             {name}
@@ -75,16 +83,21 @@ export function UserMenu({
           size={15}
           className={cx("text-ink-400 transition-transform", open && "rotate-180")}
         />
-      </button>
+      </Button>
 
       {open ? (
         <div
           role="menu"
-          className="animate-rise absolute right-0 top-[calc(100%+8px)] z-50 w-64 overflow-hidden rounded-2xl border border-ink-200/80 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.14)]"
+          className="animate-rise absolute right-0 top-[calc(100%+8px)] z-50 w-64 overflow-hidden rounded border border-ink-200/80 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.14)]"
         >
           <div className="border-b border-ink-100 p-4">
             <div className="flex items-center gap-3">
-              <Avatar name={name} src={avatarUrl} size="md" />
+              <Avatar
+                name={name}
+                src={avatarUrl}
+                size="md"
+                className="!bg-brand-500 !text-white"
+              />
               <div className="min-w-0">
                 <p className="truncate text-[14px] font-semibold text-ink-900">{name}</p>
                 <p className="truncate text-[12px] text-ink-500">{email}</p>
@@ -99,20 +112,22 @@ export function UserMenu({
             <Link
               href={homePathFor(role)}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-ink-700 transition-colors hover:bg-ink-100"
+              className="flex items-center gap-2.5 rounded px-3 py-2.5 text-[13.5px] font-medium text-ink-700 transition-colors hover:bg-ink-100"
             >
               <LayoutDashboard size={16} className="text-ink-400" />
               My dashboard
             </Link>
 
             <form action={signOut}>
-              <button
+              <Button
                 type="submit"
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-[13.5px] font-medium text-danger-600 transition-colors hover:bg-danger-50"
+                variant="ghost"
+                size="md"
+                className="w-full justify-start px-3 py-2.5 text-left text-[13.5px] text-danger-600 hover:bg-danger-50 hover:text-danger-600"
               >
                 <LogOut size={16} />
                 Sign out
-              </button>
+              </Button>
             </form>
           </div>
         </div>

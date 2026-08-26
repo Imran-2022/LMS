@@ -25,15 +25,17 @@ export function LessonRail({
   mode,
   courseId,
   completedIds = [],
+  currentLessonId,
 }: {
   lessons: LessonSummary[];
   mode: "locked" | "learn" | "manage";
   courseId: number | string;
   completedIds?: number[];
+  currentLessonId?: number;
 }) {
   if (lessons.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-ink-200 px-4 py-8 text-center text-[13.5px] text-ink-500">
+      <p className="rounded border border-dashed border-ink-200 px-4 py-8 text-center text-[13.5px] text-ink-500">
         No lessons have been added yet.
       </p>
     );
@@ -47,13 +49,14 @@ export function LessonRail({
     <ol className="space-y-2">
       {lessons.map((lesson, index) => {
         const complete = done.has(lesson.id);
+        const current = lesson.id === currentLessonId;
         const position = lesson.position ?? index + 1;
 
         const inner = (
           <>
             <span
               className={cx(
-                "grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[12.5px] font-bold tabular-nums transition-colors",
+                "grid h-8 w-8 shrink-0 place-items-center rounded text-[12.5px] font-bold tabular-nums transition-colors",
                 complete
                   ? "bg-success-500 text-white"
                   : mode === "locked"
@@ -94,7 +97,7 @@ export function LessonRail({
         );
 
         const shell =
-          "group flex items-center gap-3.5 rounded-xl border px-3.5 py-3 transition-all";
+          "group flex items-center gap-3.5 rounded border px-3.5 py-3 transition-all";
 
         if (mode === "locked") {
           return (
@@ -113,10 +116,14 @@ export function LessonRail({
           <li key={lesson.id}>
             <Link
               href={href}
+              aria-current={current ? "page" : undefined}
               className={cx(
                 shell,
-                "border-ink-200/70 bg-white hover:-translate-y-px hover:border-brand-200 hover:shadow-[0_10px_26px_rgba(15,23,42,0.06)]",
+                current
+                  ? "border-brand-300 bg-brand-50/70 shadow-[inset_3px_0_0_var(--color-brand-500)]"
+                  : "border-ink-200/70 bg-white hover:-translate-y-px hover:border-brand-200 hover:shadow-[0_10px_26px_rgba(15,23,42,0.06)]",
                 complete && "bg-success-50/40",
+                current && complete && "bg-success-50/70",
               )}
             >
               {inner}

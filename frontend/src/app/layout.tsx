@@ -25,15 +25,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "Lumen LMS — learn, teach, track",
-    // Every page sets its own title and this frames it, so a tab reads
-    // "Advanced React Patterns · Lumen LMS" without each page repeating the suffix.
-    template: "%s · Lumen LMS",
-  },
+  title: "CPS Academy LMS",
   description:
     "A role-based learning platform: publish courses, track lesson-by-lesson progress, and auto-grade quizzes.",
-  applicationName: "Lumen LMS",
+  applicationName: "CPS Academy LMS",
   authors: [{ name: "MD Imranul Haque" }],
   // Search engines should index the public catalogue and blog; everything behind a
   // login is unreachable to a crawler anyway.

@@ -13,8 +13,8 @@
  *     as calm rather than boxy, which suits long-form reading screens.
  *   - Shadows are low-opacity and large-blur (`0 24px 60px rgba(15,23,42,.08)`)
  *     rather than tight and dark. Tight shadows look like Bootstrap.
- *   - The page background is a faint violet radial wash over near-white, so a white
- *     card has something to sit on. A pure #fff page makes cards invisible.
+ *   - The page background is a single near-white surface, so every screen has a
+ *     consistent, calm foundation and white content surfaces remain distinct.
  *   - `color-scheme: light` is pinned deliberately. The original scaffold had a
  *     `prefers-color-scheme: dark` block that recoloured the background but not the
  *     components, so half the UI went unreadable on a dark-mode machine. Shipping a
@@ -105,11 +105,7 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--color-ink-800);
-  background:
-    radial-gradient(circle at 12% -8%, rgba(124, 58, 237, 0.1), transparent 42%),
-    radial-gradient(circle at 92% 0%, rgba(249, 115, 22, 0.06), transparent 38%),
-    linear-gradient(180deg, #fbfaff 0%, #f6f8fc 100%);
-  background-attachment: fixed;
+  background: var(--color-ink-50);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
@@ -138,6 +134,37 @@ a {
 :focus-visible {
   outline: 2px solid var(--color-brand-500);
   outline-offset: 2px;
+}
+
+/* Form controls use their single border focus state instead of the global ring. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
+/* Keep the viewport scrollbar aligned with the primary action colour. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-500) var(--color-brand-50);
+}
+
+html::-webkit-scrollbar {
+  width: 11px;
+}
+
+html::-webkit-scrollbar-track {
+  background: var(--color-brand-50);
+}
+
+html::-webkit-scrollbar-thumb {
+  background: var(--color-brand-500);
+  border: 3px solid var(--color-brand-50);
+  border-radius: 9999px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-600);
 }
 
 /* A slim violet scrollbar inside the app shell's scrolling pane. */

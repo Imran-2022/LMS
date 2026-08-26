@@ -9,12 +9,12 @@
 import { cx } from "@/lib/format";
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cx("animate-pulse rounded-lg bg-ink-100", className)} />;
+  return <div className={cx("animate-pulse rounded bg-ink-100", className)} />;
 }
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-[20px] border border-ink-200/70 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)]">
+    <div className="rounded border border-ink-200/70 bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)]">
       <Skeleton className="h-4 w-24" />
       <Skeleton className="mt-4 h-6 w-3/4" />
       <Skeleton className="mt-3 h-3.5 w-full" />
@@ -36,7 +36,7 @@ export function SkeletonGrid({ count = 6 }: { count?: number }) {
 
 export function SkeletonTable({ rows = 6 }: { rows?: number }) {
   return (
-    <div className="overflow-hidden rounded-[20px] border border-ink-200/70 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.05)]">
+    <div className="overflow-hidden rounded border border-ink-200/70 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.05)]">
       <div className="border-b border-ink-200/70 bg-ink-50/60 px-5 py-4">
         <Skeleton className="h-3.5 w-40" />
       </div>

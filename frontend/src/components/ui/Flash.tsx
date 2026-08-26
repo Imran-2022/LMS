@@ -85,7 +85,7 @@ export function Flash({
     <div
       role="status"
       className={cx(
-        "animate-rise rounded-xl border px-4 py-3 text-[13.5px] font-medium",
+        "animate-rise rounded border px-4 py-3 text-[13.5px] font-medium",
         TONES[tone],
         className,
       )}

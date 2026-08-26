@@ -24,7 +24,7 @@ export function Card({
   return (
     <div
       className={cx(
-        "rounded-[20px] border border-ink-200/70 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.05)]",
+        "rounded border border-ink-200/70 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.05)]",
         padded && "p-6",
         interactive &&
           "transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-[0_22px_55px_rgba(15,23,42,0.09)]",
@@ -54,7 +54,7 @@ export function CardHeader({
     <div className={cx("flex items-start justify-between gap-4", className)}>
       <div className="flex items-start gap-3">
         {icon ? (
-          <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
+          <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded bg-brand-50 text-brand-600">
             {icon}
           </span>
         ) : null}
@@ -108,7 +108,7 @@ export function StatCard({
           {hint ? <p className="mt-2 text-[12.5px] text-ink-500">{hint}</p> : null}
         </div>
         {icon ? (
-          <span className={cx("grid h-11 w-11 shrink-0 place-items-center rounded-xl", tones[tone])}>
+          <span className={cx("grid h-11 w-11 shrink-0 place-items-center rounded", tones[tone])}>
             {icon}
           </span>
         ) : null}

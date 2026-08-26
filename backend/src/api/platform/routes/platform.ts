@@ -12,6 +12,12 @@
 export default {
   routes: [
     {
+      method: 'POST',
+      path: '/auth/register',
+      handler: 'platform.register',
+      config: { auth: false },
+    },
+    {
       // The one route in this file that is not admin-only: every signed-in user needs
       // to be able to read their own profile and role.
       method: 'GET',

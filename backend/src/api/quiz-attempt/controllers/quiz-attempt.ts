@@ -10,9 +10,8 @@
  * thing that can produce a score, and it reads `correctOptionIndex` from the
  * database, which the student's copy of the quiz never contained.
  *
- * Attempts are append-only. Each submission is its own row, so a student can retake
- * a quiz and both the history and the best score stay inspectable — which is what
- * "stored and viewable later" in the brief asks for.
+ * Each student may submit a quiz once. The stored attempt is the student's review
+ * record, while the answer key is only released in the immediate graded response.
  */
 import { factories } from '@strapi/strapi';
 import { errors } from '@strapi/utils';
@@ -144,6 +143,13 @@ export default factories.createCoreController(QUIZ_ATTEMPT_UID, ({ strapi }) => 
     const enrollment = await findEnrollment(strapi, user.id, quiz.course.id);
     if (!enrollment) {
       throw new ForbiddenError('Enroll in this course before taking its quizzes.');
+    }
+
+    const existingAttempt = await strapi.db.query(QUIZ_ATTEMPT_UID).findOne({
+      where: { student: user.id, quiz: quiz.id },
+    });
+    if (existingAttempt) {
+      throw new ValidationError('You have already submitted this quiz.');
     }
 
     const questions = Array.isArray(quiz.questions) ? quiz.questions : [];

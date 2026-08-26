@@ -23,8 +23,9 @@ import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { useId, useState } from "react";
 import { useActionState } from "react";
 
-import { createQuiz, updateQuiz } from "@/lib/actions/quiz";
+import { createQuiz, deleteQuiz, updateQuiz } from "@/lib/actions/quiz";
 import { Button } from "@/components/ui/Button";
+import { DangerousSubmit } from "@/components/ui/DangerousSubmit";
 import { FormError, Input, Textarea } from "@/components/ui/Input";
 import { FieldsetLegend } from "@/components/ui/PageHeader";
 import { SubmitButton } from "@/components/ui/SubmitButton";
@@ -113,7 +114,8 @@ export function QuizForm({
   }
 
   return (
-    <form action={action} className="space-y-6">
+    <>
+      <form id="quiz-form" action={action} className="space-y-6">
       <FormError>{state?.error}</FormError>
 
       <input type="hidden" name="courseId" value={courseId} />
@@ -155,7 +157,7 @@ export function QuizForm({
         {questions.map((question, index) => (
           <fieldset
             key={question.key}
-            className="rounded-[18px] border border-ink-200/70 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
+            className="rounded border border-ink-200/70 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
           >
             <legend className="sr-only">Question {index + 1}</legend>
 
@@ -207,7 +209,7 @@ export function QuizForm({
                     <div
                       key={option.key}
                       className={cx(
-                        "flex items-center gap-3 rounded-xl border px-3 py-2 transition-colors",
+                        "flex items-center gap-3 rounded border px-3 py-2 transition-colors",
                         isCorrect
                           ? "border-success-500/40 bg-success-50/60"
                           : "border-ink-200 bg-white",
@@ -237,7 +239,7 @@ export function QuizForm({
                         aria-label={`Option ${slot + 1} text`}
                         className="w-full border-0 bg-transparent text-sm text-ink-800 outline-none placeholder:text-ink-400"
                       />
-                      <button
+                      <Button
                         type="button"
                         // Below the minimum there is nothing to delete: a question needs
                         // at least two options to be answerable.
@@ -257,10 +259,12 @@ export function QuizForm({
                           }))
                         }
                         aria-label={`Remove option ${slot + 1}`}
-                        className="shrink-0 rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-danger-50 hover:text-danger-600 disabled:pointer-events-none disabled:opacity-30"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 shrink-0 p-0 text-ink-400 hover:bg-danger-50 hover:text-danger-600"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      </Button>
                     </div>
                   );
                 })}
@@ -306,16 +310,26 @@ export function QuizForm({
         <Plus className="h-4 w-4" />
         Add question
       </Button>
+      </form>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-ink-100 pt-5">
-        <SubmitButton size="lg" pendingLabel={editing ? "Saving…" : "Creating…"}>
+        <SubmitButton form="quiz-form" size="lg" pendingLabel={editing ? "Saving…" : "Creating…"}>
           {editing ? "Save quiz" : "Create quiz"}
         </SubmitButton>
-        <p className="text-[12.5px] text-ink-500">
-          {questions.length} question{questions.length === 1 ? "" : "s"}. Correct answers are
-          stored server-side and never sent to a student&apos;s browser.
-        </p>
+        {editing ? (
+          <form action={deleteQuiz} className="inline">
+            <input type="hidden" name="courseId" value={courseId} />
+            <input type="hidden" name="quizId" value={quiz?.id} />
+            <DangerousSubmit
+              confirm="Delete this quiz and its attempt history?"
+              pendingLabel="Deleting..."
+              size="lg"
+            >
+              Delete quiz
+            </DangerousSubmit>
+          </form>
+        ) : null}
       </div>
-    </form>
+    </>
   );
 }

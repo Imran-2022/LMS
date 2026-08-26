@@ -52,7 +52,7 @@ export function Footer() {
           {/* Year is a literal, not `new Date().getFullYear()`. That would be computed
               once on the server and again on the client, which is one more chance for
               a hydration warning than a copyright line is worth. */}
-          <p>© 2026 Lumen LMS. Built by MD Imranul Haque.</p>
+          <p>© 2026 CPS Academy LMS. Built by MD Imranul Haque.</p>
           <p>Next.js on Vercel · Strapi on Railway · PostgreSQL</p>
         </div>
       </div>

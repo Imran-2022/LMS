@@ -26,12 +26,12 @@ export function EmptyState({
   return (
     <div
       className={cx(
-        "flex flex-col items-center justify-center rounded-[20px] border border-dashed border-ink-200 bg-white/60 px-6 py-14 text-center",
+        "flex flex-col items-center justify-center rounded border border-dashed border-ink-200 bg-white/60 px-6 py-14 text-center",
         className,
       )}
     >
       {icon ? (
-        <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-brand-500">
+        <span className="mb-4 grid h-14 w-14 place-items-center rounded bg-brand-50 text-brand-500">
           {icon}
         </span>
       ) : null}
