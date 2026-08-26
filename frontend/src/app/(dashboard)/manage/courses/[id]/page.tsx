@@ -7,7 +7,11 @@ import { ButtonLink } from "@/components/ui/Button";
 import { fetchItem } from "@/lib/api";
 import type { Course, LessonSummary } from "@/lib/types";
 
-type ManagedCourse = Course & { canEdit?: boolean; lessons: LessonSummary[]; quizzes: { id: number; title: string }[] };
+type ManagedCourse = Course & {
+  canEdit?: boolean;
+  lessons: LessonSummary[];
+  quizzes: { id: number; title: string; questionCount: number }[];
+};
 
 export default async function ManageCoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,7 +30,12 @@ export default async function ManageCoursePage({ params }: { params: Promise<{ i
           <h1 className="min-w-0 text-[26px] font-bold leading-tight tracking-tight text-ink-900 sm:text-[30px]">
             {course.title}
           </h1>
-          <BackButton />
+          <div className="flex items-center gap-2">
+            <ButtonLink href={`/manage/courses/${id}/roster`} variant="secondary" size="sm">
+              View progress
+            </ButtonLink>
+            <BackButton />
+          </div>
         </div>
         <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-500">
           Manage course details, lessons, and quizzes.
@@ -39,7 +48,7 @@ export default async function ManageCoursePage({ params }: { params: Promise<{ i
         </div>
         <div className="space-y-6">
           <section className="rounded border border-ink-200 bg-white p-5">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex items-center justify-between gap-3">
               <h2 className="font-bold text-ink-900">Lessons</h2>
               <ButtonLink href={`/manage/courses/${id}/lessons/new`} size="sm">
                 Add lesson
@@ -61,7 +70,6 @@ export default async function ManageCoursePage({ params }: { params: Promise<{ i
                 documentId: "",
                 description: null,
                 passingScore: 70,
-                questionCount: 0,
                 position: index + 1,
                 completed: false,
                 score: null,

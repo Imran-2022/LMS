@@ -187,8 +187,9 @@ export type RosterRow = {
   completedAt: string | null;
   student: UserSummary;
   progress: CourseProgress;
-  bestScore: number | null;
-  attemptCount: number;
+  averageQuizScore: number | null;
+  completedQuizCount: number;
+  totalQuizCount: number;
 };
 
 export type BlogPost = {

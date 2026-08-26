@@ -453,6 +453,10 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
       throw new ForbiddenError('You cannot view the roster for this course.');
     }
 
+    const quizzes = await strapi.db.query(QUIZ_UID).findMany({
+      where: { course: course.id },
+    });
+
     const enrollments = await strapi.db.query(ENROLLMENT_UID).findMany({
       where: { course: course.id },
       populate: ['student'],
@@ -478,10 +482,13 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
           completedAt: enrollment.completedAt ?? null,
           student: authorSummary(enrollment.student),
           progress,
-          // The learner's best score is the useful signal for an instructor
-          // scanning a roster; the full history lives on the attempts endpoint.
-          bestScore: attempts.length ? Math.max(...attempts.map((a: any) => a.score ?? 0)) : null,
-          attemptCount: attempts.length,
+          // There is one attempt per quiz, so the course score is the average of
+          // every submitted quiz score. Unattempted quizzes are not scored as zero.
+          averageQuizScore: attempts.length
+            ? Math.round(attempts.reduce((sum: number, attempt: any) => sum + (attempt.score ?? 0), 0) / attempts.length)
+            : null,
+          completedQuizCount: attempts.length,
+          totalQuizCount: quizzes.length,
         };
       })
     );
