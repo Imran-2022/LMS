@@ -25,11 +25,13 @@ export function LessonRail({
   mode,
   courseId,
   completedIds = [],
+  currentLessonId,
 }: {
   lessons: LessonSummary[];
   mode: "locked" | "learn" | "manage";
   courseId: number | string;
   completedIds?: number[];
+  currentLessonId?: number;
 }) {
   if (lessons.length === 0) {
     return (
@@ -47,6 +49,7 @@ export function LessonRail({
     <ol className="space-y-2">
       {lessons.map((lesson, index) => {
         const complete = done.has(lesson.id);
+        const current = lesson.id === currentLessonId;
         const position = lesson.position ?? index + 1;
 
         const inner = (
@@ -113,10 +116,14 @@ export function LessonRail({
           <li key={lesson.id}>
             <Link
               href={href}
+              aria-current={current ? "page" : undefined}
               className={cx(
                 shell,
-                "border-ink-200/70 bg-white hover:-translate-y-px hover:border-brand-200 hover:shadow-[0_10px_26px_rgba(15,23,42,0.06)]",
+                current
+                  ? "border-brand-300 bg-brand-50/70 shadow-[inset_3px_0_0_var(--color-brand-500)]"
+                  : "border-ink-200/70 bg-white hover:-translate-y-px hover:border-brand-200 hover:shadow-[0_10px_26px_rgba(15,23,42,0.06)]",
                 complete && "bg-success-50/40",
+                current && complete && "bg-success-50/70",
               )}
             >
               {inner}

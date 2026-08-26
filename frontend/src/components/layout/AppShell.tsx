@@ -14,7 +14,6 @@ import { Brand } from "./Brand";
 import { Button } from "@/components/ui/Button";
 import { cx } from "@/lib/format";
 import { setSidebarPreference } from "@/lib/actions/sidebar";
-import { SIDEBAR_COOKIE } from "@/lib/sidebar-preference";
 import type { RoleType } from "@/lib/types";
 import type { ReactNode } from "react";
 

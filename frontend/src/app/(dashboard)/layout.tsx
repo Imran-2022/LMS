@@ -1,7 +1,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { requireUser } from "@/lib/session";
 import { roleOf } from "@/lib/roles";
-import { SIDEBAR_COOKIE } from "@/lib/sidebar-preference";
+import { SIDEBAR_COOKIE } from "@/lib/sidebar";
 import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
