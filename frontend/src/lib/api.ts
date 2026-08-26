@@ -29,7 +29,10 @@ import type { ApiItem, ApiList, SessionUser } from "./types";
  *
  * On Vercel this is set to the Railway URL; locally it defaults to the dev server.
  */
-const API_URL = (process.env.STRAPI_URL ?? "http://localhost:1337").replace(/\/$/, "");
+const API_URL = (process.env.STRAPI_URL ?? "http://localhost:1337").replace(
+  /\/$/,
+  "",
+);
 
 export const SESSION_COOKIE = "lms_token";
 
@@ -74,7 +77,9 @@ export async function apiFetch<T>(
 ): Promise<ApiResult<T>> {
   const { method = "GET", body, anonymous = false, revalidate } = options;
 
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
 
   if (!anonymous) {
     const token = await getToken();
@@ -117,7 +122,11 @@ export async function apiFetch<T>(
   }
 
   if (!response.ok) {
-    return { ok: false, status: response.status, error: extractMessage(payload, response.status) };
+    return {
+      ok: false,
+      status: response.status,
+      error: extractMessage(payload, response.status),
+    };
   }
 
   return { ok: true, status: response.status, data: payload as T };
@@ -127,20 +136,29 @@ export async function apiFetch<T>(
  * For calls a page cannot render without. Throws, so the nearest error boundary
  * takes over instead of the page rendering something half-empty and confusing.
  */
-export async function mustFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
+export async function mustFetch<T>(
+  path: string,
+  options: FetchOptions = {},
+): Promise<T> {
   const result = await apiFetch<T>(path, options);
   if (!result.ok) throw new Error(result.error);
   return result.data;
 }
 
 /** `{ data: [...] }` unwrapped, with `[]` instead of an error. */
-export async function fetchList<T>(path: string, options: FetchOptions = {}): Promise<T[]> {
+export async function fetchList<T>(
+  path: string,
+  options: FetchOptions = {},
+): Promise<T[]> {
   const result = await apiFetch<ApiList<T>>(path, options);
   return result.ok ? (result.data?.data ?? []) : [];
 }
 
 /** `{ data: {...} }` unwrapped, with `null` instead of an error. */
-export async function fetchItem<T>(path: string, options: FetchOptions = {}): Promise<T | null> {
+export async function fetchItem<T>(
+  path: string,
+  options: FetchOptions = {},
+): Promise<T | null> {
   const result = await apiFetch<ApiItem<T>>(path, options);
   return result.ok ? (result.data?.data ?? null) : null;
 }

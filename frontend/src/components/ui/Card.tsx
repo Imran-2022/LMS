@@ -59,8 +59,12 @@ export function CardHeader({
           </span>
         ) : null}
         <div>
-          <h2 className="text-[15px] font-semibold tracking-tight text-ink-900">{title}</h2>
-          {subtitle ? <p className="mt-1 text-[13px] text-ink-500">{subtitle}</p> : null}
+          <h2 className="text-[15px] font-semibold tracking-tight text-ink-900">
+            {title}
+          </h2>
+          {subtitle ? (
+            <p className="mt-1 text-[13px] text-ink-500">{subtitle}</p>
+          ) : null}
         </div>
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
@@ -105,10 +109,17 @@ export function StatCard({
           <p className="mt-2 text-[28px] font-bold leading-none tracking-tight text-ink-900 tabular-nums">
             {value}
           </p>
-          {hint ? <p className="mt-2 text-[12.5px] text-ink-500">{hint}</p> : null}
+          {hint ? (
+            <p className="mt-2 text-[12.5px] text-ink-500">{hint}</p>
+          ) : null}
         </div>
         {icon ? (
-          <span className={cx("grid h-11 w-11 shrink-0 place-items-center rounded", tones[tone])}>
+          <span
+            className={cx(
+              "grid h-11 w-11 shrink-0 place-items-center rounded",
+              tones[tone],
+            )}
+          >
             {icon}
           </span>
         ) : null}

@@ -52,7 +52,11 @@ export function Avatar({
       <img
         src={src}
         alt={label}
-        className={cx("shrink-0 rounded-full object-cover", SIZES[size], className)}
+        className={cx(
+          "shrink-0 rounded-full object-cover",
+          SIZES[size],
+          className,
+        )}
       />
     );
   }

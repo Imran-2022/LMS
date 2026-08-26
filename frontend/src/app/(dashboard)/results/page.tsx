@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, CalendarDays, CheckCircle2, ClipboardCheck, XCircle } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  ClipboardCheck,
+  XCircle,
+} from "lucide-react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonLink } from "@/components/ui/Button";
@@ -40,7 +46,9 @@ export default async function ResultsPage() {
                   {attempt.quiz?.title ?? "Quiz"}
                 </h2>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-500">
-                  <span>{attempt.correctCount} of {attempt.totalQuestions} correct</span>
+                  <span>
+                    {attempt.correctCount} of {attempt.totalQuestions} correct
+                  </span>
                   <span className="inline-flex items-center gap-1.5">
                     <CalendarDays className="h-3.5 w-3.5" />
                     {formatDate(attempt.submittedAt)}
@@ -49,7 +57,9 @@ export default async function ResultsPage() {
               </div>
               <div className="flex shrink-0 items-center gap-4">
                 <div className="text-right">
-                  <strong className="block text-xl text-brand-700">{attempt.score}%</strong>
+                  <strong className="block text-xl text-brand-700">
+                    {attempt.score}%
+                  </strong>
                   <span
                     className={cx(
                       "inline-flex items-center gap-1 text-xs font-semibold",

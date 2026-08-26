@@ -18,7 +18,12 @@ export function BackButton({ href }: { href?: string }) {
   }
 
   return (
-    <Button type="button" variant="primary" size="sm" onClick={() => router.back()}>
+    <Button
+      type="button"
+      variant="primary"
+      size="sm"
+      onClick={() => router.back()}
+    >
       <ArrowLeft size={16} aria-hidden="true" />
       Back
     </Button>

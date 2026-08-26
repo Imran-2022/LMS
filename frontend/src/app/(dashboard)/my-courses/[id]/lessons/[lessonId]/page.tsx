@@ -10,7 +10,11 @@ import type { LessonDetail, LessonSummary } from "@/lib/types";
 
 type CompletedLesson = { lessonId: number };
 
-export default async function LessonPage({ params }: { params: Promise<{ id: string; lessonId: string }> }) {
+export default async function LessonPage({
+  params,
+}: {
+  params: Promise<{ id: string; lessonId: string }>;
+}) {
   const { id, lessonId } = await params;
   const lesson = await fetchItem<LessonDetail>(`/api/lessons/${lessonId}`);
   if (!lesson) return <p className="text-ink-600">Lesson not found.</p>;
@@ -18,7 +22,9 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
     fetchList<CompletedLesson>(`/api/lesson-progress/mine?courseId=${id}`),
     fetchList<LessonSummary>(`/api/lessons?courseId=${id}`),
   ]);
-  const completed = completedLessons.some((item) => item.lessonId === lesson.id);
+  const completed = completedLessons.some(
+    (item) => item.lessonId === lesson.id,
+  );
 
   return (
     <>
@@ -52,10 +58,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
               name="next"
               value={`/my-courses/${id}/lessons/${lessonId}`}
             />
-            <SubmitButton
-              variant="primary"
-              pendingLabel="Saving..."
-            >
+            <SubmitButton variant="primary" pendingLabel="Saving...">
               {completed ? "Mark as incomplete" : "Mark complete"}
             </SubmitButton>
           </form>

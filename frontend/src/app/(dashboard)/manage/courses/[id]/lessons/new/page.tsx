@@ -1,7 +1,11 @@
 import { LessonForm } from "@/components/courses/LessonForm";
 import { BackButton } from "@/components/ui/BackButton";
 
-export default async function NewLessonPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function NewLessonPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   return (
     <>

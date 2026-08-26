@@ -4,12 +4,22 @@ import { ButtonLink } from "@/components/ui/Button";
 import { fetchItem } from "@/lib/api";
 import type { Course, CourseQuizSummary, LessonSummary } from "@/lib/types";
 
-type LearningCourse = Course & { lessons: LessonSummary[]; quizzes: CourseQuizSummary[] };
+type LearningCourse = Course & {
+  lessons: LessonSummary[];
+  quizzes: CourseQuizSummary[];
+};
 
-export default async function LearningCoursePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function LearningCoursePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const course = await fetchItem<LearningCourse>(`/api/courses/${id}`);
-  if (!course) return <p className="text-ink-600">Course not found or you are not enrolled.</p>;
+  if (!course)
+    return (
+      <p className="text-ink-600">Course not found or you are not enrolled.</p>
+    );
 
   return (
     <>

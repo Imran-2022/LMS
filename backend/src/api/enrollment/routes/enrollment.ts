@@ -14,35 +14,35 @@ export default {
   routes: [
     {
       // Must stay above any `/enrollments/:id` route.
-      method: 'GET',
-      path: '/enrollments/mine',
-      handler: 'enrollment.mine',
+      method: "GET",
+      path: "/enrollments/mine",
+      handler: "enrollment.mine",
       config: {
-        policies: ['global::is-authenticated'],
+        policies: ["global::is-authenticated"],
       },
     },
     {
-      method: 'GET',
-      path: '/enrollments',
-      handler: 'enrollment.find',
+      method: "GET",
+      path: "/enrollments",
+      handler: "enrollment.find",
       config: {
-        policies: ['global::is-authenticated'],
+        policies: ["global::is-authenticated"],
       },
     },
     {
-      method: 'POST',
-      path: '/enrollments',
-      handler: 'enrollment.create',
+      method: "POST",
+      path: "/enrollments",
+      handler: "enrollment.create",
       config: {
-        policies: ['global::is-student'],
+        policies: ["global::is-student"],
       },
     },
     {
-      method: 'DELETE',
-      path: '/enrollments/:id',
-      handler: 'enrollment.delete',
+      method: "DELETE",
+      path: "/enrollments/:id",
+      handler: "enrollment.delete",
       config: {
-        policies: ['global::is-authenticated'],
+        policies: ["global::is-authenticated"],
       },
     },
   ],

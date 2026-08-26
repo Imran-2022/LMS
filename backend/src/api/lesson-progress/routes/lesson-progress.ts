@@ -9,27 +9,27 @@
 export default {
   routes: [
     {
-      method: 'GET',
-      path: '/lesson-progress/mine',
-      handler: 'lesson-progress.mine',
+      method: "GET",
+      path: "/lesson-progress/mine",
+      handler: "lesson-progress.mine",
       config: {
-        policies: ['global::is-authenticated'],
+        policies: ["global::is-authenticated"],
       },
     },
     {
-      method: 'POST',
-      path: '/lesson-progress/:lessonId/complete',
-      handler: 'lesson-progress.complete',
+      method: "POST",
+      path: "/lesson-progress/:lessonId/complete",
+      handler: "lesson-progress.complete",
       config: {
-        policies: ['global::is-student'],
+        policies: ["global::is-student"],
       },
     },
     {
-      method: 'DELETE',
-      path: '/lesson-progress/:lessonId/complete',
-      handler: 'lesson-progress.uncomplete',
+      method: "DELETE",
+      path: "/lesson-progress/:lessonId/complete",
+      handler: "lesson-progress.uncomplete",
       config: {
-        policies: ['global::is-student'],
+        policies: ["global::is-student"],
       },
     },
   ],

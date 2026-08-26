@@ -12,8 +12,8 @@
  *   - Enrolling twice is idempotent, not an error. A double-click on "Enroll"
  *     should not create two rows and halve every future progress percentage.
  */
-import { factories } from '@strapi/strapi';
-import { errors } from '@strapi/utils';
+import { factories } from "@strapi/strapi";
+import { errors } from "@strapi/utils";
 
 import {
   ENROLLMENT_UID,
@@ -22,10 +22,10 @@ import {
   findCourse,
   findEnrollment,
   requireUser,
-} from '../../../utils/authorization';
-import { computeCourseProgress } from '../../../utils/progress';
-import { enrollmentSummary } from '../../../utils/serialize';
-import { isPrivileged } from '../../../utils/roles';
+} from "../../../utils/authorization";
+import { computeCourseProgress } from "../../../utils/progress";
+import { enrollmentSummary } from "../../../utils/serialize";
+import { isPrivileged } from "../../../utils/roles";
 
 const { ForbiddenError, NotFoundError, ValidationError } = errors;
 
@@ -46,8 +46,8 @@ export default factories.createCoreController(ENROLLMENT_UID, ({ strapi }) => ({
 
     const enrollments = await strapi.db.query(ENROLLMENT_UID).findMany({
       where: { student: user.id },
-      populate: { course: { populate: ['owner'] } },
-      orderBy: [{ createdAt: 'desc' }],
+      populate: { course: { populate: ["owner"] } },
+      orderBy: [{ createdAt: "desc" }],
     });
 
     const rows = await Promise.all(
@@ -56,17 +56,24 @@ export default factories.createCoreController(ENROLLMENT_UID, ({ strapi }) => ({
         // rendering a broken card.
         .filter((enrollment: any) => Boolean(enrollment.course))
         .map(async (enrollment: any) => {
-          const progress = await computeCourseProgress(strapi, user.id, enrollment.course.id);
+          const progress = await computeCourseProgress(
+            strapi,
+            user.id,
+            enrollment.course.id,
+          );
           return enrollmentSummary(enrollment, { progress });
-        })
+        }),
     );
 
     ctx.body = {
       data: rows,
       meta: {
         total: rows.length,
-        completed: rows.filter((row: any) => row.progress.percent === 100).length,
-        inProgress: rows.filter((row: any) => row.progress.percent > 0 && row.progress.percent < 100).length,
+        completed: rows.filter((row: any) => row.progress.percent === 100)
+          .length,
+        inProgress: rows.filter(
+          (row: any) => row.progress.percent > 0 && row.progress.percent < 100,
+        ).length,
       },
     };
   },
@@ -81,7 +88,9 @@ export default factories.createCoreController(ENROLLMENT_UID, ({ strapi }) => ({
     const user = requireUser(ctx.state.user);
 
     if (!isPrivileged(user)) {
-      throw new ForbiddenError('Only administrators and content managers can list all enrollments.');
+      throw new ForbiddenError(
+        "Only administrators and content managers can list all enrollments.",
+      );
     }
 
     const courseKey = ctx.query.courseId as string | undefined;
@@ -89,14 +98,14 @@ export default factories.createCoreController(ENROLLMENT_UID, ({ strapi }) => ({
 
     if (courseKey) {
       const course = await findCourse(strapi, courseKey);
-      if (!course) throw new NotFoundError('Course not found.');
+      if (!course) throw new NotFoundError("Course not found.");
       where.course = course.id;
     }
 
     const enrollments = await strapi.db.query(ENROLLMENT_UID).findMany({
       where,
-      populate: { course: { populate: ['owner'] }, student: true },
-      orderBy: [{ createdAt: 'desc' }],
+      populate: { course: { populate: ["owner"] }, student: true },
+      orderBy: [{ createdAt: "desc" }],
       limit: 200,
     });
 
@@ -122,13 +131,14 @@ export default factories.createCoreController(ENROLLMENT_UID, ({ strapi }) => ({
     const courseRef = payload.course ?? payload.courseId;
     const courseKey = courseRef?.id ?? courseRef?.documentId ?? courseRef;
 
-    if (!courseKey) throw new ValidationError('A `course` reference is required.');
+    if (!courseKey)
+      throw new ValidationError("A `course` reference is required.");
 
     const course = await findCourse(strapi, courseKey);
-    if (!course) throw new NotFoundError('Course not found.');
+    if (!course) throw new NotFoundError("Course not found.");
 
-    if (course.status !== 'published') {
-      throw new ForbiddenError('This course is not open for enrollment yet.');
+    if (course.status !== "published") {
+      throw new ForbiddenError("This course is not open for enrollment yet.");
     }
 
     const existing = await findEnrollment(strapi, user.id, course.id);
@@ -136,7 +146,12 @@ export default factories.createCoreController(ENROLLMENT_UID, ({ strapi }) => ({
       // Idempotent: hand back the row they already have instead of 409-ing, so a
       // double submit is harmless.
       const progress = await computeCourseProgress(strapi, user.id, course.id);
-      ctx.body = { data: enrollmentSummary({ ...existing, course, student: user }, { progress, alreadyEnrolled: true }) };
+      ctx.body = {
+        data: enrollmentSummary(
+          { ...existing, course, student: user },
+          { progress, alreadyEnrolled: true },
+        ),
+      };
       return;
     }
 
@@ -146,13 +161,18 @@ export default factories.createCoreController(ENROLLMENT_UID, ({ strapi }) => ({
         course: course.id,
         enrolledAt: new Date(),
       },
-      populate: { course: { populate: ['owner'] }, student: true },
+      populate: { course: { populate: ["owner"] }, student: true },
     });
 
     ctx.status = 201;
     ctx.body = {
       data: enrollmentSummary(created, {
-        progress: { completed: 0, total: 0, percent: 0, completedLessonIds: [] },
+        progress: {
+          completed: 0,
+          total: 0,
+          percent: 0,
+          completedLessonIds: [],
+        },
       }),
     };
   },
@@ -167,18 +187,20 @@ export default factories.createCoreController(ENROLLMENT_UID, ({ strapi }) => ({
   async delete(ctx) {
     const user = requireUser(ctx.state.user);
     const key = String(ctx.params.id);
-    const where = /^\d+$/.test(key) ? { $or: [{ id: Number(key) }, { documentId: key }] } : { documentId: key };
+    const where = /^\d+$/.test(key)
+      ? { $or: [{ id: Number(key) }, { documentId: key }] }
+      : { documentId: key };
 
     const enrollment = await strapi.db.query(ENROLLMENT_UID).findOne({
       where,
-      populate: ['student', 'course'],
+      populate: ["student", "course"],
     });
 
-    if (!enrollment) throw new NotFoundError('Enrollment not found.');
+    if (!enrollment) throw new NotFoundError("Enrollment not found.");
 
     const ownsIt = Number(enrollment.student?.id) === Number(user.id);
     if (!ownsIt && !isPrivileged(user)) {
-      throw new ForbiddenError('You can only cancel your own enrollment.');
+      throw new ForbiddenError("You can only cancel your own enrollment.");
     }
 
     if (enrollment.student && enrollment.course) {
@@ -190,7 +212,9 @@ export default factories.createCoreController(ENROLLMENT_UID, ({ strapi }) => ({
       });
     }
 
-    await strapi.documents(ENROLLMENT_UID).delete({ documentId: enrollment.documentId });
+    await strapi
+      .documents(ENROLLMENT_UID)
+      .delete({ documentId: enrollment.documentId });
 
     ctx.body = { data: { id: enrollment.id, deleted: true } };
   },

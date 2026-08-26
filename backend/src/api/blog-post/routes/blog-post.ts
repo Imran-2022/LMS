@@ -11,45 +11,45 @@
 export default {
   routes: [
     {
-      method: 'GET',
-      path: '/blog-posts',
-      handler: 'blog-post.find',
+      method: "GET",
+      path: "/blog-posts",
+      handler: "blog-post.find",
     },
     {
-      method: 'GET',
-      path: '/blog-posts/:id',
-      handler: 'blog-post.findOne',
+      method: "GET",
+      path: "/blog-posts/:id",
+      handler: "blog-post.findOne",
     },
     {
-      method: 'POST',
-      path: '/blog-posts',
-      handler: 'blog-post.create',
+      method: "POST",
+      path: "/blog-posts",
+      handler: "blog-post.create",
       config: {
-        policies: ['global::can-manage-blog'],
+        policies: ["global::can-manage-blog"],
       },
     },
     {
-      method: 'POST',
-      path: '/blog-posts/:id/publish',
-      handler: 'blog-post.setStatus',
+      method: "POST",
+      path: "/blog-posts/:id/publish",
+      handler: "blog-post.setStatus",
       config: {
-        policies: ['global::can-manage-blog'],
+        policies: ["global::can-manage-blog"],
       },
     },
     {
-      method: 'PUT',
-      path: '/blog-posts/:id',
-      handler: 'blog-post.update',
+      method: "PUT",
+      path: "/blog-posts/:id",
+      handler: "blog-post.update",
       config: {
-        policies: ['global::can-manage-blog'],
+        policies: ["global::can-manage-blog"],
       },
     },
     {
-      method: 'DELETE',
-      path: '/blog-posts/:id',
-      handler: 'blog-post.delete',
+      method: "DELETE",
+      path: "/blog-posts/:id",
+      handler: "blog-post.delete",
       config: {
-        policies: ['global::can-manage-blog'],
+        policies: ["global::can-manage-blog"],
       },
     },
   ],

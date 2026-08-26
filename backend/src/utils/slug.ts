@@ -14,16 +14,18 @@ const DIACRITICS = /[̀-ͯ]/g;
 
 /** `"Why we chose Strapi!"` -> `"why-we-chose-strapi"`. */
 export function slugify(input: string): string {
-  return String(input)
-    // NFKD splits "é" into "e" + combining acute, which the next line then strips —
-    // so "Café" and "Cafe" produce the same readable slug.
-    .normalize('NFKD')
-    .replace(DIACRITICS, '')
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80);
+  return (
+    String(input)
+      // NFKD splits "é" into "e" + combining acute, which the next line then strips —
+      // so "Café" and "Cafe" produce the same readable slug.
+      .normalize("NFKD")
+      .replace(DIACRITICS, "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80)
+  );
 }
 
 /**
@@ -37,16 +39,18 @@ export async function uniqueSlug(
   strapi: any,
   uid: string,
   desired: string,
-  excludeId?: number
+  excludeId?: number,
 ): Promise<string> {
-  const base = slugify(desired) || 'post';
+  const base = slugify(desired) || "post";
   let candidate = base;
   let suffix = 2;
 
   // Bounded loop: 50 collisions on one title means something is wrong upstream, and
   // an unbounded `while (true)` in a request handler is how you hang a server.
   for (let attempt = 0; attempt < 50; attempt += 1) {
-    const existing = await strapi.db.query(uid).findOne({ where: { slug: candidate } });
+    const existing = await strapi.db
+      .query(uid)
+      .findOne({ where: { slug: candidate } });
 
     if (!existing || (excludeId && Number(existing.id) === Number(excludeId))) {
       return candidate;

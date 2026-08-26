@@ -103,217 +103,240 @@ export function QuizForm({
   quiz?: QuizWithAnswers;
 }) {
   const editing = Boolean(quiz);
-  const [state, action] = useActionState(editing ? updateQuiz : createQuiz, undefined);
+  const [state, action] = useActionState(
+    editing ? updateQuiz : createQuiz,
+    undefined,
+  );
   const [questions, setQuestions] = useState<Draft[]>(() => toDrafts(quiz));
   const formId = useId();
 
   function update(key: string, change: (draft: Draft) => Draft) {
     setQuestions((current) =>
-      current.map((question) => (question.key === key ? change(question) : question)),
+      current.map((question) =>
+        question.key === key ? change(question) : question,
+      ),
     );
   }
 
   return (
     <>
       <form id="quiz-form" action={action} className="space-y-6">
-      <FormError>{state?.error}</FormError>
+        <FormError>{state?.error}</FormError>
 
-      <input type="hidden" name="courseId" value={courseId} />
-      {quiz ? <input type="hidden" name="quizId" value={quiz.id} /> : null}
-      {/* The action loops from 0 to this number to find the question blocks. */}
-      <input type="hidden" name="questionCount" value={questions.length} />
+        <input type="hidden" name="courseId" value={courseId} />
+        {quiz ? <input type="hidden" name="quizId" value={quiz.id} /> : null}
+        {/* The action loops from 0 to this number to find the question blocks. */}
+        <input type="hidden" name="questionCount" value={questions.length} />
 
-      <Input
-        label="Quiz title"
-        name="title"
-        required
-        maxLength={160}
-        defaultValue={quiz?.title ?? ""}
-        placeholder="e.g. React fundamentals check"
-      />
+        <Input
+          label="Quiz title"
+          name="title"
+          required
+          maxLength={160}
+          defaultValue={quiz?.title ?? ""}
+          placeholder="e.g. React fundamentals check"
+        />
 
-      <Textarea
-        label="Description"
-        name="description"
-        rows={2}
-        defaultValue={quiz?.description ?? ""}
-        placeholder="What this quiz covers, and anything the student should know before starting."
-      />
+        <Textarea
+          label="Description"
+          name="description"
+          rows={2}
+          defaultValue={quiz?.description ?? ""}
+          placeholder="What this quiz covers, and anything the student should know before starting."
+        />
 
-      <Input
-        label="Passing score"
-        name="passingScore"
-        type="number"
-        min={0}
-        max={100}
-        defaultValue={quiz?.passingScore ?? 70}
-        wrapperClassName="sm:max-w-[220px]"
-        hint="Percent needed to pass. Marking is automatic — this only decides pass or fail."
-      />
+        <Input
+          label="Passing score"
+          name="passingScore"
+          type="number"
+          min={0}
+          max={100}
+          defaultValue={quiz?.passingScore ?? 70}
+          wrapperClassName="sm:max-w-[220px]"
+          hint="Percent needed to pass. Marking is automatic — this only decides pass or fail."
+        />
 
-      <FieldsetLegend>Questions</FieldsetLegend>
+        <FieldsetLegend>Questions</FieldsetLegend>
 
-      <div className="space-y-4">
-        {questions.map((question, index) => (
-          <fieldset
-            key={question.key}
-            className="rounded border border-ink-200/70 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
-          >
-            <legend className="sr-only">Question {index + 1}</legend>
+        <div className="space-y-4">
+          {questions.map((question, index) => (
+            <fieldset
+              key={question.key}
+              className="rounded border border-ink-200/70 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
+            >
+              <legend className="sr-only">Question {index + 1}</legend>
 
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <span className="inline-flex items-center gap-2 text-[12.5px] font-bold uppercase tracking-[0.08em] text-brand-600">
-                <GripVertical className="h-4 w-4 text-ink-300" />
-                Question {index + 1}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                // Removing the only question would leave a form that cannot be saved
-                // and no obvious way to recover, so the last one stays.
-                disabled={questions.length === 1}
-                onClick={() =>
-                  setQuestions((current) => current.filter((item) => item.key !== question.key))
-                }
-                className="text-danger-600 hover:bg-danger-50"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                Remove
-              </Button>
-            </div>
-
-            <Textarea
-              label="Question"
-              name={`q-${index}-text`}
-              rows={2}
-              required
-              defaultValue={question.text}
-              placeholder="What do you want to ask?"
-            />
-
-            <div className="mt-4">
-              <p className="mb-2 text-[13px] font-semibold text-ink-700">
-                Answer options
-                <span className="ml-2 font-normal text-ink-400">
-                  select the radio button next to the correct answer
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <span className="inline-flex items-center gap-2 text-[12.5px] font-bold uppercase tracking-[0.08em] text-brand-600">
+                  <GripVertical className="h-4 w-4 text-ink-300" />
+                  Question {index + 1}
                 </span>
-              </p>
-
-              <div className="space-y-2">
-                {question.options.map((option, slot) => {
-                  const radioId = `${formId}-${question.key}-${option.key}`;
-                  const isCorrect = question.correct === slot;
-
-                  return (
-                    <div
-                      key={option.key}
-                      className={cx(
-                        "flex items-center gap-3 rounded border px-3 py-2 transition-colors",
-                        isCorrect
-                          ? "border-success-500/40 bg-success-50/60"
-                          : "border-ink-200 bg-white",
-                      )}
-                    >
-                      {/*
-                        The radio's `value` is the *slot* number, not the position among
-                        filled options. The action compacts blank slots out and remaps
-                        this index accordingly — see `readQuestions`.
-                      */}
-                      <input
-                        id={radioId}
-                        type="radio"
-                        name={`q-${index}-correct`}
-                        value={slot}
-                        checked={isCorrect}
-                        onChange={() => update(question.key, (draft) => ({ ...draft, correct: slot }))}
-                        className="h-4 w-4 shrink-0 cursor-pointer accent-success-500"
-                      />
-                      <label htmlFor={radioId} className="sr-only">
-                        Mark option {slot + 1} as the correct answer
-                      </label>
-                      <input
-                        name={`q-${index}-opt-${slot}`}
-                        defaultValue={option.text}
-                        placeholder={`Option ${slot + 1}${slot < MIN_OPTIONS ? " (required)" : " (optional)"}`}
-                        aria-label={`Option ${slot + 1} text`}
-                        className="w-full border-0 bg-transparent text-sm text-ink-800 outline-none placeholder:text-ink-400"
-                      />
-                      <Button
-                        type="button"
-                        // Below the minimum there is nothing to delete: a question needs
-                        // at least two options to be answerable.
-                        disabled={question.options.length <= MIN_OPTIONS}
-                        onClick={() =>
-                          update(question.key, (draft) => ({
-                            ...draft,
-                            options: draft.options.filter((item) => item.key !== option.key),
-                            // If the removed slot was the answer, or sat before it, the
-                            // marked index has to move or it points at the wrong option.
-                            correct:
-                              draft.correct === slot
-                                ? 0
-                                : draft.correct > slot
-                                  ? draft.correct - 1
-                                  : draft.correct,
-                          }))
-                        }
-                        aria-label={`Remove option ${slot + 1}`}
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 shrink-0 p-0 text-ink-400 hover:bg-danger-50 hover:text-danger-600"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {question.options.length < MAX_OPTIONS ? (
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="mt-2"
+                  // Removing the only question would leave a form that cannot be saved
+                  // and no obvious way to recover, so the last one stays.
+                  disabled={questions.length === 1}
                   onClick={() =>
-                    update(question.key, (draft) => ({
-                      ...draft,
-                      options: [...draft.options, { key: nextKey("o"), text: "" }],
-                    }))
+                    setQuestions((current) =>
+                      current.filter((item) => item.key !== question.key),
+                    )
                   }
+                  className="text-danger-600 hover:bg-danger-50"
                 >
-                  <Plus className="h-3.5 w-3.5" />
-                  Add option
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Remove
                 </Button>
-              ) : null}
-            </div>
+              </div>
 
-            <div className="mt-4">
-              <Input
-                label="Explanation"
-                name={`q-${index}-explanation`}
-                defaultValue={question.explanation}
-                placeholder="Why that answer is right — shown after the student submits."
-                hint="Optional, but it turns a score into feedback."
+              <Textarea
+                label="Question"
+                name={`q-${index}-text`}
+                rows={2}
+                required
+                defaultValue={question.text}
+                placeholder="What do you want to ask?"
               />
-            </div>
-          </fieldset>
-        ))}
-      </div>
 
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={() => setQuestions((current) => [...current, blankQuestion()])}
-      >
-        <Plus className="h-4 w-4" />
-        Add question
-      </Button>
+              <div className="mt-4">
+                <p className="mb-2 text-[13px] font-semibold text-ink-700">
+                  Answer options
+                  <span className="ml-2 font-normal text-ink-400">
+                    select the radio button next to the correct answer
+                  </span>
+                </p>
+
+                <div className="space-y-2">
+                  {question.options.map((option, slot) => {
+                    const radioId = `${formId}-${question.key}-${option.key}`;
+                    const isCorrect = question.correct === slot;
+
+                    return (
+                      <div
+                        key={option.key}
+                        className={cx(
+                          "flex items-center gap-3 rounded border px-3 py-2 transition-colors",
+                          isCorrect
+                            ? "border-success-500/40 bg-success-50/60"
+                            : "border-ink-200 bg-white",
+                        )}
+                      >
+                        {/*
+                        The radio's `value` is the *slot* number, not the position among
+                        filled options. The action compacts blank slots out and remaps
+                        this index accordingly — see `readQuestions`.
+                      */}
+                        <input
+                          id={radioId}
+                          type="radio"
+                          name={`q-${index}-correct`}
+                          value={slot}
+                          checked={isCorrect}
+                          onChange={() =>
+                            update(question.key, (draft) => ({
+                              ...draft,
+                              correct: slot,
+                            }))
+                          }
+                          className="h-4 w-4 shrink-0 cursor-pointer accent-success-500"
+                        />
+                        <label htmlFor={radioId} className="sr-only">
+                          Mark option {slot + 1} as the correct answer
+                        </label>
+                        <input
+                          name={`q-${index}-opt-${slot}`}
+                          defaultValue={option.text}
+                          placeholder={`Option ${slot + 1}${slot < MIN_OPTIONS ? " (required)" : " (optional)"}`}
+                          aria-label={`Option ${slot + 1} text`}
+                          className="w-full border-0 bg-transparent text-sm text-ink-800 outline-none placeholder:text-ink-400"
+                        />
+                        <Button
+                          type="button"
+                          // Below the minimum there is nothing to delete: a question needs
+                          // at least two options to be answerable.
+                          disabled={question.options.length <= MIN_OPTIONS}
+                          onClick={() =>
+                            update(question.key, (draft) => ({
+                              ...draft,
+                              options: draft.options.filter(
+                                (item) => item.key !== option.key,
+                              ),
+                              // If the removed slot was the answer, or sat before it, the
+                              // marked index has to move or it points at the wrong option.
+                              correct:
+                                draft.correct === slot
+                                  ? 0
+                                  : draft.correct > slot
+                                    ? draft.correct - 1
+                                    : draft.correct,
+                            }))
+                          }
+                          aria-label={`Remove option ${slot + 1}`}
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 shrink-0 p-0 text-ink-400 hover:bg-danger-50 hover:text-danger-600"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {question.options.length < MAX_OPTIONS ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() =>
+                      update(question.key, (draft) => ({
+                        ...draft,
+                        options: [
+                          ...draft.options,
+                          { key: nextKey("o"), text: "" },
+                        ],
+                      }))
+                    }
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Add option
+                  </Button>
+                ) : null}
+              </div>
+
+              <div className="mt-4">
+                <Input
+                  label="Explanation"
+                  name={`q-${index}-explanation`}
+                  defaultValue={question.explanation}
+                  placeholder="Why that answer is right — shown after the student submits."
+                  hint="Optional, but it turns a score into feedback."
+                />
+              </div>
+            </fieldset>
+          ))}
+        </div>
+
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() =>
+            setQuestions((current) => [...current, blankQuestion()])
+          }
+        >
+          <Plus className="h-4 w-4" />
+          Add question
+        </Button>
       </form>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-ink-100 pt-5">
-        <SubmitButton form="quiz-form" size="lg" pendingLabel={editing ? "Saving…" : "Creating…"}>
+        <SubmitButton
+          form="quiz-form"
+          size="lg"
+          pendingLabel={editing ? "Saving…" : "Creating…"}
+        >
           {editing ? "Save quiz" : "Create quiz"}
         </SubmitButton>
         {editing ? (

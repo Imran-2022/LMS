@@ -21,7 +21,8 @@ export function PublicNavLinks() {
   return (
     <nav className="hidden items-center gap-1 sm:flex">
       {LINKS.map((link) => {
-        const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+        const active =
+          pathname === link.href || pathname.startsWith(`${link.href}/`);
         return (
           <Link
             key={link.href}
@@ -29,7 +30,9 @@ export function PublicNavLinks() {
             aria-current={active ? "page" : undefined}
             className={cx(
               "rounded px-3 py-2 text-[13.5px] font-medium transition-colors",
-              active ? "bg-brand-50 text-brand-700" : "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
+              active
+                ? "bg-brand-50 text-brand-700"
+                : "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
             )}
           >
             {link.label}

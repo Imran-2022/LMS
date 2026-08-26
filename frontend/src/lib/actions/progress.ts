@@ -57,13 +57,22 @@ export async function setLessonComplete(form: FormData) {
   if (!result.ok) {
     // A student who is not enrolled gets a 403 here rather than a silent no-op, so the
     // failure is visible instead of looking like a button that does nothing.
-    finish(paths, `/my-courses/${courseId}/lessons/${lessonId}`, "progress-failed", true);
+    finish(
+      paths,
+      `/my-courses/${courseId}/lessons/${lessonId}`,
+      "progress-failed",
+      true,
+    );
   }
 
   // "Mark complete and continue" sends `next`; the plain toggle does not and stays put.
   const next = form.get("next");
   if (typeof next === "string" && next !== "") {
-    finish(paths, safePath(next, `/my-courses/${courseId}/lessons/${lessonId}`), "lesson-done");
+    finish(
+      paths,
+      safePath(next, `/my-courses/${courseId}/lessons/${lessonId}`),
+      "lesson-done",
+    );
   }
 
   refresh(paths);

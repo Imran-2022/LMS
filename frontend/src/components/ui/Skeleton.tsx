@@ -41,7 +41,10 @@ export function SkeletonTable({ rows = 6 }: { rows?: number }) {
         <Skeleton className="h-3.5 w-40" />
       </div>
       {Array.from({ length: rows }, (_, index) => (
-        <div key={index} className="flex items-center gap-4 border-b border-ink-100 px-5 py-4">
+        <div
+          key={index}
+          className="flex items-center gap-4 border-b border-ink-100 px-5 py-4"
+        >
           <Skeleton className="h-9 w-9 rounded-full" />
           <Skeleton className="h-3.5 flex-1" />
           <Skeleton className="h-6 w-20 rounded-full" />

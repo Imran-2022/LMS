@@ -75,7 +75,9 @@ export function CourseFilters({
     startTransition(() => {
       // `scroll: false` keeps the viewport where it is — refining a filter should not
       // throw the user back to the top of the page.
-      router.replace(search ? `${basePath}?${search}` : basePath, { scroll: false });
+      router.replace(search ? `${basePath}?${search}` : basePath, {
+        scroll: false,
+      });
     });
   }
 

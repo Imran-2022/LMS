@@ -19,14 +19,13 @@ type Variant = "primary" | "secondary" | "ghost" | "danger" | "subtle";
 type Size = "sm" | "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
-  primary:
-    "bg-brand-500 !text-white  hover:bg-brand-600",
+  primary: "bg-brand-500 !text-white  hover:bg-brand-600",
   secondary:
     "bg-white text-ink-700 border border-ink-200 hover:border-brand-300 hover:text-brand-700 hover:bg-brand-50/60",
   ghost: "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
-  danger:
-    "bg-danger-500 !text-white  hover:bg-danger-600",
-  subtle: "bg-brand-50 text-brand-700 border border-brand-100 hover:bg-brand-100",
+  danger: "bg-danger-500 !text-white  hover:bg-danger-600",
+  subtle:
+    "bg-brand-50 text-brand-700 border border-brand-100 hover:bg-brand-100",
 };
 
 const SIZES: Record<Size, string> = {
@@ -63,7 +62,13 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={cx(BASE, VARIANTS[variant], SIZES[size], fullWidth && "w-full", className)}
+      className={cx(
+        BASE,
+        VARIANTS[variant],
+        SIZES[size],
+        fullWidth && "w-full",
+        className,
+      )}
       {...rest}
     >
       {children}
@@ -83,7 +88,13 @@ export function ButtonLink({
   return (
     <Link
       href={href}
-      className={cx(BASE, VARIANTS[variant], SIZES[size], fullWidth && "w-full", className)}
+      className={cx(
+        BASE,
+        VARIANTS[variant],
+        SIZES[size],
+        fullWidth && "w-full",
+        className,
+      )}
       {...rest}
     >
       {children}

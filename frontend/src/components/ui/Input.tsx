@@ -42,14 +42,19 @@ function Field({
   return (
     <div className={cx("w-full", className)}>
       {label ? (
-        <label htmlFor={htmlFor} className="mb-1.5 block text-[13px] font-semibold text-ink-700">
+        <label
+          htmlFor={htmlFor}
+          className="mb-1.5 block text-[13px] font-semibold text-ink-700"
+        >
           {label}
           {required ? <span className="ml-0.5 text-danger-500">*</span> : null}
         </label>
       ) : null}
       {children}
       {error ? (
-        <p className="mt-1.5 text-[12px] font-medium text-danger-600">{error}</p>
+        <p className="mt-1.5 text-[12px] font-medium text-danger-600">
+          {error}
+        </p>
       ) : hint ? (
         <p className="mt-1.5 text-[12px] text-ink-400">{hint}</p>
       ) : null}
@@ -90,11 +95,20 @@ export function Input({
         <input
           id={fieldId}
           name={name}
-          className={cx(CONTROL, suffix ? "pr-11" : undefined, error ? BAD : OK, className)}
+          className={cx(
+            CONTROL,
+            suffix ? "pr-11" : undefined,
+            error ? BAD : OK,
+            className,
+          )}
           aria-invalid={error ? true : undefined}
           {...rest}
         />
-        {suffix ? <div className="absolute inset-y-0 right-0 flex items-center pr-2">{suffix}</div> : null}
+        {suffix ? (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-2">
+            {suffix}
+          </div>
+        ) : null}
       </div>
     </Field>
   );
@@ -125,7 +139,12 @@ export function Textarea({
         id={fieldId}
         name={name}
         rows={rows}
-        className={cx(CONTROL, "resize-y leading-relaxed", error ? BAD : OK, className)}
+        className={cx(
+          CONTROL,
+          "resize-y leading-relaxed",
+          error ? BAD : OK,
+          className,
+        )}
         aria-invalid={error ? true : undefined}
         {...rest}
       />
@@ -157,7 +176,12 @@ export function Select({
       <select
         id={fieldId}
         name={name}
-        className={cx(CONTROL, "cursor-pointer pr-9", error ? BAD : OK, className)}
+        className={cx(
+          CONTROL,
+          "cursor-pointer pr-9",
+          error ? BAD : OK,
+          className,
+        )}
         {...rest}
       >
         {children}
@@ -192,8 +216,12 @@ export function Checkbox({
         {...rest}
       />
       <span>
-        <span className="block text-[13.5px] font-semibold text-ink-800">{label}</span>
-        {hint ? <span className="mt-0.5 block text-[12px] text-ink-500">{hint}</span> : null}
+        <span className="block text-[13.5px] font-semibold text-ink-800">
+          {label}
+        </span>
+        {hint ? (
+          <span className="mt-0.5 block text-[12px] text-ink-500">{hint}</span>
+        ) : null}
       </span>
     </label>
   );

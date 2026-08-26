@@ -10,7 +10,7 @@
  * The percentage is never sent from the browser — the client only ever says
  * "lesson X is done", and the server derives the rest.
  */
-import { LESSON_PROGRESS_UID, LESSON_UID } from './authorization';
+import { LESSON_PROGRESS_UID, LESSON_UID } from "./authorization";
 
 export type CourseProgress = {
   completed: number;
@@ -30,13 +30,13 @@ export type CourseProgress = {
 export async function computeCourseProgress(
   strapi: any,
   studentId: number,
-  courseId: number
+  courseId: number,
 ): Promise<CourseProgress> {
   const [total, completedRows] = await Promise.all([
     strapi.db.query(LESSON_UID).count({ where: { course: courseId } }),
     strapi.db.query(LESSON_PROGRESS_UID).findMany({
       where: { student: studentId, course: courseId, completed: true },
-      populate: ['lesson'],
+      populate: ["lesson"],
     }),
   ]);
 
@@ -44,7 +44,7 @@ export async function computeCourseProgress(
   // otherwise a student could show 4/3 lessons done.
   const completedLessonIds: number[] = completedRows
     .map((row: any) => row.lesson?.id)
-    .filter((id: number | undefined): id is number => typeof id === 'number');
+    .filter((id: number | undefined): id is number => typeof id === "number");
 
   const completed = completedLessonIds.length;
 
@@ -64,16 +64,21 @@ export async function computeCourseProgress(
 export async function computeProgressForCourses(
   strapi: any,
   studentId: number,
-  courseIds: number[]
+  courseIds: number[],
 ): Promise<Record<number, CourseProgress>> {
   if (courseIds.length === 0) return {};
 
   const results = await Promise.all(
-    courseIds.map((courseId) => computeCourseProgress(strapi, studentId, courseId))
+    courseIds.map((courseId) =>
+      computeCourseProgress(strapi, studentId, courseId),
+    ),
   );
 
-  return courseIds.reduce<Record<number, CourseProgress>>((acc, courseId, index) => {
-    acc[courseId] = results[index];
-    return acc;
-  }, {});
+  return courseIds.reduce<Record<number, CourseProgress>>(
+    (acc, courseId, index) => {
+      acc[courseId] = results[index];
+      return acc;
+    },
+    {},
+  );
 }

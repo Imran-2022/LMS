@@ -39,7 +39,11 @@ export function ProgressBar({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={label ?? `${value}% complete`}
-      className={cx("w-full overflow-hidden rounded-full bg-ink-200/70", SIZES[size], className)}
+      className={cx(
+        "w-full overflow-hidden rounded-full bg-ink-200/70",
+        SIZES[size],
+        className,
+      )}
     >
       <div
         className={cx(
@@ -123,8 +127,16 @@ export function ProgressRing({
   const complete = value === 100;
 
   return (
-    <div className={cx("relative inline-flex shrink-0", className)} style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+    <div
+      className={cx("relative inline-flex shrink-0", className)}
+      style={{ width: size, height: size }}
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="-rotate-90"
+      >
         <circle
           cx={size / 2}
           cy={size / 2}

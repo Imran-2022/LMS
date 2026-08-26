@@ -97,7 +97,9 @@ export async function deleteUser(form: FormData) {
   const userId = str(form, "userId");
   if (!userId) return;
 
-  const result = await apiFetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+  const result = await apiFetch(`/api/admin/users/${userId}`, {
+    method: "DELETE",
+  });
 
   finish(
     ADMIN_PATHS,

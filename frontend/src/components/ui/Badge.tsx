@@ -55,7 +55,13 @@ const ROLE_TONES: Record<RoleType, BadgeTone> = {
   student: "neutral",
 };
 
-export function RoleBadge({ role, className }: { role: RoleType | null; className?: string }) {
+export function RoleBadge({
+  role,
+  className,
+}: {
+  role: RoleType | null;
+  className?: string;
+}) {
   if (!role) return <Badge className={className}>Guest</Badge>;
   return (
     <Badge tone={ROLE_TONES[role]} className={className}>
@@ -72,7 +78,10 @@ export function StatusBadge({
   className?: string;
 }) {
   return (
-    <Badge tone={status === "published" ? "success" : "accent"} className={className}>
+    <Badge
+      tone={status === "published" ? "success" : "accent"}
+      className={className}
+    >
       <span
         className={cx(
           "h-1.5 w-1.5 rounded-full",
@@ -96,7 +105,10 @@ export function ScoreBadge({
 }) {
   const passed = score >= passingScore;
   return (
-    <Badge tone={passed ? "success" : "danger"} className={cx("tabular-nums", className)}>
+    <Badge
+      tone={passed ? "success" : "danger"}
+      className={cx("tabular-nums", className)}
+    >
       {score}% {passed ? "Passed" : "Failed"}
     </Badge>
   );

@@ -11,7 +11,7 @@
  * new column added to a content type never leaks by accident, because nothing
  * spreads a raw row into a response.
  */
-import { ROLE_LABELS, type RoleType } from './roles';
+import { ROLE_LABELS, type RoleType } from "./roles";
 
 /**
  * A user as the rest of the platform is allowed to see them.
@@ -38,7 +38,11 @@ export function publicUser(user: any) {
     confirmed: Boolean(user.confirmed),
     createdAt: user.createdAt,
     role: roleType
-      ? { id: user.role.id, type: roleType, name: user.role.name ?? ROLE_LABELS[roleType] }
+      ? {
+          id: user.role.id,
+          type: roleType,
+          name: user.role.name ?? ROLE_LABELS[roleType],
+        }
       : null,
   };
 }
@@ -65,9 +69,9 @@ export function courseCard(course: any, extra: Record<string, unknown> = {}) {
     summary: course.summary ?? null,
     coverImageUrl: course.coverImageUrl ?? null,
     category: course.category ?? null,
-    level: course.level ?? 'beginner',
+    level: course.level ?? "beginner",
     durationMinutes: course.durationMinutes ?? 0,
-    status: course.status ?? 'draft',
+    status: course.status ?? "draft",
     publishedAt: course.publishedAt ?? null,
     createdAt: course.createdAt,
     updatedAt: course.updatedAt,
@@ -76,7 +80,8 @@ export function courseCard(course: any, extra: Record<string, unknown> = {}) {
     // shape stable so the frontend never has to null-check.
     lessonCount: (extra.lessonCount as number) ?? course.lessons?.length ?? 0,
     quizCount: (extra.quizCount as number) ?? course.quizzes?.length ?? 0,
-    enrollmentCount: (extra.enrollmentCount as number) ?? course.enrollments?.length ?? 0,
+    enrollmentCount:
+      (extra.enrollmentCount as number) ?? course.enrollments?.length ?? 0,
     ...extra,
   };
 }
@@ -89,7 +94,10 @@ export function courseDetail(course: any, extra: Record<string, unknown> = {}) {
 }
 
 /** Lesson without its body — safe for a table of contents shown before enrolling. */
-export function lessonSummary(lesson: any, extra: Record<string, unknown> = {}) {
+export function lessonSummary(
+  lesson: any,
+  extra: Record<string, unknown> = {},
+) {
   if (!lesson) return null;
 
   return {
@@ -139,11 +147,13 @@ export function quizForStudent(quiz: any) {
       index,
       id: question.id,
       text: question.text,
-      options: (question.options ?? []).map((option: any, optionIndex: number) => ({
-        index: optionIndex,
-        id: option.id,
-        text: option.text,
-      })),
+      options: (question.options ?? []).map(
+        (option: any, optionIndex: number) => ({
+          index: optionIndex,
+          id: option.id,
+          text: option.text,
+        }),
+      ),
       // `correctOptionIndex` and `explanation` are deliberately absent.
     })),
   };
@@ -176,12 +186,12 @@ export function blogPostCard(post: any) {
     coverImageUrl: post.coverImageUrl ?? null,
     tags: post.tags
       ? String(post.tags)
-          .split(',')
+          .split(",")
           .map((tag) => tag.trim())
           .filter(Boolean)
       : [],
     readingMinutes: post.readingMinutes ?? 3,
-    status: post.status ?? 'draft',
+    status: post.status ?? "draft",
     publishedDate: post.publishedDate ?? null,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
@@ -195,7 +205,10 @@ export function blogPostDetail(post: any) {
   return { ...card, body: post.body ?? null };
 }
 
-export function enrollmentSummary(enrollment: any, extra: Record<string, unknown> = {}) {
+export function enrollmentSummary(
+  enrollment: any,
+  extra: Record<string, unknown> = {},
+) {
   if (!enrollment) return null;
 
   return {
@@ -229,7 +242,9 @@ export function quizAttemptSummary(attempt: any) {
           passingScore: attempt.quiz.passingScore ?? 70,
         }
       : null,
-    course: attempt.course ? { id: attempt.course.id, title: attempt.course.title } : null,
+    course: attempt.course
+      ? { id: attempt.course.id, title: attempt.course.title }
+      : null,
     student: authorSummary(attempt.student),
   };
 }

@@ -48,7 +48,9 @@ export function QuizRunner({
   const total = quiz.questions.length;
 
   if (state?.attempt || initialAttempt) {
-    return <QuizResult attempt={state?.attempt ?? initialAttempt!} quiz={quiz} />;
+    return (
+      <QuizResult attempt={state?.attempt ?? initialAttempt!} quiz={quiz} />
+    );
   }
 
   return (
@@ -130,7 +132,11 @@ export function QuizRunner({
             <ArrowLeft className="h-4 w-4" />
             Back
           </ButtonLink>
-          <SubmitButton size="lg" pendingLabel="Marking…" disabled={answered === 0}>
+          <SubmitButton
+            size="lg"
+            pendingLabel="Marking…"
+            disabled={answered === 0}
+          >
             Submit answers
           </SubmitButton>
         </div>
@@ -138,4 +144,3 @@ export function QuizRunner({
     </form>
   );
 }
-

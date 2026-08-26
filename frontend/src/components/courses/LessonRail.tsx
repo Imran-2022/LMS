@@ -64,7 +64,11 @@ export function LessonRail({
                     : "bg-brand-50 text-brand-600 group-hover:bg-brand-100",
               )}
             >
-              {complete ? <Check className="h-4 w-4" strokeWidth={3} /> : position}
+              {complete ? (
+                <Check className="h-4 w-4" strokeWidth={3} />
+              ) : (
+                position
+              )}
             </span>
 
             <span className="min-w-0 flex-1">
@@ -102,7 +106,9 @@ export function LessonRail({
         if (mode === "locked") {
           return (
             <li key={lesson.id}>
-              <div className={cx(shell, "border-ink-200/70 bg-white/70")}>{inner}</div>
+              <div className={cx(shell, "border-ink-200/70 bg-white/70")}>
+                {inner}
+              </div>
             </li>
           );
         }

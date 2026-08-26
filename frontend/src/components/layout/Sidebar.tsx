@@ -85,7 +85,12 @@ export function Sidebar({
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className={cx("flex h-16 shrink-0 items-center px-5", collapsed ? "lg:justify-center" : "justify-between")}>
+        <div
+          className={cx(
+            "flex h-16 shrink-0 items-center px-5",
+            collapsed ? "lg:justify-center" : "justify-between",
+          )}
+        >
           <Brand collapsed={collapsed} />
           <Button
             type="button"
@@ -102,7 +107,12 @@ export function Sidebar({
         <nav className="scroll-slim flex-1 overflow-y-auto px-3 pb-6">
           {groups.map((group) => (
             <div key={group.heading} className="mb-6">
-              <p className={cx("mb-2 px-3 text-[10.5px] font-bold uppercase tracking-[0.12em] text-ink-400", collapsed && "lg:sr-only")}>
+              <p
+                className={cx(
+                  "mb-2 px-3 text-[10.5px] font-bold uppercase tracking-[0.12em] text-ink-400",
+                  collapsed && "lg:sr-only",
+                )}
+              >
                 {group.heading}
               </p>
               <ul className="space-y-0.5">
@@ -127,10 +137,19 @@ export function Sidebar({
                           size={17}
                           className={cx(
                             "shrink-0 transition-colors",
-                            active ? "text-brand-500" : "text-ink-400 group-hover:text-ink-600",
+                            active
+                              ? "text-brand-500"
+                              : "text-ink-400 group-hover:text-ink-600",
                           )}
                         />
-                        <span className={cx("overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-500 ease-in-out", collapsed ? "lg:max-w-0 lg:opacity-0" : "lg:max-w-[160px] lg:opacity-100")}>
+                        <span
+                          className={cx(
+                            "overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-500 ease-in-out",
+                            collapsed
+                              ? "lg:max-w-0 lg:opacity-0"
+                              : "lg:max-w-[160px] lg:opacity-100",
+                          )}
+                        >
                           {item.label}
                         </span>
                       </Link>
@@ -141,7 +160,6 @@ export function Sidebar({
             </div>
           ))}
         </nav>
-
       </aside>
     </>
   );

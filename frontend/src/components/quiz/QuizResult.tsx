@@ -20,20 +20,29 @@ export function QuizResult({
 
       {attempt.breakdown?.length ? (
         <div className="mt-6 space-y-4 border-t border-ink-100 pt-6">
-          <h3 className="text-lg font-bold text-ink-900">Review your answers</h3>
+          <h3 className="text-lg font-bold text-ink-900">
+            Review your answers
+          </h3>
           {attempt.breakdown.map((question) => {
             return (
-              <article key={question.questionIndex} className="rounded border border-ink-200 p-4">
+              <article
+                key={question.questionIndex}
+                className="rounded border border-ink-200 p-4"
+              >
                 <div className="flex items-start gap-3">
-                  <AnswerMark state={question.isCorrect ? "correct" : "wrong"} />
+                  <AnswerMark
+                    state={question.isCorrect ? "correct" : "wrong"}
+                  />
                   <h4 className="font-semibold leading-snug text-ink-900">
                     {question.questionIndex + 1}. {question.questionText}
                   </h4>
                 </div>
                 <div className="mt-4 space-y-2 pl-8">
                   {question.options.map((option) => {
-                    const isSelected = option.index === question.selectedOptionIndex;
-                    const isCorrect = option.index === question.correctOptionIndex;
+                    const isSelected =
+                      option.index === question.selectedOptionIndex;
+                    const isCorrect =
+                      option.index === question.correctOptionIndex;
 
                     return (
                       <div
@@ -49,7 +58,11 @@ export function QuizResult({
                       >
                         <span>{option.text}</span>
                         <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wide">
-                          {isCorrect ? "Correct" : isSelected ? "Your answer" : ""}
+                          {isCorrect
+                            ? "Correct"
+                            : isSelected
+                              ? "Your answer"
+                              : ""}
                         </span>
                       </div>
                     );
@@ -57,7 +70,9 @@ export function QuizResult({
                 </div>
                 {question.explanation ? (
                   <div className="mt-4 rounded bg-brand-50 px-3 py-2.5 pl-11 text-sm text-brand-800">
-                    <p className="font-semibold text-brand-700">Why this is correct</p>
+                    <p className="font-semibold text-brand-700">
+                      Why this is correct
+                    </p>
                     <p className="mt-1">{question.explanation}</p>
                   </div>
                 ) : null}

@@ -58,15 +58,18 @@ export function QuizRail({
               </span>
             </span>
             {mode === "learn" && quiz.completed ? (
-              <span className={cx("shrink-0 text-sm font-bold", quiz.passed ? "text-success-600" : "text-danger-600")}>
+              <span
+                className={cx(
+                  "shrink-0 text-sm font-bold",
+                  quiz.passed ? "text-success-600" : "text-danger-600",
+                )}
+              >
                 {quiz.score}%
               </span>
+            ) : mode === "manage" ? (
+              <Pencil className="h-3.5 w-3.5 shrink-0 text-ink-400" />
             ) : (
-              mode === "manage" ? (
-                <Pencil className="h-3.5 w-3.5 shrink-0 text-ink-400" />
-              ) : (
-                <Clock className="h-4 w-4 shrink-0 text-ink-400" />
-              )
+              <Clock className="h-4 w-4 shrink-0 text-ink-400" />
             )}
           </Link>
         </li>

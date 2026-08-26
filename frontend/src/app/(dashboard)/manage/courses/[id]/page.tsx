@@ -13,12 +13,36 @@ type ManagedCourse = Course & {
   quizzes: { id: number; title: string; questionCount: number }[];
 };
 
-export default async function ManageCoursePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ManageCoursePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const course = await fetchItem<ManagedCourse>(`/api/courses/${id}`);
   if (!course) return <p className="text-ink-600">Course not found.</p>;
   if (course.canEdit === false) {
-    return <><PageHeader eyebrow="Teaching workspace" title={course.title} description="This course belongs to another instructor and is available for viewing only." /><div className="mt-8 rounded border border-ink-200 bg-white p-6"><p className="text-ink-600">You do not have permission to edit this course.</p><ButtonLink className="mt-5" href="/manage/courses" variant="secondary">Back to my courses</ButtonLink></div></>;
+    return (
+      <>
+        <PageHeader
+          eyebrow="Teaching workspace"
+          title={course.title}
+          description="This course belongs to another instructor and is available for viewing only."
+        />
+        <div className="mt-8 rounded border border-ink-200 bg-white p-6">
+          <p className="text-ink-600">
+            You do not have permission to edit this course.
+          </p>
+          <ButtonLink
+            className="mt-5"
+            href="/manage/courses"
+            variant="secondary"
+          >
+            Back to my courses
+          </ButtonLink>
+        </div>
+      </>
+    );
   }
   return (
     <>
@@ -31,7 +55,11 @@ export default async function ManageCoursePage({ params }: { params: Promise<{ i
             {course.title}
           </h1>
           <div className="flex items-center gap-2">
-            <ButtonLink href={`/manage/courses/${id}/roster`} variant="secondary" size="sm">
+            <ButtonLink
+              href={`/manage/courses/${id}/roster`}
+              variant="secondary"
+              size="sm"
+            >
               View progress
             </ButtonLink>
             <BackButton />
@@ -54,7 +82,11 @@ export default async function ManageCoursePage({ params }: { params: Promise<{ i
                 Add lesson
               </ButtonLink>
             </div>
-            <LessonRail lessons={course.lessons ?? []} mode="manage" courseId={id} />
+            <LessonRail
+              lessons={course.lessons ?? []}
+              mode="manage"
+              courseId={id}
+            />
           </section>
 
           <section className="rounded border border-ink-200 bg-white p-5">

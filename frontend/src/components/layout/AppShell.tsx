@@ -34,7 +34,9 @@ export function AppShell({
 }) {
   const router = useRouter();
   const [navOpen, setNavOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(initialSidebarCollapsed);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    initialSidebarCollapsed,
+  );
 
   function toggleSidebar() {
     const nextValue = !sidebarCollapsed;
@@ -52,8 +54,18 @@ export function AppShell({
       />
 
       {/* Offset by the sidebar width on desktop; full width below it. */}
-      <div className={cx("transition-[padding] duration-500 ease-in-out", sidebarCollapsed ? "lg:pl-[76px]" : "lg:pl-[264px]")}>
-        <header className={cx("fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-ink-200/70 bg-white/90 px-4 backdrop-blur-md transition-[left] duration-500 ease-in-out sm:px-6", sidebarCollapsed ? "lg:left-[76px]" : "lg:left-[264px]")}>
+      <div
+        className={cx(
+          "transition-[padding] duration-500 ease-in-out",
+          sidebarCollapsed ? "lg:pl-[76px]" : "lg:pl-[264px]",
+        )}
+      >
+        <header
+          className={cx(
+            "fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-ink-200/70 bg-white/90 px-4 backdrop-blur-md transition-[left] duration-500 ease-in-out sm:px-6",
+            sidebarCollapsed ? "lg:left-[76px]" : "lg:left-[264px]",
+          )}
+        >
           <div className="flex items-center gap-3">
             <Button
               type="button"
@@ -71,7 +83,9 @@ export function AppShell({
               variant="secondary"
               size="sm"
               className="hidden h-10 w-10 p-0 lg:inline-flex"
-              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={
+                sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+              }
               title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <Menu size={20} strokeWidth={2} aria-hidden="true" />
@@ -81,10 +95,17 @@ export function AppShell({
             </span>
           </div>
 
-          <UserMenu name={name} email={email} avatarUrl={avatarUrl} role={role} />
+          <UserMenu
+            name={name}
+            email={email}
+            avatarUrl={avatarUrl}
+            role={role}
+          />
         </header>
 
-        <main className="mx-auto w-full max-w-[1180px] px-4 pb-8 pt-24 sm:px-6 sm:pb-10 sm:pt-24">{children}</main>
+        <main className="mx-auto w-full max-w-[1180px] px-4 pb-8 pt-24 sm:px-6 sm:pb-10 sm:pt-24">
+          {children}
+        </main>
       </div>
     </div>
   );

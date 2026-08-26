@@ -10,8 +10,8 @@
  *   3. Deleting a course has to clean up the enrollment / progress / attempt rows
  *      that hang off it, otherwise the admin dashboard counts drift.
  */
-import { factories } from '@strapi/strapi';
-import { errors } from '@strapi/utils';
+import { factories } from "@strapi/strapi";
+import { errors } from "@strapi/utils";
 
 import {
   COURSE_UID,
@@ -25,24 +25,34 @@ import {
   findCourse,
   findEnrollment,
   requireUser,
-} from '../../../utils/authorization';
-import { computeCourseProgress } from '../../../utils/progress';
-import { authorSummary, courseCard, courseDetail, lessonSummary } from '../../../utils/serialize';
-import { isInstructor, isPrivileged, isStudent, type AuthUser } from '../../../utils/roles';
+} from "../../../utils/authorization";
+import { computeCourseProgress } from "../../../utils/progress";
+import {
+  authorSummary,
+  courseCard,
+  courseDetail,
+  lessonSummary,
+} from "../../../utils/serialize";
+import {
+  isInstructor,
+  isPrivileged,
+  isStudent,
+  type AuthUser,
+} from "../../../utils/roles";
 
 const { ForbiddenError, NotFoundError, ValidationError } = errors;
 
 /** Fields a client is allowed to set. Anything else in the body is ignored. */
 const WRITABLE_FIELDS = [
-  'title',
-  'slug',
-  'summary',
-  'description',
-  'coverImageUrl',
-  'category',
-  'level',
-  'durationMinutes',
-  'status',
+  "title",
+  "slug",
+  "summary",
+  "description",
+  "coverImageUrl",
+  "category",
+  "level",
+  "durationMinutes",
+  "status",
 ] as const;
 
 function pickWritable(payload: Record<string, any> = {}) {
@@ -69,10 +79,10 @@ function visibilityFilter(user?: AuthUser | null) {
   if (isPrivileged(user)) return {};
 
   if (isInstructor(user) && user) {
-    return { $or: [{ status: 'published' }, { owner: user.id }] };
+    return { $or: [{ status: "published" }, { owner: user.id }] };
   }
 
-  return { status: 'published' };
+  return { status: "published" };
 }
 
 /**
@@ -99,7 +109,7 @@ async function attachCounts(strapi: any, courses: any[]) {
         __quizCount: quizCount,
         __enrollmentCount: enrollmentCount,
       };
-    })
+    }),
   );
 }
 
@@ -113,7 +123,10 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
    */
   async find(ctx) {
     const user = ctx.state.user as AuthUser | undefined;
-    const { q, category, level, status } = ctx.query as Record<string, string | undefined>;
+    const { q, category, level, status } = ctx.query as Record<
+      string,
+      string | undefined
+    >;
 
     const filters: Record<string, any> = { ...visibilityFilter(user) };
 
@@ -137,8 +150,8 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
 
     const courses = await strapi.db.query(COURSE_UID).findMany({
       where: filters,
-      populate: ['owner'],
-      orderBy: [{ createdAt: 'desc' }],
+      populate: ["owner"],
+      orderBy: [{ createdAt: "desc" }],
       limit: 100,
     });
 
@@ -150,9 +163,11 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
     if (isStudent(user) && user) {
       const enrollments = await strapi.db.query(ENROLLMENT_UID).findMany({
         where: { student: user.id },
-        populate: ['course'],
+        populate: ["course"],
       });
-      enrolledCourseIds = enrollments.map((e: any) => e.course?.id).filter(Boolean);
+      enrolledCourseIds = enrollments
+        .map((e: any) => e.course?.id)
+        .filter(Boolean);
     }
 
     ctx.body = {
@@ -162,7 +177,7 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
           quizCount: course.__quizCount,
           enrollmentCount: course.__enrollmentCount,
           isEnrolled: enrolledCourseIds.includes(course.id),
-        })
+        }),
       ),
       meta: { total: withCounts.length },
     };
@@ -184,8 +199,8 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
 
     const courses = await strapi.db.query(COURSE_UID).findMany({
       where,
-      populate: ['owner'],
-      orderBy: [{ updatedAt: 'desc' }],
+      populate: ["owner"],
+      orderBy: [{ updatedAt: "desc" }],
     });
 
     const withCounts = await attachCounts(strapi, courses);
@@ -197,7 +212,7 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
           quizCount: course.__quizCount,
           enrollmentCount: course.__enrollmentCount,
           canEdit: canWriteCourse(user, course),
-        })
+        }),
       ),
       meta: { total: withCounts.length },
     };
@@ -221,24 +236,27 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
 
     const course = await strapi.db.query(COURSE_UID).findOne({
       where,
-      populate: ['owner'],
+      populate: ["owner"],
     });
 
-    if (!course) throw new NotFoundError('Course not found.');
+    if (!course) throw new NotFoundError("Course not found.");
 
     // A draft is only visible to someone who could edit it.
-    if (course.status !== 'published' && !canWriteCourse(user as AuthUser, course)) {
-      throw new NotFoundError('Course not found.');
+    if (
+      course.status !== "published" &&
+      !canWriteCourse(user as AuthUser, course)
+    ) {
+      throw new NotFoundError("Course not found.");
     }
 
     const [lessons, quizzes, enrollmentCount] = await Promise.all([
       strapi.db.query(LESSON_UID).findMany({
         where: { course: course.id },
-        orderBy: [{ order: 'asc' }, { id: 'asc' }],
+        orderBy: [{ order: "asc" }, { id: "asc" }],
       }),
       strapi.db.query(QUIZ_UID).findMany({
         where: { course: course.id },
-        populate: ['questions'],
+        populate: ["questions"],
       }),
       strapi.db.query(ENROLLMENT_UID).count({ where: { course: course.id } }),
     ]);
@@ -257,13 +275,14 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
     const attempts = isEnrolled
       ? await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
           where: { student: (user as AuthUser).id, course: course.id },
-          populate: ['quiz'],
-          orderBy: [{ createdAt: 'desc' }],
+          populate: ["quiz"],
+          orderBy: [{ createdAt: "desc" }],
         })
       : [];
     const attemptsByQuiz = new Map(
       attempts.map((attempt: any) => {
-        const quizId = attempt.quiz?.id ?? attempt.quiz?.documentId ?? attempt.quiz;
+        const quizId =
+          attempt.quiz?.id ?? attempt.quiz?.documentId ?? attempt.quiz;
         return [String(quizId), attempt] as const;
       }),
     );
@@ -313,20 +332,21 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
     const data = pickWritable(payload);
 
     if (!data.title || !String(data.title).trim()) {
-      throw new ValidationError('A course title is required.');
+      throw new ValidationError("A course title is required.");
     }
 
     let ownerId = user.id;
     if (isPrivileged(user) && payload.owner) {
       const requested = payload.owner?.id ?? payload.owner;
       const target = await strapi.db
-        .query('plugin::users-permissions.user')
+        .query("plugin::users-permissions.user")
         .findOne({ where: { id: Number(requested) } });
-      if (!target) throw new ValidationError('The selected owner does not exist.');
+      if (!target)
+        throw new ValidationError("The selected owner does not exist.");
       ownerId = target.id;
     }
 
-    const status = data.status === 'published' ? 'published' : 'draft';
+    const status = data.status === "published" ? "published" : "draft";
 
     const created = await strapi.documents(COURSE_UID).create({
       // `pickWritable` returns a dynamic map, so TypeScript cannot see that `title`
@@ -335,14 +355,20 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
       data: {
         ...data,
         status,
-        publishedAt: status === 'published' ? new Date() : null,
+        publishedAt: status === "published" ? new Date() : null,
         owner: ownerId,
       } as any,
-      populate: ['owner'],
+      populate: ["owner"],
     });
 
     ctx.status = 201;
-    ctx.body = { data: courseCard(created, { lessonCount: 0, quizCount: 0, enrollmentCount: 0 }) };
+    ctx.body = {
+      data: courseCard(created, {
+        lessonCount: 0,
+        quizCount: 0,
+        enrollmentCount: 0,
+      }),
+    };
   },
 
   /**
@@ -353,9 +379,10 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
    */
   async update(ctx) {
     const user = requireUser(ctx.state.user);
-    const course = ctx.state.course ?? (await findCourse(strapi, ctx.params.id));
+    const course =
+      ctx.state.course ?? (await findCourse(strapi, ctx.params.id));
 
-    if (!course) throw new NotFoundError('Course not found.');
+    if (!course) throw new NotFoundError("Course not found.");
 
     const payload = readBody(ctx);
     const data = pickWritable(payload);
@@ -363,23 +390,25 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
     // Reassigning ownership is an administrative act, not an editing one.
     if (payload.owner !== undefined) {
       if (!isPrivileged(user)) {
-        throw new ForbiddenError('Only administrators and content managers can reassign a course.');
+        throw new ForbiddenError(
+          "Only administrators and content managers can reassign a course.",
+        );
       }
       data.owner = payload.owner?.id ?? payload.owner;
     }
 
     // Stamp `publishedAt` the first time a course goes live, and clear it if it is
     // pulled back to draft, so "published on" is always truthful.
-    if (data.status === 'published' && course.status !== 'published') {
+    if (data.status === "published" && course.status !== "published") {
       data.publishedAt = new Date();
-    } else if (data.status === 'draft') {
+    } else if (data.status === "draft") {
       data.publishedAt = null;
     }
 
     const updated = await strapi.documents(COURSE_UID).update({
       documentId: course.documentId,
       data,
-      populate: ['owner'],
+      populate: ["owner"],
     });
 
     ctx.body = { data: courseCard(updated) };
@@ -393,24 +422,39 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
    * then be counted by the admin dashboard and by `computeCourseProgress`.
    */
   async delete(ctx) {
-    const course = ctx.state.course ?? (await findCourse(strapi, ctx.params.id));
-    if (!course) throw new NotFoundError('Course not found.');
+    const course =
+      ctx.state.course ?? (await findCourse(strapi, ctx.params.id));
+    if (!course) throw new NotFoundError("Course not found.");
 
-    const lessons = await strapi.db.query(LESSON_UID).findMany({ where: { course: course.id } });
-    const quizzes = await strapi.db.query(QUIZ_UID).findMany({ where: { course: course.id } });
+    const lessons = await strapi.db
+      .query(LESSON_UID)
+      .findMany({ where: { course: course.id } });
+    const quizzes = await strapi.db
+      .query(QUIZ_UID)
+      .findMany({ where: { course: course.id } });
 
-    await strapi.db.query(LESSON_PROGRESS_UID).deleteMany({ where: { course: course.id } });
-    await strapi.db.query(QUIZ_ATTEMPT_UID).deleteMany({ where: { course: course.id } });
-    await strapi.db.query(ENROLLMENT_UID).deleteMany({ where: { course: course.id } });
+    await strapi.db
+      .query(LESSON_PROGRESS_UID)
+      .deleteMany({ where: { course: course.id } });
+    await strapi.db
+      .query(QUIZ_ATTEMPT_UID)
+      .deleteMany({ where: { course: course.id } });
+    await strapi.db
+      .query(ENROLLMENT_UID)
+      .deleteMany({ where: { course: course.id } });
 
     for (const lesson of lessons) {
-      await strapi.documents(LESSON_UID).delete({ documentId: lesson.documentId });
+      await strapi
+        .documents(LESSON_UID)
+        .delete({ documentId: lesson.documentId });
     }
     for (const quiz of quizzes) {
       await strapi.documents(QUIZ_UID).delete({ documentId: quiz.documentId });
     }
 
-    await strapi.documents(COURSE_UID).delete({ documentId: course.documentId });
+    await strapi
+      .documents(COURSE_UID)
+      .delete({ documentId: course.documentId });
 
     ctx.body = { data: { id: course.id, deleted: true } };
   },
@@ -425,15 +469,26 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
   async progress(ctx) {
     const user = requireUser(ctx.state.user);
     const course = await findCourse(strapi, ctx.params.id);
-    if (!course) throw new NotFoundError('Course not found.');
+    if (!course) throw new NotFoundError("Course not found.");
 
-    const requestedStudentId = ctx.query.studentId ? Number(ctx.query.studentId) : user.id;
+    const requestedStudentId = ctx.query.studentId
+      ? Number(ctx.query.studentId)
+      : user.id;
 
-    await assertProgressReadAccess(strapi, user, { course, studentId: requestedStudentId });
+    await assertProgressReadAccess(strapi, user, {
+      course,
+      studentId: requestedStudentId,
+    });
 
-    const progress = await computeCourseProgress(strapi, requestedStudentId, course.id);
+    const progress = await computeCourseProgress(
+      strapi,
+      requestedStudentId,
+      course.id,
+    );
 
-    ctx.body = { data: { courseId: course.id, studentId: requestedStudentId, ...progress } };
+    ctx.body = {
+      data: { courseId: course.id, studentId: requestedStudentId, ...progress },
+    };
   },
 
   /**
@@ -445,12 +500,12 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
   async roster(ctx) {
     const user = requireUser(ctx.state.user);
     const course = await findCourse(strapi, ctx.params.id);
-    if (!course) throw new NotFoundError('Course not found.');
+    if (!course) throw new NotFoundError("Course not found.");
 
     // Students have no business reading a class list, so this reuses the write
     // rule rather than the progress rule.
     if (!canWriteCourse(user, course)) {
-      throw new ForbiddenError('You cannot view the roster for this course.');
+      throw new ForbiddenError("You cannot view the roster for this course.");
     }
 
     const quizzes = await strapi.db.query(QUIZ_UID).findMany({
@@ -459,20 +514,24 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
 
     const enrollments = await strapi.db.query(ENROLLMENT_UID).findMany({
       where: { course: course.id },
-      populate: ['student'],
-      orderBy: [{ createdAt: 'desc' }],
+      populate: ["student"],
+      orderBy: [{ createdAt: "desc" }],
     });
 
     const rows = await Promise.all(
       enrollments.map(async (enrollment: any) => {
         const progress = enrollment.student
-          ? await computeCourseProgress(strapi, enrollment.student.id, course.id)
+          ? await computeCourseProgress(
+              strapi,
+              enrollment.student.id,
+              course.id,
+            )
           : { completed: 0, total: 0, percent: 0, completedLessonIds: [] };
 
         const attempts = enrollment.student
           ? await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
               where: { course: course.id, student: enrollment.student.id },
-              orderBy: [{ createdAt: 'desc' }],
+              orderBy: [{ createdAt: "desc" }],
             })
           : [];
 
@@ -485,12 +544,17 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
           // There is one attempt per quiz, so the course score is the average of
           // every submitted quiz score. Unattempted quizzes are not scored as zero.
           averageQuizScore: attempts.length
-            ? Math.round(attempts.reduce((sum: number, attempt: any) => sum + (attempt.score ?? 0), 0) / attempts.length)
+            ? Math.round(
+                attempts.reduce(
+                  (sum: number, attempt: any) => sum + (attempt.score ?? 0),
+                  0,
+                ) / attempts.length,
+              )
             : null,
           completedQuizCount: attempts.length,
           totalQuizCount: quizzes.length,
         };
-      })
+      }),
     );
 
     ctx.body = {
@@ -498,7 +562,10 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
       meta: {
         total: rows.length,
         averagePercent: rows.length
-          ? Math.round(rows.reduce((sum, row) => sum + row.progress.percent, 0) / rows.length)
+          ? Math.round(
+              rows.reduce((sum, row) => sum + row.progress.percent, 0) /
+                rows.length,
+            )
           : 0,
       },
     };

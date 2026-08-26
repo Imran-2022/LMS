@@ -14,9 +14,9 @@ export function Footer() {
           <div className="max-w-sm">
             <Brand />
             <p className="mt-4 text-[13.5px] leading-relaxed text-ink-500">
-              A role-based learning platform: four roles, per-lesson progress tracking
-              and auto-graded quizzes, with every permission enforced by the API rather
-              than by the interface.
+              A role-based learning platform: four roles, per-lesson progress
+              tracking and auto-graded quizzes, with every permission enforced
+              by the API rather than by the interface.
             </p>
           </div>
 
@@ -40,9 +40,17 @@ export function Footer() {
             <FooterColumn
               heading="Built with"
               links={[
-                { href: "https://nextjs.org", label: "Next.js", external: true },
+                {
+                  href: "https://nextjs.org",
+                  label: "Next.js",
+                  external: true,
+                },
                 { href: "https://strapi.io", label: "Strapi", external: true },
-                { href: "https://tailwindcss.com", label: "Tailwind CSS", external: true },
+                {
+                  href: "https://tailwindcss.com",
+                  label: "Tailwind CSS",
+                  external: true,
+                },
               ]}
             />
           </div>

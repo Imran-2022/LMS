@@ -81,7 +81,10 @@ export function UserMenu({
         </span>
         <ChevronDown
           size={15}
-          className={cx("text-ink-400 transition-transform", open && "rotate-180")}
+          className={cx(
+            "text-ink-400 transition-transform",
+            open && "rotate-180",
+          )}
         />
       </Button>
 
@@ -99,7 +102,9 @@ export function UserMenu({
                 className="!bg-brand-500 !text-white"
               />
               <div className="min-w-0">
-                <p className="truncate text-[14px] font-semibold text-ink-900">{name}</p>
+                <p className="truncate text-[14px] font-semibold text-ink-900">
+                  {name}
+                </p>
                 <p className="truncate text-[12px] text-ink-500">{email}</p>
               </div>
             </div>

@@ -56,7 +56,9 @@ export function CourseCard({
         <div className="mb-2.5 flex items-center gap-2">
           <LevelBadge level={course.level} />
           {course.category ? (
-            <span className="truncate text-[12px] font-medium text-ink-400">{course.category}</span>
+            <span className="truncate text-[12px] font-medium text-ink-400">
+              {course.category}
+            </span>
           ) : null}
         </div>
 
@@ -65,9 +67,22 @@ export function CourseCard({
         </h3>
 
         <div className="mt-3 flex items-center gap-2 text-[12.5px] text-ink-500">
-          <Avatar name={course.owner?.fullName ?? course.owner?.username ?? "CPS Academy LMS"} src={course.owner?.avatarUrl} size="xs" />
+          <Avatar
+            name={
+              course.owner?.fullName ??
+              course.owner?.username ??
+              "CPS Academy LMS"
+            }
+            src={course.owner?.avatarUrl}
+            size="xs"
+          />
           <span className="truncate">
-            By <span className="font-semibold text-ink-700">{course.owner?.fullName ?? course.owner?.username ?? "CPS Academy LMS"}</span>
+            By{" "}
+            <span className="font-semibold text-ink-700">
+              {course.owner?.fullName ??
+                course.owner?.username ??
+                "CPS Academy LMS"}
+            </span>
           </span>
         </div>
 
@@ -83,8 +98,12 @@ export function CourseCard({
           {enrolled ? (
             <div className="mb-3.5">
               <div className="mb-1.5 flex items-baseline justify-between">
-                <span className="text-[12px] font-medium text-ink-500">Your progress</span>
-                <span className="text-[12px] font-bold tabular-nums text-brand-600">{percent}%</span>
+                <span className="text-[12px] font-medium text-ink-500">
+                  Your progress
+                </span>
+                <span className="text-[12px] font-bold tabular-nums text-brand-600">
+                  {percent}%
+                </span>
               </div>
               <ProgressBar percent={percent} size="sm" />
             </div>
@@ -92,12 +111,15 @@ export function CourseCard({
 
           <div className="flex items-center gap-3.5 border-t border-ink-100 pt-3.5 text-[12px] text-ink-500">
             <Meta icon={<BookOpen className="h-3.5 w-3.5" />}>
-              {course.lessonCount} {course.lessonCount === 1 ? "lesson" : "lessons"}
+              {course.lessonCount}{" "}
+              {course.lessonCount === 1 ? "lesson" : "lessons"}
             </Meta>
             <Meta icon={<Clock className="h-3.5 w-3.5" />}>
               {formatDuration(course.durationMinutes)}
             </Meta>
-            <Meta icon={<Users className="h-3.5 w-3.5" />}>{course.enrollmentCount}</Meta>
+            <Meta icon={<Users className="h-3.5 w-3.5" />}>
+              {course.enrollmentCount}
+            </Meta>
           </div>
         </div>
       </div>
@@ -105,7 +127,13 @@ export function CourseCard({
   );
 }
 
-function Meta({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+function Meta({
+  icon,
+  children,
+}: {
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <span className="inline-flex items-center gap-1.5 tabular-nums">
       <span className="text-ink-400">{icon}</span>

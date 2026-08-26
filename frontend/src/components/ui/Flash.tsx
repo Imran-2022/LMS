@@ -12,31 +12,73 @@
  */
 import { cx } from "@/lib/format";
 
-const MESSAGES: Record<string, { tone: "success" | "danger" | "info"; text: string }> = {
+const MESSAGES: Record<
+  string,
+  { tone: "success" | "danger" | "info"; text: string }
+> = {
   // Success
-  enrolled: { tone: "success", text: "You're enrolled. Your first lesson is ready below." },
-  unenrolled: { tone: "info", text: "You've left that course. Your progress is kept if you return." },
-  "course-created": { tone: "success", text: "Course created. Add lessons to make it worth taking." },
+  enrolled: {
+    tone: "success",
+    text: "You're enrolled. Your first lesson is ready below.",
+  },
+  unenrolled: {
+    tone: "info",
+    text: "You've left that course. Your progress is kept if you return.",
+  },
+  "course-created": {
+    tone: "success",
+    text: "Course created. Add lessons to make it worth taking.",
+  },
   "course-updated": { tone: "success", text: "Course saved." },
-  "course-deleted": { tone: "info", text: "Course deleted, along with its lessons and quizzes." },
+  "course-deleted": {
+    tone: "info",
+    text: "Course deleted, along with its lessons and quizzes.",
+  },
   "lesson-created": { tone: "success", text: "Lesson added." },
   "lesson-saved": { tone: "success", text: "Lesson saved." },
   "lesson-deleted": { tone: "info", text: "Lesson deleted." },
-  "lesson-done": { tone: "success", text: "Lesson marked complete. Your progress is saved." },
+  "lesson-done": {
+    tone: "success",
+    text: "Lesson marked complete. Your progress is saved.",
+  },
   "quiz-created": { tone: "success", text: "Quiz created." },
   "quiz-saved": { tone: "success", text: "Quiz saved." },
   "quiz-deleted": { tone: "info", text: "Quiz deleted." },
-  "post-created": { tone: "success", text: "Post created as a draft. Publish it when you're ready." },
+  "post-created": {
+    tone: "success",
+    text: "Post created as a draft. Publish it when you're ready.",
+  },
   "post-saved": { tone: "success", text: "Post saved." },
   "post-deleted": { tone: "info", text: "Post deleted." },
-  "post-published": { tone: "success", text: "Post published — it's now on the public blog." },
-  "post-unpublished": { tone: "info", text: "Post moved back to draft. It's hidden from the public blog." },
-  published: { tone: "success", text: "Published — it's now visible to everyone." },
-  unpublished: { tone: "info", text: "Moved back to draft. Only staff can see it now." },
-  "role-updated": { tone: "success", text: "Role updated. It applies on their next request." },
-  "user-blocked": { tone: "info", text: "Account blocked. Their existing session stops working immediately." },
+  "post-published": {
+    tone: "success",
+    text: "Post published — it's now on the public blog.",
+  },
+  "post-unpublished": {
+    tone: "info",
+    text: "Post moved back to draft. It's hidden from the public blog.",
+  },
+  published: {
+    tone: "success",
+    text: "Published — it's now visible to everyone.",
+  },
+  unpublished: {
+    tone: "info",
+    text: "Moved back to draft. Only staff can see it now.",
+  },
+  "role-updated": {
+    tone: "success",
+    text: "Role updated. It applies on their next request.",
+  },
+  "user-blocked": {
+    tone: "info",
+    text: "Account blocked. Their existing session stops working immediately.",
+  },
   "user-unblocked": { tone: "success", text: "Account unblocked." },
-  "user-deleted": { tone: "info", text: "Account deleted. Courses they authored were kept." },
+  "user-deleted": {
+    tone: "info",
+    text: "Account deleted. Courses they authored were kept.",
+  },
   registered: { tone: "success", text: "Account created. Welcome aboard." },
   "signed-out": { tone: "info", text: "You're signed out." },
 
@@ -46,14 +88,35 @@ const MESSAGES: Record<string, { tone: "success" | "danger" | "info"; text: stri
     text: "Your role doesn't have access to that page. The API enforces the same rule.",
   },
   "auth-required": { tone: "info", text: "Sign in to continue." },
-  forbidden: { tone: "danger", text: "The server rejected that action for your role." },
+  forbidden: {
+    tone: "danger",
+    text: "The server rejected that action for your role.",
+  },
   failed: { tone: "danger", text: "That didn't work. Please try again." },
-  "enroll-failed": { tone: "danger", text: "Enrolment didn't go through. Only students can enrol." },
-  "progress-failed": { tone: "danger", text: "Couldn't save that. You need to be enrolled in this course." },
-  "reorder-failed": { tone: "danger", text: "Couldn't reorder the lessons. Reload and try again." },
-  "role-failed": { tone: "danger", text: "Role change refused — you can't change your own role." },
-  "status-failed": { tone: "danger", text: "Couldn't change that account's status." },
-  "delete-failed": { tone: "danger", text: "Couldn't delete that account — you can't delete your own." },
+  "enroll-failed": {
+    tone: "danger",
+    text: "Enrolment didn't go through. Only students can enrol.",
+  },
+  "progress-failed": {
+    tone: "danger",
+    text: "Couldn't save that. You need to be enrolled in this course.",
+  },
+  "reorder-failed": {
+    tone: "danger",
+    text: "Couldn't reorder the lessons. Reload and try again.",
+  },
+  "role-failed": {
+    tone: "danger",
+    text: "Role change refused — you can't change your own role.",
+  },
+  "status-failed": {
+    tone: "danger",
+    text: "Couldn't change that account's status.",
+  },
+  "delete-failed": {
+    tone: "danger",
+    text: "Couldn't delete that account — you can't delete your own.",
+  },
 };
 
 const TONES = {
@@ -79,7 +142,11 @@ export function Flash({
   const entry = MESSAGES[code];
   if (!entry) return null;
 
-  const tone = first(err) ? (entry.tone === "success" ? "danger" : entry.tone) : entry.tone;
+  const tone = first(err)
+    ? entry.tone === "success"
+      ? "danger"
+      : entry.tone
+    : entry.tone;
 
   return (
     <div

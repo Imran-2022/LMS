@@ -51,9 +51,9 @@ export function EnrollButton({
           Enrolment is for students
         </p>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-500">
-          You&apos;re signed in as {roleLabel(role)}. The API refuses enrolment for any
-          role but Student, so staff accounts stay out of course rosters and completion
-          statistics.
+          You&apos;re signed in as {roleLabel(role)}. The API refuses enrolment
+          for any role but Student, so staff accounts stay out of course rosters
+          and completion statistics.
         </p>
       </div>
     );
@@ -79,7 +79,12 @@ export function EnrollButton({
   return (
     <form action={enroll} className="space-y-3">
       <input type="hidden" name="courseId" value={course.id} />
-      <SubmitButton size="lg" fullWidth pendingLabel="Enrolling…" disabled={!lessonsReady}>
+      <SubmitButton
+        size="lg"
+        fullWidth
+        pendingLabel="Enrolling…"
+        disabled={!lessonsReady}
+      >
         Enrol for free
         <ArrowRight className="h-4 w-4" />
       </SubmitButton>

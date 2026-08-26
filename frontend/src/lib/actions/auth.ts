@@ -23,7 +23,13 @@ import { safePath } from "./shared";
 
 export type AuthState = {
   error?: string;
-  values?: { identifier?: string; email?: string; username?: string; fullName?: string; mobileNumber?: string };
+  values?: {
+    identifier?: string;
+    email?: string;
+    username?: string;
+    fullName?: string;
+    mobileNumber?: string;
+  };
 };
 
 function text(form: FormData, key: string): string {
@@ -31,7 +37,10 @@ function text(form: FormData, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-export async function signIn(_prev: AuthState, form: FormData): Promise<AuthState> {
+export async function signIn(
+  _prev: AuthState,
+  form: FormData,
+): Promise<AuthState> {
   const identifier = text(form, "identifier");
   const password = String(form.get("password") ?? "");
 
@@ -58,7 +67,10 @@ export async function signIn(_prev: AuthState, form: FormData): Promise<AuthStat
   redirect(safePath(form.get("next"), homePathFor(role)));
 }
 
-export async function signUp(_prev: AuthState, form: FormData): Promise<AuthState> {
+export async function signUp(
+  _prev: AuthState,
+  form: FormData,
+): Promise<AuthState> {
   const email = text(form, "email");
   const fullName = text(form, "fullName");
   const mobileNumber = text(form, "mobileNumber");
@@ -87,9 +99,19 @@ export async function signUp(_prev: AuthState, form: FormData): Promise<AuthStat
   // Strapi requires a unique username internally, but it is not useful to ask
   // learners to invent a second identifier. Derive one privately from the email
   // and add a short suffix so repeated local parts remain unique.
-  const emailName = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 32) || "learner";
+  const emailName =
+    email
+      .split("@")[0]
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .slice(0, 32) || "learner";
   const username = `${emailName}-${Date.now().toString(36)}`;
-  const result = await registerAccount({ username, email, password, fullName, mobileNumber });
+  const result = await registerAccount({
+    username,
+    email,
+    password,
+    fullName,
+    mobileNumber,
+  });
   if (!result.ok) {
     return { error: result.error, values };
   }

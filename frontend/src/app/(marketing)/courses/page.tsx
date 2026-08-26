@@ -25,9 +25,9 @@ export default async function CoursesPage({
     { anonymous: true },
   );
   const courses = result.ok ? (result.data.data ?? []) : [];
-  const categories = [...new Set(courses.map((course) => course.category).filter(Boolean))].sort(
-    (first, second) => first!.localeCompare(second!),
-  ) as string[];
+  const categories = [
+    ...new Set(courses.map((course) => course.category).filter(Boolean)),
+  ].sort((first, second) => first!.localeCompare(second!)) as string[];
 
   return (
     <div className="min-h-dvh bg-ink-50">

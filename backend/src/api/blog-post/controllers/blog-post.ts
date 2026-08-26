@@ -13,24 +13,24 @@
  *      anyone's. That distinction is `assertPostWriteAccess` below, and it is the
  *      reason the blog needs its own ownership check rather than reusing the course one.
  */
-import { factories } from '@strapi/strapi';
-import { errors } from '@strapi/utils';
+import { factories } from "@strapi/strapi";
+import { errors } from "@strapi/utils";
 
-import { BLOG_POST_UID, requireUser } from '../../../utils/authorization';
-import { blogPostCard, blogPostDetail } from '../../../utils/serialize';
-import { canManageBlog, isAdmin, type AuthUser } from '../../../utils/roles';
-import { uniqueSlug } from '../../../utils/slug';
+import { BLOG_POST_UID, requireUser } from "../../../utils/authorization";
+import { blogPostCard, blogPostDetail } from "../../../utils/serialize";
+import { canManageBlog, isAdmin, type AuthUser } from "../../../utils/roles";
+import { uniqueSlug } from "../../../utils/slug";
 
 const { ForbiddenError, NotFoundError, ValidationError } = errors;
 
 const WRITABLE_FIELDS = [
-  'title',
-  'excerpt',
-  'body',
-  'coverImageUrl',
-  'tags',
-  'readingMinutes',
-  'status',
+  "title",
+  "excerpt",
+  "body",
+  "coverImageUrl",
+  "tags",
+  "readingMinutes",
+  "status",
 ] as const;
 
 function pickWritable(payload: Record<string, any> = {}) {
@@ -54,17 +54,19 @@ function readBody(ctx: any) {
  * expected path.
  */
 function assertPostWriteAccess(user: AuthUser, post: any): void {
-  if (!post) throw new NotFoundError('Post not found.');
+  if (!post) throw new NotFoundError("Post not found.");
 
   if (isAdmin(user)) return;
 
   if (canManageBlog(user)) {
     const authorId = post.author?.id ?? post.author;
     if (authorId && Number(authorId) === Number(user.id)) return;
-    throw new ForbiddenError('Content managers can only edit posts they wrote.');
+    throw new ForbiddenError(
+      "Content managers can only edit posts they wrote.",
+    );
   }
 
-  throw new ForbiddenError('Your role cannot manage blog posts.');
+  throw new ForbiddenError("Your role cannot manage blog posts.");
 }
 
 export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
@@ -80,36 +82,45 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
   async find(ctx) {
     const user = ctx.state.user as AuthUser | undefined;
     const staff = canManageBlog(user);
-    const { q, status, mine, tag } = ctx.query as Record<string, string | undefined>;
+    const { q, status, mine, tag } = ctx.query as Record<
+      string,
+      string | undefined
+    >;
 
     const filters: Record<string, any> = {};
 
     if (!staff) {
       // The whole visibility rule, in one line.
-      filters.status = 'published';
-    } else if (status === 'draft' || status === 'published') {
+      filters.status = "published";
+    } else if (status === "draft" || status === "published") {
       filters.status = status;
     }
 
-    if (staff && mine === '1' && user) filters.author = user.id;
+    if (staff && mine === "1" && user) filters.author = user.id;
     if (q) {
-      filters.$or = [{ title: { $containsi: q } }, { excerpt: { $containsi: q } }];
+      filters.$or = [
+        { title: { $containsi: q } },
+        { excerpt: { $containsi: q } },
+      ];
     }
     if (tag) filters.tags = { $containsi: tag };
 
     const posts = await strapi.db.query(BLOG_POST_UID).findMany({
       where: filters,
-      populate: ['author'],
+      populate: ["author"],
       // Published posts sort by their publish date; drafts have none, so fall back to
       // creation order for the admin table.
-      orderBy: [{ publishedDate: 'desc' }, { createdAt: 'desc' }],
+      orderBy: [{ publishedDate: "desc" }, { createdAt: "desc" }],
       limit: 100,
     });
 
     ctx.body = {
       data: posts.map((post: any) => ({
         ...blogPostCard(post),
-        canEdit: staff && user ? isAdmin(user) || Number(post.author?.id) === Number(user.id) : false,
+        canEdit:
+          staff && user
+            ? isAdmin(user) || Number(post.author?.id) === Number(user.id)
+            : false,
       })),
       meta: { total: posts.length },
     };
@@ -130,20 +141,28 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
       ? { $or: [{ id: Number(key) }, { documentId: key }, { slug: key }] }
       : { $or: [{ slug: key }, { documentId: key }] };
 
-    const post = await strapi.db.query(BLOG_POST_UID).findOne({ where, populate: ['author'] });
+    const post = await strapi.db
+      .query(BLOG_POST_UID)
+      .findOne({ where, populate: ["author"] });
 
-    if (!post) throw new NotFoundError('Post not found.');
+    if (!post) throw new NotFoundError("Post not found.");
 
-    if (post.status !== 'published') {
-      const maySee = user && (isAdmin(user) || (canManageBlog(user) && Number(post.author?.id) === Number(user.id)));
-      if (!maySee) throw new NotFoundError('Post not found.');
+    if (post.status !== "published") {
+      const maySee =
+        user &&
+        (isAdmin(user) ||
+          (canManageBlog(user) && Number(post.author?.id) === Number(user.id)));
+      if (!maySee) throw new NotFoundError("Post not found.");
     }
 
     ctx.body = {
       data: {
         ...blogPostDetail(post),
         canEdit: Boolean(
-          user && (isAdmin(user) || (canManageBlog(user) && Number(post.author?.id) === Number(user.id)))
+          user &&
+            (isAdmin(user) ||
+              (canManageBlog(user) &&
+                Number(post.author?.id) === Number(user.id))),
         ),
       },
     };
@@ -160,10 +179,10 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
     const payload = readBody(ctx);
     const data = pickWritable(payload);
 
-    const title = String(data.title ?? '').trim();
-    if (!title) throw new ValidationError('A post title is required.');
+    const title = String(data.title ?? "").trim();
+    if (!title) throw new ValidationError("A post title is required.");
 
-    const status = data.status === 'published' ? 'published' : 'draft';
+    const status = data.status === "published" ? "published" : "draft";
 
     const created = await strapi.documents(BLOG_POST_UID).create({
       data: {
@@ -171,10 +190,10 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
         title,
         slug: await uniqueSlug(strapi, BLOG_POST_UID, payload.slug || title),
         status,
-        publishedDate: status === 'published' ? new Date() : null,
+        publishedDate: status === "published" ? new Date() : null,
         author: user.id,
       },
-      populate: ['author'],
+      populate: ["author"],
     });
 
     ctx.status = 201;
@@ -193,26 +212,31 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
 
     if (data.title !== undefined) {
       const title = String(data.title).trim();
-      if (!title) throw new ValidationError('A post title is required.');
+      if (!title) throw new ValidationError("A post title is required.");
       data.title = title;
     }
 
     // Only re-slug when explicitly asked. Silently changing the URL because someone
     // fixed a typo in the title would break every link to the post.
     if (payload.slug) {
-      data.slug = await uniqueSlug(strapi, BLOG_POST_UID, payload.slug, post.id);
+      data.slug = await uniqueSlug(
+        strapi,
+        BLOG_POST_UID,
+        payload.slug,
+        post.id,
+      );
     }
 
-    if (data.status === 'published' && post.status !== 'published') {
+    if (data.status === "published" && post.status !== "published") {
       data.publishedDate = new Date();
-    } else if (data.status === 'draft') {
+    } else if (data.status === "draft") {
       data.publishedDate = null;
     }
 
     const updated = await strapi.documents(BLOG_POST_UID).update({
       documentId: post.documentId,
       data,
-      populate: ['author'],
+      populate: ["author"],
     });
 
     ctx.body = { data: { ...blogPostDetail(updated), canEdit: true } };
@@ -235,10 +259,13 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
 
     const payload = readBody(ctx);
     // Default to toggling, so the frontend can fire this with an empty body.
-    const requested = payload.status ?? (post.status === 'published' ? 'draft' : 'published');
+    const requested =
+      payload.status ?? (post.status === "published" ? "draft" : "published");
 
-    if (requested !== 'draft' && requested !== 'published') {
-      throw new ValidationError('`status` must be either "draft" or "published".');
+    if (requested !== "draft" && requested !== "published") {
+      throw new ValidationError(
+        '`status` must be either "draft" or "published".',
+      );
     }
 
     const updated = await strapi.documents(BLOG_POST_UID).update({
@@ -247,9 +274,10 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
         status: requested,
         // Preserve the original publish date on re-publish so the byline does not
         // jump forward every time a typo is fixed.
-        publishedDate: requested === 'published' ? (post.publishedDate ?? new Date()) : null,
+        publishedDate:
+          requested === "published" ? (post.publishedDate ?? new Date()) : null,
       },
-      populate: ['author'],
+      populate: ["author"],
     });
 
     ctx.body = { data: { ...blogPostCard(updated), canEdit: true } };
@@ -262,7 +290,9 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
 
     assertPostWriteAccess(user, post);
 
-    await strapi.documents(BLOG_POST_UID).delete({ documentId: post.documentId });
+    await strapi
+      .documents(BLOG_POST_UID)
+      .delete({ documentId: post.documentId });
 
     ctx.body = { data: { id: post.id, deleted: true } };
   },
@@ -274,8 +304,10 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
       ? { $or: [{ id: Number(key) }, { documentId: key }, { slug: key }] }
       : { $or: [{ slug: key }, { documentId: key }] };
 
-    const post = await strapi.db.query(BLOG_POST_UID).findOne({ where, populate: ['author'] });
-    if (!post) throw new NotFoundError('Post not found.');
+    const post = await strapi.db
+      .query(BLOG_POST_UID)
+      .findOne({ where, populate: ["author"] });
+    if (!post) throw new NotFoundError("Post not found.");
 
     return post;
   },

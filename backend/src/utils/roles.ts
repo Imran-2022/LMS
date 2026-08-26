@@ -7,19 +7,19 @@
  * never silently widen access.
  */
 export const ROLES = {
-  ADMIN: 'admin',
-  CONTENT_MANAGER: 'content_manager',
-  INSTRUCTOR: 'instructor',
-  STUDENT: 'student',
+  ADMIN: "admin",
+  CONTENT_MANAGER: "content_manager",
+  INSTRUCTOR: "instructor",
+  STUDENT: "student",
 } as const;
 
 export type RoleType = (typeof ROLES)[keyof typeof ROLES];
 
 export const ROLE_LABELS: Record<RoleType, string> = {
-  [ROLES.ADMIN]: 'Admin',
-  [ROLES.CONTENT_MANAGER]: 'Content Manager',
-  [ROLES.INSTRUCTOR]: 'Instructor',
-  [ROLES.STUDENT]: 'Student',
+  [ROLES.ADMIN]: "Admin",
+  [ROLES.CONTENT_MANAGER]: "Content Manager",
+  [ROLES.INSTRUCTOR]: "Instructor",
+  [ROLES.STUDENT]: "Student",
 };
 
 /** Minimal shape of the authenticated user Strapi hands us on `ctx.state.user`. */
@@ -39,7 +39,9 @@ export type AuthUser = {
  */
 export function roleOf(user?: AuthUser | null): RoleType | null {
   const type = user?.role?.type;
-  return type && (Object.values(ROLES) as string[]).includes(type) ? (type as RoleType) : null;
+  return type && (Object.values(ROLES) as string[]).includes(type)
+    ? (type as RoleType)
+    : null;
 }
 
 export const isAdmin = (user?: AuthUser | null) => roleOf(user) === ROLES.ADMIN;
@@ -47,16 +49,19 @@ export const isAdmin = (user?: AuthUser | null) => roleOf(user) === ROLES.ADMIN;
 export const isContentManager = (user?: AuthUser | null) =>
   roleOf(user) === ROLES.CONTENT_MANAGER;
 
-export const isInstructor = (user?: AuthUser | null) => roleOf(user) === ROLES.INSTRUCTOR;
+export const isInstructor = (user?: AuthUser | null) =>
+  roleOf(user) === ROLES.INSTRUCTOR;
 
-export const isStudent = (user?: AuthUser | null) => roleOf(user) === ROLES.STUDENT;
+export const isStudent = (user?: AuthUser | null) =>
+  roleOf(user) === ROLES.STUDENT;
 
 /**
  * Admin and Content Manager act platform-wide: they may touch any course, lesson
  * or quiz regardless of who created it. Used as the "skip the ownership check"
  * shortcut throughout the authorization layer.
  */
-export const isPrivileged = (user?: AuthUser | null) => isAdmin(user) || isContentManager(user);
+export const isPrivileged = (user?: AuthUser | null) =>
+  isAdmin(user) || isContentManager(user);
 
 /**
  * Roles allowed to author course content at all. Instructors are included here

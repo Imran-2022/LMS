@@ -33,7 +33,11 @@ export function TableWrap({
 }
 
 export function Table({ children }: { children: ReactNode }) {
-  return <table className="w-full min-w-[640px] border-collapse text-left">{children}</table>;
+  return (
+    <table className="w-full min-w-[640px] border-collapse text-left">
+      {children}
+    </table>
+  );
 }
 
 export function Th({
@@ -91,7 +95,12 @@ export function Tr({
   className?: string;
 }) {
   return (
-    <tr className={cx("transition-colors last:[&>td]:border-b-0 hover:bg-brand-50/30", className)}>
+    <tr
+      className={cx(
+        "transition-colors last:[&>td]:border-b-0 hover:bg-brand-50/30",
+        className,
+      )}
+    >
       {children}
     </tr>
   );

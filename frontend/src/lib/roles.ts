@@ -30,8 +30,10 @@ export const ROLE_LABELS: Record<RoleType, string> = {
 /** One-line description of each role, shown in the admin role picker. */
 export const ROLE_BLURBS: Record<RoleType, string> = {
   admin: "Full control: users, roles, all content and platform statistics.",
-  content_manager: "Creates and edits any course, lesson and quiz, and runs the blog.",
-  instructor: "Creates and edits their own courses, and reviews their own students.",
+  content_manager:
+    "Creates and edits any course, lesson and quiz, and runs the blog.",
+  instructor:
+    "Creates and edits their own courses, and reviews their own students.",
   student: "Enrols in courses, works through lessons and takes quizzes.",
 };
 

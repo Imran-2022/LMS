@@ -17,8 +17,8 @@
  * Strapi types a controller as a map of `(ctx, next)` handlers; a method taking
  * anything else stops the whole file type-checking.
  */
-import { factories } from '@strapi/strapi';
-import { errors } from '@strapi/utils';
+import { factories } from "@strapi/strapi";
+import { errors } from "@strapi/utils";
 
 import {
   ENROLLMENT_UID,
@@ -26,9 +26,9 @@ import {
   LESSON_UID,
   findEnrollment,
   requireUser,
-} from '../../../utils/authorization';
-import { computeCourseProgress } from '../../../utils/progress';
-import { isStudent } from '../../../utils/roles';
+} from "../../../utils/authorization";
+import { computeCourseProgress } from "../../../utils/progress";
+import { isStudent } from "../../../utils/roles";
 
 const { ForbiddenError, NotFoundError } = errors;
 
@@ -44,18 +44,22 @@ async function resolveContext(strapi: any, ctx: any) {
   const user = requireUser(ctx.state.user);
 
   if (!isStudent(user)) {
-    throw new ForbiddenError('Only students have course progress.');
+    throw new ForbiddenError("Only students have course progress.");
   }
 
   const key = String(ctx.params.lessonId);
-  const where = /^\d+$/.test(key) ? { $or: [{ id: Number(key) }, { documentId: key }] } : { documentId: key };
+  const where = /^\d+$/.test(key)
+    ? { $or: [{ id: Number(key) }, { documentId: key }] }
+    : { documentId: key };
 
-  const lesson = await strapi.db.query(LESSON_UID).findOne({ where, populate: ['course'] });
-  if (!lesson || !lesson.course) throw new NotFoundError('Lesson not found.');
+  const lesson = await strapi.db
+    .query(LESSON_UID)
+    .findOne({ where, populate: ["course"] });
+  if (!lesson || !lesson.course) throw new NotFoundError("Lesson not found.");
 
   const enrollment = await findEnrollment(strapi, user.id, lesson.course.id);
   if (!enrollment) {
-    throw new ForbiddenError('Enroll in this course before tracking progress.');
+    throw new ForbiddenError("Enroll in this course before tracking progress.");
   }
 
   return { user, lesson, course: lesson.course, enrollment };
@@ -74,11 +78,11 @@ async function upsertProgress(
   studentId: number,
   lesson: any,
   courseId: number,
-  completed: boolean
+  completed: boolean,
 ) {
   const existing = await strapi.db.query(LESSON_PROGRESS_UID).findMany({
     where: { student: studentId, lesson: lesson.id },
-    orderBy: [{ id: 'asc' }],
+    orderBy: [{ id: "asc" }],
   });
 
   const completedAt = completed ? new Date() : null;
@@ -98,7 +102,9 @@ async function upsertProgress(
   const [keep, ...duplicates] = existing;
 
   for (const duplicate of duplicates) {
-    await strapi.documents(LESSON_PROGRESS_UID).delete({ documentId: duplicate.documentId });
+    await strapi
+      .documents(LESSON_PROGRESS_UID)
+      .delete({ documentId: duplicate.documentId });
   }
 
   return strapi.documents(LESSON_PROGRESS_UID).update({
@@ -123,7 +129,7 @@ async function syncEnrollmentCompletion(
   strapi: any,
   studentId: number,
   courseId: number,
-  percent: number
+  percent: number,
 ) {
   const enrollment = await strapi.db.query(ENROLLMENT_UID).findOne({
     where: { student: studentId, course: courseId },
@@ -144,81 +150,107 @@ async function syncEnrollmentCompletion(
   }
 }
 
-export default factories.createCoreController(LESSON_PROGRESS_UID, ({ strapi }) => ({
-  /**
-   * POST /api/lesson-progress/:lessonId/complete
-   *
-   * Marks one lesson done for the calling student and returns the recalculated
-   * course progress in the same response — so the UI updates from server truth
-   * rather than optimistically guessing.
-   */
-  async complete(ctx) {
-    const { lesson, course, user } = await resolveContext(strapi, ctx);
+export default factories.createCoreController(
+  LESSON_PROGRESS_UID,
+  ({ strapi }) => ({
+    /**
+     * POST /api/lesson-progress/:lessonId/complete
+     *
+     * Marks one lesson done for the calling student and returns the recalculated
+     * course progress in the same response — so the UI updates from server truth
+     * rather than optimistically guessing.
+     */
+    async complete(ctx) {
+      const { lesson, course, user } = await resolveContext(strapi, ctx);
 
-    const row = await upsertProgress(strapi, user.id, lesson, course.id, true);
+      const row = await upsertProgress(
+        strapi,
+        user.id,
+        lesson,
+        course.id,
+        true,
+      );
 
-    // Recompute *after* the write, from the table, not from a counter we bumped.
-    const progress = await computeCourseProgress(strapi, user.id, course.id);
+      // Recompute *after* the write, from the table, not from a counter we bumped.
+      const progress = await computeCourseProgress(strapi, user.id, course.id);
 
-    // Reaching 100% is worth recording on the enrollment so "completed courses"
-    // does not have to recount every lesson for every course on the dashboard.
-    await syncEnrollmentCompletion(strapi, user.id, course.id, progress.percent);
+      // Reaching 100% is worth recording on the enrollment so "completed courses"
+      // does not have to recount every lesson for every course on the dashboard.
+      await syncEnrollmentCompletion(
+        strapi,
+        user.id,
+        course.id,
+        progress.percent,
+      );
 
-    ctx.body = {
-      data: {
-        lessonId: lesson.id,
-        completed: true,
-        completedAt: row.completedAt,
-        progress,
-      },
-    };
-  },
-
-  /**
-   * DELETE /api/lesson-progress/:lessonId/complete
-   *
-   * Un-ticks a lesson. Included because a progress feature that can only ever count
-   * upwards is not really tracking anything — and it is the quickest way to
-   * demonstrate that the percentage is derived rather than stored.
-   */
-  async uncomplete(ctx) {
-    const { lesson, course, user } = await resolveContext(strapi, ctx);
-
-    await upsertProgress(strapi, user.id, lesson, course.id, false);
-
-    const progress = await computeCourseProgress(strapi, user.id, course.id);
-    await syncEnrollmentCompletion(strapi, user.id, course.id, progress.percent);
-
-    ctx.body = { data: { lessonId: lesson.id, completed: false, completedAt: null, progress } };
-  },
-
-  /**
-   * GET /api/lesson-progress/mine?courseId=123
-   *
-   * The set of lessons the caller has finished. Used to render tick marks in the
-   * lesson rail without asking for each lesson individually.
-   */
-  async mine(ctx) {
-    const user = requireUser(ctx.state.user);
-    const where: Record<string, any> = { student: user.id, completed: true };
-
-    if (ctx.query.courseId) {
-      where.course = Number(ctx.query.courseId);
-    }
-
-    const rows = await strapi.db.query(LESSON_PROGRESS_UID).findMany({
-      where,
-      populate: ['lesson', 'course'],
-    });
-
-    ctx.body = {
-      data: rows
-        .filter((row: any) => row.lesson)
-        .map((row: any) => ({
-          lessonId: row.lesson.id,
-          courseId: row.course?.id ?? null,
+      ctx.body = {
+        data: {
+          lessonId: lesson.id,
+          completed: true,
           completedAt: row.completedAt,
-        })),
-    };
-  },
-}));
+          progress,
+        },
+      };
+    },
+
+    /**
+     * DELETE /api/lesson-progress/:lessonId/complete
+     *
+     * Un-ticks a lesson. Included because a progress feature that can only ever count
+     * upwards is not really tracking anything — and it is the quickest way to
+     * demonstrate that the percentage is derived rather than stored.
+     */
+    async uncomplete(ctx) {
+      const { lesson, course, user } = await resolveContext(strapi, ctx);
+
+      await upsertProgress(strapi, user.id, lesson, course.id, false);
+
+      const progress = await computeCourseProgress(strapi, user.id, course.id);
+      await syncEnrollmentCompletion(
+        strapi,
+        user.id,
+        course.id,
+        progress.percent,
+      );
+
+      ctx.body = {
+        data: {
+          lessonId: lesson.id,
+          completed: false,
+          completedAt: null,
+          progress,
+        },
+      };
+    },
+
+    /**
+     * GET /api/lesson-progress/mine?courseId=123
+     *
+     * The set of lessons the caller has finished. Used to render tick marks in the
+     * lesson rail without asking for each lesson individually.
+     */
+    async mine(ctx) {
+      const user = requireUser(ctx.state.user);
+      const where: Record<string, any> = { student: user.id, completed: true };
+
+      if (ctx.query.courseId) {
+        where.course = Number(ctx.query.courseId);
+      }
+
+      const rows = await strapi.db.query(LESSON_PROGRESS_UID).findMany({
+        where,
+        populate: ["lesson", "course"],
+      });
+
+      ctx.body = {
+        data: rows
+          .filter((row: any) => row.lesson)
+          .map((row: any) => ({
+            lessonId: row.lesson.id,
+            courseId: row.course?.id ?? null,
+            completedAt: row.completedAt,
+          })),
+      };
+    },
+  }),
+);

@@ -1,4 +1,9 @@
-import { ArrowRight, BookOpen, ChartNoAxesCombined, GraduationCap } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  ChartNoAxesCombined,
+  GraduationCap,
+} from "lucide-react";
 import Image from "next/image";
 import { PublicNav } from "@/components/layout/PublicNav";
 import { ButtonLink } from "@/components/ui/Button";
@@ -38,8 +43,8 @@ export default async function HomePage() {
                 Make progress you can feel.
               </h1>
               <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-600">
-                CPS Academy brings courses, practice, and momentum into one calm place to learn and
-                teach — so every session moves you forward.
+                CPS Academy brings courses, practice, and momentum into one calm
+                place to learn and teach — so every session moves you forward.
               </p>
               <div className="mt-9 flex flex-wrap items-center gap-3">
                 <ButtonLink href="/courses" size="lg">
@@ -51,12 +56,34 @@ export default async function HomePage() {
               </div>
               <div className="mt-5 flex items-center gap-3 text-sm text-ink-500">
                 <div className="flex -space-x-2" aria-hidden="true">
-                  <Image src="/avatar-3.svg" alt="" width={32} height={32} className="relative z-10 order-1 rounded-full ring-2 ring-white" />
-                  <Image src="/avatar-2.svg" alt="" width={32} height={32} className="relative z-20 order-2 rounded-full ring-2 ring-white" />
-                  <Image src="/avatar-1.svg" alt="" width={32} height={32} className="relative z-30 order-3 rounded-full ring-2 ring-white" />
+                  <Image
+                    src="/avatar-3.svg"
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="relative z-10 order-1 rounded-full ring-2 ring-white"
+                  />
+                  <Image
+                    src="/avatar-2.svg"
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="relative z-20 order-2 rounded-full ring-2 ring-white"
+                  />
+                  <Image
+                    src="/avatar-1.svg"
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="relative z-30 order-3 rounded-full ring-2 ring-white"
+                  />
                 </div>
                 <span>
-                  Trusted by <strong className="font-semibold text-ink-900">12,000+</strong> learners
+                  Trusted by{" "}
+                  <strong className="font-semibold text-ink-900">
+                    12,000+
+                  </strong>{" "}
+                  learners
                 </span>
               </div>
             </div>
@@ -76,19 +103,29 @@ export default async function HomePage() {
         <section className="border-t border-ink-100 bg-ink-50">
           <div className="mx-auto w-full max-w-[1180px] px-4 py-16 sm:px-6 lg:py-20">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight text-ink-900">Everything you need to keep moving</h2>
-              <p className="mt-3 text-ink-500">Three simple building blocks that make progress easy to start and easy to see.</p>
+              <h2 className="text-3xl font-bold tracking-tight text-ink-900">
+                Everything you need to keep moving
+              </h2>
+              <p className="mt-3 text-ink-500">
+                Three simple building blocks that make progress easy to start
+                and easy to see.
+              </p>
             </div>
             <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {highlights.map(({ icon: Icon, title, text }) => (
-              <div key={title} className="group rounded border border-ink-100 bg-white p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift">
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded bg-brand-600 text-white transition-colors group-hover:bg-brand-700">
-                  <Icon size={21} aria-hidden="true" />
-                </span>
-                <h2 className="mt-5 text-lg font-bold text-ink-900">{title}</h2>
-                <p className="mt-2 leading-7 text-ink-600">{text}</p>
-              </div>
-            ))}
+              {highlights.map(({ icon: Icon, title, text }) => (
+                <div
+                  key={title}
+                  className="group rounded border border-ink-100 bg-white p-7 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift"
+                >
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded bg-brand-600 text-white transition-colors group-hover:bg-brand-700">
+                    <Icon size={21} aria-hidden="true" />
+                  </span>
+                  <h2 className="mt-5 text-lg font-bold text-ink-900">
+                    {title}
+                  </h2>
+                  <p className="mt-2 leading-7 text-ink-600">{text}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>

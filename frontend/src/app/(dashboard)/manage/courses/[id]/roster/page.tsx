@@ -21,9 +21,10 @@ export default async function CourseRosterPage({
 
   if (!course) return <p className="text-ink-600">Course not found.</p>;
 
-  const averagePercent = typeof roster.meta.averagePercent === "number"
-    ? roster.meta.averagePercent
-    : 0;
+  const averagePercent =
+    typeof roster.meta.averagePercent === "number"
+      ? roster.meta.averagePercent
+      : 0;
 
   return (
     <>
@@ -47,13 +48,17 @@ export default async function CourseRosterPage({
           <p className="text-[11.5px] font-bold uppercase tracking-[0.08em] text-ink-400">
             Enrolled students
           </p>
-          <p className="mt-2 text-3xl font-bold tabular-nums text-ink-900">{roster.data.length}</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums text-ink-900">
+            {roster.data.length}
+          </p>
         </div>
         <div className="rounded border border-ink-200 bg-white p-5">
           <p className="text-[11.5px] font-bold uppercase tracking-[0.08em] text-ink-400">
             Average completion
           </p>
-          <p className="mt-2 text-3xl font-bold tabular-nums text-brand-600">{averagePercent}%</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums text-brand-600">
+            {averagePercent}%
+          </p>
         </div>
       </div>
 
@@ -71,15 +76,24 @@ export default async function CourseRosterPage({
               </thead>
               <tbody>
                 {roster.data.map((row) => {
-                  const studentName = row.student.fullName ?? row.student.username;
+                  const studentName =
+                    row.student.fullName ?? row.student.username;
                   return (
                     <Tr key={row.enrollmentId}>
                       <Td>
                         <div className="flex items-center gap-3">
-                          <Avatar name={studentName} src={row.student.avatarUrl} size="sm" />
+                          <Avatar
+                            name={studentName}
+                            src={row.student.avatarUrl}
+                            size="sm"
+                          />
                           <div className="min-w-0">
-                            <strong className="block truncate text-ink-900">{studentName}</strong>
-                            <span className="text-xs text-ink-500">{row.student.mobileNumber ?? ""}</span>
+                            <strong className="block truncate text-ink-900">
+                              {studentName}
+                            </strong>
+                            <span className="text-xs text-ink-500">
+                              {row.student.mobileNumber ?? ""}
+                            </span>
                           </div>
                         </div>
                       </Td>
@@ -92,7 +106,9 @@ export default async function CourseRosterPage({
                       </Td>
                       <Td align="right">
                         <span className="font-semibold text-ink-800">
-                          {row.averageQuizScore === null ? "No attempt" : `${row.averageQuizScore}%`}
+                          {row.averageQuizScore === null
+                            ? "No attempt"
+                            : `${row.averageQuizScore}%`}
                         </span>
                       </Td>
                       <Td align="right">

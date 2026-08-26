@@ -64,7 +64,10 @@ export function formatRelative(value: string | null | undefined): string {
 }
 
 /** Initials for an avatar fallback: "Priya Raman" → "PR". */
-export function initialsOf(name: string | null | undefined, fallback = "?"): string {
+export function initialsOf(
+  name: string | null | undefined,
+  fallback = "?",
+): string {
   if (!name) return fallback;
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return fallback;

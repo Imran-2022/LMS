@@ -24,7 +24,27 @@ export default async function ManageCoursesPage() {
         </p>
       </header>
       <div className="mt-8">
-        {courses.length ? <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{courses.map((course) => <CourseCard key={course.id} course={course} showStatus href={`/manage/courses/${course.id}`} />)}</div> : <EmptyState icon={<BookOpen size={24} />} title="No courses yet" description="Create your first course to start building a learning path." action={<ButtonLink href="/manage/courses/new">Create course</ButtonLink>} />}
+        {courses.length ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {courses.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                showStatus
+                href={`/manage/courses/${course.id}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={<BookOpen size={24} />}
+            title="No courses yet"
+            description="Create your first course to start building a learning path."
+            action={
+              <ButtonLink href="/manage/courses/new">Create course</ButtonLink>
+            }
+          />
+        )}
       </div>
     </>
   );

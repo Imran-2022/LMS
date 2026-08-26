@@ -11,7 +11,7 @@
  * instructor's token gets 403 from `GET /api/admin/users` no matter what the
  * frontend renders.
  */
-import { errors } from '@strapi/utils';
+import { errors } from "@strapi/utils";
 
 import {
   BLOG_POST_UID,
@@ -23,13 +23,13 @@ import {
   QUIZ_UID,
   USER_UID,
   requireUser,
-} from '../../../utils/authorization';
-import { ROLES, ROLE_LABELS, type RoleType } from '../../../utils/roles';
-import { publicUser } from '../../../utils/serialize';
+} from "../../../utils/authorization";
+import { ROLES, ROLE_LABELS, type RoleType } from "../../../utils/roles";
+import { publicUser } from "../../../utils/serialize";
 
 const { ForbiddenError, NotFoundError, ValidationError } = errors;
 
-const ROLE_UID = 'plugin::users-permissions.role';
+const ROLE_UID = "plugin::users-permissions.role";
 
 function readBody(ctx: any) {
   const body = ctx.request?.body ?? {};
@@ -40,36 +40,48 @@ export default ({ strapi }: { strapi: any }) => ({
   /** POST /api/auth/register with the application's required profile fields. */
   async register(ctx: any) {
     const body = readBody(ctx);
-    const username = typeof body.username === 'string' ? body.username.trim() : '';
-    const email = typeof body.email === 'string' ? body.email.trim() : '';
-    const password = typeof body.password === 'string' ? body.password : '';
-    const fullName = typeof body.fullName === 'string' ? body.fullName.trim() : '';
-    const mobileNumber = typeof body.mobileNumber === 'string' ? body.mobileNumber.trim() : '';
+    const username =
+      typeof body.username === "string" ? body.username.trim() : "";
+    const email = typeof body.email === "string" ? body.email.trim() : "";
+    const password = typeof body.password === "string" ? body.password : "";
+    const fullName =
+      typeof body.fullName === "string" ? body.fullName.trim() : "";
+    const mobileNumber =
+      typeof body.mobileNumber === "string" ? body.mobileNumber.trim() : "";
 
     if (!username || !email || !password || !fullName || !mobileNumber) {
-      throw new ValidationError('Email, password, full name, and mobile number are required.');
+      throw new ValidationError(
+        "Email, password, full name, and mobile number are required.",
+      );
     }
 
     const existing = await strapi.db.query(USER_UID).findOne({
       where: { $or: [{ email }, { username }] },
     });
-    if (existing) throw new ValidationError('Email or username is already taken.');
+    if (existing)
+      throw new ValidationError("Email or username is already taken.");
 
-    const studentRole = await strapi.db.query(ROLE_UID).findOne({ where: { type: 'student' } });
-    if (!studentRole) throw new ValidationError('Student role is not configured.');
+    const studentRole = await strapi.db
+      .query(ROLE_UID)
+      .findOne({ where: { type: "student" } });
+    if (!studentRole)
+      throw new ValidationError("Student role is not configured.");
 
-    const user = await strapi.plugin('users-permissions').service('user').add({
+    const user = await strapi.plugin("users-permissions").service("user").add({
       username,
       email,
       password,
       fullName,
       mobileNumber,
-      provider: 'local',
+      provider: "local",
       confirmed: true,
       blocked: false,
       role: studentRole.id,
     });
-    const jwt = strapi.plugin('users-permissions').service('jwt').issue({ id: user.id });
+    const jwt = strapi
+      .plugin("users-permissions")
+      .service("jwt")
+      .issue({ id: user.id });
 
     ctx.body = { jwt, user: publicUser(user) };
   },
@@ -98,10 +110,10 @@ export default ({ strapi }: { strapi: any }) => ({
 
     const user = await strapi.db.query(USER_UID).findOne({
       where: { id: actor.id },
-      populate: ['role'],
+      populate: ["role"],
     });
 
-    if (!user) throw new NotFoundError('User not found.');
+    if (!user) throw new NotFoundError("User not found.");
 
     ctx.body = { data: publicUser(user) };
   },
@@ -127,41 +139,52 @@ export default ({ strapi }: { strapi: any }) => ({
       completedLessons,
     ] = await Promise.all([
       strapi.db.query(COURSE_UID).count(),
-      strapi.db.query(COURSE_UID).count({ where: { status: 'published' } }),
+      strapi.db.query(COURSE_UID).count({ where: { status: "published" } }),
       strapi.db.query(LESSON_UID).count(),
       strapi.db.query(QUIZ_UID).count(),
       strapi.db.query(ENROLLMENT_UID).count(),
-      strapi.db.query(ENROLLMENT_UID).count({ where: { completedAt: { $notNull: true } } }),
+      strapi.db
+        .query(ENROLLMENT_UID)
+        .count({ where: { completedAt: { $notNull: true } } }),
       strapi.db.query(QUIZ_ATTEMPT_UID).count(),
       strapi.db.query(BLOG_POST_UID).count(),
-      strapi.db.query(BLOG_POST_UID).count({ where: { status: 'published' } }),
-      strapi.db.query(LESSON_PROGRESS_UID).count({ where: { completed: true } }),
+      strapi.db.query(BLOG_POST_UID).count({ where: { status: "published" } }),
+      strapi.db
+        .query(LESSON_PROGRESS_UID)
+        .count({ where: { completed: true } }),
     ]);
 
     // Users are fetched (not counted) because the breakdown needs each user's role.
-    const users = await strapi.db.query(USER_UID).findMany({ populate: ['role'] });
+    const users = await strapi.db
+      .query(USER_UID)
+      .findMany({ populate: ["role"] });
 
-    const usersByRole = Object.values(ROLES).reduce<Record<string, number>>((acc, role) => {
-      acc[role] = 0;
-      return acc;
-    }, {});
+    const usersByRole = Object.values(ROLES).reduce<Record<string, number>>(
+      (acc, role) => {
+        acc[role] = 0;
+        return acc;
+      },
+      {},
+    );
 
     for (const user of users) {
       const type = user.role?.type;
       if (type && type in usersByRole) usersByRole[type] += 1;
     }
 
-    const attempts = await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({ limit: 500 });
+    const attempts = await strapi.db
+      .query(QUIZ_ATTEMPT_UID)
+      .findMany({ limit: 500 });
 
     const recentEnrollments = await strapi.db.query(ENROLLMENT_UID).findMany({
       populate: { student: true, course: true },
-      orderBy: [{ createdAt: 'desc' }],
+      orderBy: [{ createdAt: "desc" }],
       limit: 6,
     });
 
     const recentPosts = await strapi.db.query(BLOG_POST_UID).findMany({
-      populate: ['author'],
-      orderBy: [{ createdAt: 'desc' }],
+      populate: ["author"],
+      orderBy: [{ createdAt: "desc" }],
       limit: 5,
     });
 
@@ -172,7 +195,11 @@ export default ({ strapi }: { strapi: any }) => ({
           byRole: usersByRole,
           blocked: users.filter((user: any) => user.blocked).length,
         },
-        courses: { total: totalCourses, published: publishedCourses, drafts: totalCourses - publishedCourses },
+        courses: {
+          total: totalCourses,
+          published: publishedCourses,
+          drafts: totalCourses - publishedCourses,
+        },
         content: { lessons: totalLessons, quizzes: totalQuizzes },
         learning: {
           enrollments: totalEnrollments,
@@ -187,19 +214,35 @@ export default ({ strapi }: { strapi: any }) => ({
         quizzes: {
           attempts: totalAttempts,
           averageScore: attempts.length
-            ? Math.round(attempts.reduce((sum: number, a: any) => sum + (a.score ?? 0), 0) / attempts.length)
+            ? Math.round(
+                attempts.reduce(
+                  (sum: number, a: any) => sum + (a.score ?? 0),
+                  0,
+                ) / attempts.length,
+              )
             : 0,
           passRate: attempts.length
-            ? Math.round((attempts.filter((a: any) => a.passed).length / attempts.length) * 100)
+            ? Math.round(
+                (attempts.filter((a: any) => a.passed).length /
+                  attempts.length) *
+                  100,
+              )
             : 0,
         },
-        blog: { total: totalPosts, published: publishedPosts, drafts: totalPosts - publishedPosts },
+        blog: {
+          total: totalPosts,
+          published: publishedPosts,
+          drafts: totalPosts - publishedPosts,
+        },
         recent: {
           enrollments: recentEnrollments
-            .filter((enrollment: any) => enrollment.student && enrollment.course)
+            .filter(
+              (enrollment: any) => enrollment.student && enrollment.course,
+            )
             .map((enrollment: any) => ({
               id: enrollment.id,
-              studentName: enrollment.student.fullName ?? enrollment.student.username,
+              studentName:
+                enrollment.student.fullName ?? enrollment.student.username,
               courseTitle: enrollment.course.title,
               enrolledAt: enrollment.enrolledAt ?? enrollment.createdAt,
             })),
@@ -239,8 +282,8 @@ export default ({ strapi }: { strapi: any }) => ({
 
     const users = await strapi.db.query(USER_UID).findMany({
       where: filters,
-      populate: ['role'],
-      orderBy: [{ createdAt: 'desc' }],
+      populate: ["role"],
+      orderBy: [{ createdAt: "desc" }],
       limit: 200,
     });
 
@@ -248,11 +291,17 @@ export default ({ strapi }: { strapi: any }) => ({
     const rows = await Promise.all(
       users.map(async (user: any) => {
         const [enrollments, ownedCourses] = await Promise.all([
-          strapi.db.query(ENROLLMENT_UID).count({ where: { student: user.id } }),
+          strapi.db
+            .query(ENROLLMENT_UID)
+            .count({ where: { student: user.id } }),
           strapi.db.query(COURSE_UID).count({ where: { owner: user.id } }),
         ]);
-        return { ...publicUser(user), enrollmentCount: enrollments, ownedCourseCount: ownedCourses };
-      })
+        return {
+          ...publicUser(user),
+          enrollmentCount: enrollments,
+          ownedCourseCount: ownedCourses,
+        };
+      }),
     );
 
     ctx.body = { data: rows, meta: { total: rows.length } };
@@ -296,18 +345,18 @@ export default ({ strapi }: { strapi: any }) => ({
     const payload = readBody(ctx);
 
     const requested = payload.role ?? payload.roleType ?? payload.roleId;
-    if (requested === undefined || requested === null || requested === '') {
-      throw new ValidationError('A `role` is required.');
+    if (requested === undefined || requested === null || requested === "") {
+      throw new ValidationError("A `role` is required.");
     }
 
     const target = await strapi.db.query(USER_UID).findOne({
       where: { id: targetId },
-      populate: ['role'],
+      populate: ["role"],
     });
-    if (!target) throw new NotFoundError('User not found.');
+    if (!target) throw new NotFoundError("User not found.");
 
     if (Number(target.id) === Number(actor.id)) {
-      throw new ForbiddenError('You cannot change your own role.');
+      throw new ForbiddenError("You cannot change your own role.");
     }
 
     const role = await this.resolveRole(requested);
@@ -315,10 +364,12 @@ export default ({ strapi }: { strapi: any }) => ({
     const updated = await strapi.db.query(USER_UID).update({
       where: { id: target.id },
       data: { role: role.id },
-      populate: ['role'],
+      populate: ["role"],
     });
 
-    strapi.log.info(`[admin] ${actor.username ?? actor.id} set user ${target.id} role to ${role.type}`);
+    strapi.log.info(
+      `[admin] ${actor.username ?? actor.id} set user ${target.id} role to ${role.type}`,
+    );
 
     ctx.body = { data: publicUser(updated) };
   },
@@ -335,19 +386,24 @@ export default ({ strapi }: { strapi: any }) => ({
     const targetId = Number(ctx.params.id);
     const payload = readBody(ctx);
 
-    const target = await strapi.db.query(USER_UID).findOne({ where: { id: targetId } });
-    if (!target) throw new NotFoundError('User not found.');
+    const target = await strapi.db
+      .query(USER_UID)
+      .findOne({ where: { id: targetId } });
+    if (!target) throw new NotFoundError("User not found.");
 
     if (Number(target.id) === Number(actor.id)) {
-      throw new ForbiddenError('You cannot block your own account.');
+      throw new ForbiddenError("You cannot block your own account.");
     }
 
-    const blocked = payload.blocked === undefined ? !target.blocked : Boolean(payload.blocked);
+    const blocked =
+      payload.blocked === undefined
+        ? !target.blocked
+        : Boolean(payload.blocked);
 
     const updated = await strapi.db.query(USER_UID).update({
       where: { id: target.id },
       data: { blocked },
-      populate: ['role'],
+      populate: ["role"],
     });
 
     ctx.body = { data: publicUser(updated) };
@@ -366,15 +422,23 @@ export default ({ strapi }: { strapi: any }) => ({
     const targetId = Number(ctx.params.id);
 
     if (Number(targetId) === Number(actor.id)) {
-      throw new ForbiddenError('You cannot delete your own account.');
+      throw new ForbiddenError("You cannot delete your own account.");
     }
 
-    const target = await strapi.db.query(USER_UID).findOne({ where: { id: targetId } });
-    if (!target) throw new NotFoundError('User not found.');
+    const target = await strapi.db
+      .query(USER_UID)
+      .findOne({ where: { id: targetId } });
+    if (!target) throw new NotFoundError("User not found.");
 
-    await strapi.db.query(LESSON_PROGRESS_UID).deleteMany({ where: { student: target.id } });
-    await strapi.db.query(QUIZ_ATTEMPT_UID).deleteMany({ where: { student: target.id } });
-    await strapi.db.query(ENROLLMENT_UID).deleteMany({ where: { student: target.id } });
+    await strapi.db
+      .query(LESSON_PROGRESS_UID)
+      .deleteMany({ where: { student: target.id } });
+    await strapi.db
+      .query(QUIZ_ATTEMPT_UID)
+      .deleteMany({ where: { student: target.id } });
+    await strapi.db
+      .query(ENROLLMENT_UID)
+      .deleteMany({ where: { student: target.id } });
 
     await strapi.db.query(USER_UID).delete({ where: { id: target.id } });
 
@@ -390,8 +454,8 @@ export default ({ strapi }: { strapi: any }) => ({
    */
   async listCourses(ctx: any) {
     const courses = await strapi.db.query(COURSE_UID).findMany({
-      populate: ['owner'],
-      orderBy: [{ createdAt: 'desc' }],
+      populate: ["owner"],
+      orderBy: [{ createdAt: "desc" }],
       limit: 200,
     });
 
@@ -400,7 +464,9 @@ export default ({ strapi }: { strapi: any }) => ({
         const [lessonCount, quizCount, enrollmentCount] = await Promise.all([
           strapi.db.query(LESSON_UID).count({ where: { course: course.id } }),
           strapi.db.query(QUIZ_UID).count({ where: { course: course.id } }),
-          strapi.db.query(ENROLLMENT_UID).count({ where: { course: course.id } }),
+          strapi.db
+            .query(ENROLLMENT_UID)
+            .count({ where: { course: course.id } }),
         ]);
 
         return {
@@ -424,7 +490,7 @@ export default ({ strapi }: { strapi: any }) => ({
           quizCount,
           enrollmentCount,
         };
-      })
+      }),
     );
 
     ctx.body = { data: rows, meta: { total: rows.length } };
@@ -434,22 +500,33 @@ export default ({ strapi }: { strapi: any }) => ({
   async resolveRole(requested: unknown) {
     const allowed = Object.values(ROLES) as string[];
 
-    if (typeof requested === 'string' && allowed.includes(requested)) {
-      const role = await strapi.db.query(ROLE_UID).findOne({ where: { type: requested } });
-      if (!role) throw new ValidationError(`Role "${requested}" has not been created yet.`);
+    if (typeof requested === "string" && allowed.includes(requested)) {
+      const role = await strapi.db
+        .query(ROLE_UID)
+        .findOne({ where: { type: requested } });
+      if (!role)
+        throw new ValidationError(
+          `Role "${requested}" has not been created yet.`,
+        );
       return role;
     }
 
     const asId = Number(requested);
     if (Number.isInteger(asId) && asId > 0) {
-      const role = await strapi.db.query(ROLE_UID).findOne({ where: { id: asId } });
-      if (!role) throw new NotFoundError('Role not found.');
+      const role = await strapi.db
+        .query(ROLE_UID)
+        .findOne({ where: { id: asId } });
+      if (!role) throw new NotFoundError("Role not found.");
       if (!allowed.includes(role.type)) {
-        throw new ValidationError('Only the four application roles can be assigned.');
+        throw new ValidationError(
+          "Only the four application roles can be assigned.",
+        );
       }
       return role;
     }
 
-    throw new ValidationError(`\`role\` must be one of: ${allowed.join(', ')}.`);
+    throw new ValidationError(
+      `\`role\` must be one of: ${allowed.join(", ")}.`,
+    );
   },
 });

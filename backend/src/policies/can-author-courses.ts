@@ -10,19 +10,19 @@
  * their own courses. Keeping the two concerns in separate policies is what stops
  * "can create" from accidentally becoming "can edit anything".
  */
-import { errors } from '@strapi/utils';
+import { errors } from "@strapi/utils";
 
-import { canAuthorCourses } from '../utils/roles';
+import { canAuthorCourses } from "../utils/roles";
 
 export default (policyContext: any) => {
   const user = policyContext.state?.user;
 
   if (!user) {
-    throw new errors.UnauthorizedError('You must be signed in to do that.');
+    throw new errors.UnauthorizedError("You must be signed in to do that.");
   }
 
   if (!canAuthorCourses(user)) {
-    throw new errors.ForbiddenError('Your role cannot create course content.');
+    throw new errors.ForbiddenError("Your role cannot create course content.");
   }
 
   return true;

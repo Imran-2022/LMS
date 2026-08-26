@@ -18,19 +18,24 @@
  * all?". The row-level questions — *which* course, *whose* progress — are answered
  * afterwards by the policies in `src/policies/`.
  */
-import { ROLES, ROLE_LABELS, type RoleType } from '../utils/roles';
+import { ROLES, ROLE_LABELS, type RoleType } from "../utils/roles";
 
-const ROLE_UID = 'plugin::users-permissions.role';
-const PERMISSION_UID = 'plugin::users-permissions.permission';
+const ROLE_UID = "plugin::users-permissions.role";
+const PERMISSION_UID = "plugin::users-permissions.permission";
 
 /** Turns `('course', ['find', 'create'])` into fully-qualified action strings. */
-const api = (name: string, actions: string[]) => actions.map((action) => `api::${name}.${name}.${action}`);
+const api = (name: string, actions: string[]) =>
+  actions.map((action) => `api::${name}.${name}.${action}`);
 
 const ROLE_DESCRIPTIONS: Record<RoleType, string> = {
-  [ROLES.ADMIN]: 'Full control: users, roles, all content, blog and platform statistics.',
-  [ROLES.CONTENT_MANAGER]: 'Creates and edits any course, lesson and quiz, and manages the blog.',
-  [ROLES.INSTRUCTOR]: 'Creates and edits their own courses, and reviews their own students.',
-  [ROLES.STUDENT]: 'Enrols in courses, works through lessons and takes quizzes.',
+  [ROLES.ADMIN]:
+    "Full control: users, roles, all content, blog and platform statistics.",
+  [ROLES.CONTENT_MANAGER]:
+    "Creates and edits any course, lesson and quiz, and manages the blog.",
+  [ROLES.INSTRUCTOR]:
+    "Creates and edits their own courses, and reviews their own students.",
+  [ROLES.STUDENT]:
+    "Enrols in courses, works through lessons and takes quizzes.",
 };
 
 // ---------------------------------------------------------------------------
@@ -39,47 +44,70 @@ const ROLE_DESCRIPTIONS: Record<RoleType, string> = {
 
 /** Browsing the catalogue and reading the blog. Available to everyone, signed in or not. */
 const PUBLIC_READS = [
-  ...api('course', ['find', 'findOne']),
-  ...api('blog-post', ['find', 'findOne']),
+  ...api("course", ["find", "findOne"]),
+  ...api("blog-post", ["find", "findOne"]),
 ];
 
 /** Signing up, signing in, and reading your own account. */
 const AUTH_ENDPOINTS = [
-  'plugin::users-permissions.auth.callback',
-  'plugin::users-permissions.auth.register',
-  'plugin::users-permissions.auth.forgotPassword',
-  'plugin::users-permissions.auth.resetPassword',
-  'plugin::users-permissions.auth.emailConfirmation',
-  'plugin::users-permissions.auth.sendEmailConfirmation',
+  "plugin::users-permissions.auth.callback",
+  "plugin::users-permissions.auth.register",
+  "plugin::users-permissions.auth.forgotPassword",
+  "plugin::users-permissions.auth.resetPassword",
+  "plugin::users-permissions.auth.emailConfirmation",
+  "plugin::users-permissions.auth.sendEmailConfirmation",
 ];
 
 const ACCOUNT_ENDPOINTS = [
-  'plugin::users-permissions.user.me',
-  'plugin::users-permissions.auth.changePassword',
+  "plugin::users-permissions.user.me",
+  "plugin::users-permissions.auth.changePassword",
   // Our own profile endpoint. See the note on `platform.me` for why the plugin's
   // `/users/me` is not enough: it sanitizes the `role` relation away.
-  ...api('platform', ['me']),
+  ...api("platform", ["me"]),
 ];
 
 /** Full authoring rights over course content — the shape of the ✅ column for staff. */
 const COURSE_AUTHORING = [
-  ...api('course', ['find', 'findOne', 'mine', 'create', 'update', 'delete', 'progress', 'roster']),
-  ...api('lesson', ['find', 'findOne', 'create', 'update', 'delete', 'reorder']),
-  ...api('quiz', ['find', 'findOne', 'create', 'update', 'delete']),
+  ...api("course", [
+    "find",
+    "findOne",
+    "mine",
+    "create",
+    "update",
+    "delete",
+    "progress",
+    "roster",
+  ]),
+  ...api("lesson", [
+    "find",
+    "findOne",
+    "create",
+    "update",
+    "delete",
+    "reorder",
+  ]),
+  ...api("quiz", ["find", "findOne", "create", "update", "delete"]),
   // Reviewing results. Narrowed to own courses inside the controller for instructors.
-  ...api('quiz-attempt', ['find']),
+  ...api("quiz-attempt", ["find"]),
 ];
 
-const BLOG_AUTHORING = api('blog-post', ['find', 'findOne', 'create', 'update', 'delete', 'setStatus']);
+const BLOG_AUTHORING = api("blog-post", [
+  "find",
+  "findOne",
+  "create",
+  "update",
+  "delete",
+  "setStatus",
+]);
 
-const PLATFORM_ADMIN = api('platform', [
-  'stats',
-  'listRoles',
-  'listUsers',
-  'setUserRole',
-  'setUserStatus',
-  'deleteUser',
-  'listCourses',
+const PLATFORM_ADMIN = api("platform", [
+  "stats",
+  "listRoles",
+  "listUsers",
+  "setUserRole",
+  "setUserStatus",
+  "deleteUser",
+  "listCourses",
 ]);
 
 /**
@@ -105,7 +133,7 @@ const PLATFORM_ADMIN = api('platform', [
  * `quiz-attempt.create`. Those two rows are ❌ for everyone except Student, so an
  * admin token is rejected before it even reaches the `is-student` policy.
  */
-const PERMISSION_MATRIX: Record<RoleType | 'public', string[]> = {
+const PERMISSION_MATRIX: Record<RoleType | "public", string[]> = {
   public: [...PUBLIC_READS, ...AUTH_ENDPOINTS],
 
   [ROLES.ADMIN]: [
@@ -116,8 +144,8 @@ const PERMISSION_MATRIX: Record<RoleType | 'public', string[]> = {
     ...PLATFORM_ADMIN,
     // Admins moderate enrolments (remove them) and read the full list, but cannot
     // create one for themselves — see the matrix note above.
-    ...api('enrollment', ['find', 'delete']),
-    ...api('lesson-progress', ['mine']),
+    ...api("enrollment", ["find", "delete"]),
+    ...api("lesson-progress", ["mine"]),
   ],
 
   [ROLES.CONTENT_MANAGER]: [
@@ -125,7 +153,7 @@ const PERMISSION_MATRIX: Record<RoleType | 'public', string[]> = {
     ...ACCOUNT_ENDPOINTS,
     ...COURSE_AUTHORING,
     ...BLOG_AUTHORING,
-    ...api('enrollment', ['find', 'delete']),
+    ...api("enrollment", ["find", "delete"]),
   ],
 
   [ROLES.INSTRUCTOR]: [
@@ -139,14 +167,14 @@ const PERMISSION_MATRIX: Record<RoleType | 'public', string[]> = {
     ...PUBLIC_READS,
     ...ACCOUNT_ENDPOINTS,
     // Reading course material they are enrolled in.
-    ...api('course', ['find', 'findOne', 'progress']),
-    ...api('lesson', ['find', 'findOne']),
-    ...api('quiz', ['find', 'findOne']),
+    ...api("course", ["find", "findOne", "progress"]),
+    ...api("lesson", ["find", "findOne"]),
+    ...api("quiz", ["find", "findOne"]),
     // The two student-only rows of the matrix.
-    ...api('enrollment', ['mine', 'create', 'delete']),
-    ...api('quiz-attempt', ['mine', 'create']),
+    ...api("enrollment", ["mine", "create", "delete"]),
+    ...api("quiz-attempt", ["mine", "create"]),
     // Progress tracking.
-    ...api('lesson-progress', ['mine', 'complete', 'uncomplete']),
+    ...api("lesson-progress", ["mine", "complete", "uncomplete"]),
   ],
 };
 
@@ -168,7 +196,9 @@ async function ensureRole(strapi: any, type: RoleType) {
   }
 
   strapi.log.info(`[bootstrap] creating role "${name}" (${type})`);
-  return strapi.db.query(ROLE_UID).create({ data: { name, description, type } });
+  return strapi.db
+    .query(ROLE_UID)
+    .create({ data: { name, description, type } });
 }
 
 /**
@@ -177,7 +207,12 @@ async function ensureRole(strapi: any, type: RoleType) {
  * In users-permissions a permission is granted purely by a row existing, so this is
  * a set difference in both directions: insert what is missing, delete what is extra.
  */
-async function syncRolePermissions(strapi: any, roleId: number, roleLabel: string, actions: string[]) {
+async function syncRolePermissions(
+  strapi: any,
+  roleId: number,
+  roleLabel: string,
+  actions: string[],
+) {
   const wanted = new Set(actions);
 
   const existing = await strapi.db.query(PERMISSION_UID).findMany({
@@ -188,7 +223,9 @@ async function syncRolePermissions(strapi: any, roleId: number, roleLabel: strin
   let granted = 0;
   for (const action of wanted) {
     if (!held.has(action)) {
-      await strapi.db.query(PERMISSION_UID).create({ data: { action, role: roleId } });
+      await strapi.db
+        .query(PERMISSION_UID)
+        .create({ data: { action, role: roleId } });
       granted += 1;
     }
   }
@@ -196,13 +233,17 @@ async function syncRolePermissions(strapi: any, roleId: number, roleLabel: strin
   let revoked = 0;
   for (const permission of existing) {
     if (!wanted.has(permission.action)) {
-      await strapi.db.query(PERMISSION_UID).delete({ where: { id: permission.id } });
+      await strapi.db
+        .query(PERMISSION_UID)
+        .delete({ where: { id: permission.id } });
       revoked += 1;
     }
   }
 
   if (granted || revoked) {
-    strapi.log.info(`[bootstrap] ${roleLabel}: +${granted} / -${revoked} permissions`);
+    strapi.log.info(
+      `[bootstrap] ${roleLabel}: +${granted} / -${revoked} permissions`,
+    );
   }
 }
 
@@ -215,17 +256,23 @@ async function syncRolePermissions(strapi: any, roleId: number, roleLabel: strin
  * and an admin promotes people from the admin panel afterwards.
  */
 async function setDefaultRegistrationRole(strapi: any) {
-  const store = strapi.store({ type: 'plugin', name: 'users-permissions' });
-  const advanced = (await store.get({ key: 'advanced' })) ?? {};
+  const store = strapi.store({ type: "plugin", name: "users-permissions" });
+  const advanced = (await store.get({ key: "advanced" })) ?? {};
 
-  if (advanced.default_role === ROLES.STUDENT && advanced.allow_register === true) return;
+  if (
+    advanced.default_role === ROLES.STUDENT &&
+    advanced.allow_register === true
+  )
+    return;
 
   await store.set({
-    key: 'advanced',
+    key: "advanced",
     value: { ...advanced, default_role: ROLES.STUDENT, allow_register: true },
   });
 
-  strapi.log.info(`[bootstrap] default role for new sign-ups set to "${ROLES.STUDENT}"`);
+  strapi.log.info(
+    `[bootstrap] default role for new sign-ups set to "${ROLES.STUDENT}"`,
+  );
 }
 
 /** Entry point called from `src/index.ts` on every boot. */
@@ -233,13 +280,25 @@ export async function syncRolesAndPermissions(strapi: any) {
   // The four application roles.
   for (const type of Object.values(ROLES)) {
     const role = await ensureRole(strapi, type);
-    await syncRolePermissions(strapi, role.id, ROLE_LABELS[type], PERMISSION_MATRIX[type]);
+    await syncRolePermissions(
+      strapi,
+      role.id,
+      ROLE_LABELS[type],
+      PERMISSION_MATRIX[type],
+    );
   }
 
   // Plus Strapi's built-in `public` role, which is what an anonymous visitor gets.
-  const publicRole = await strapi.db.query(ROLE_UID).findOne({ where: { type: 'public' } });
+  const publicRole = await strapi.db
+    .query(ROLE_UID)
+    .findOne({ where: { type: "public" } });
   if (publicRole) {
-    await syncRolePermissions(strapi, publicRole.id, 'Public', PERMISSION_MATRIX.public);
+    await syncRolePermissions(
+      strapi,
+      publicRole.id,
+      "Public",
+      PERMISSION_MATRIX.public,
+    );
   }
 
   await setDefaultRegistrationRole(strapi);

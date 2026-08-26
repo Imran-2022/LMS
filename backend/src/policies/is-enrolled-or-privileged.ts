@@ -12,7 +12,7 @@
  * Configured per-route the same way as `owns-course-or-privileged`:
  *   { name: 'global::is-enrolled-or-privileged', config: { resource: 'lesson' } }
  */
-import { errors } from '@strapi/utils';
+import { errors } from "@strapi/utils";
 
 import {
   LESSON_UID,
@@ -20,32 +20,36 @@ import {
   assertCourseReadAccess,
   findCourse,
   findParentCourse,
-} from '../utils/authorization';
+} from "../utils/authorization";
 
-type Resource = 'course' | 'lesson' | 'quiz';
+type Resource = "course" | "lesson" | "quiz";
 
 export default async (
   policyContext: any,
   config: { resource?: Resource; param?: string } = {},
-  { strapi }: { strapi: any }
+  { strapi }: { strapi: any },
 ) => {
   const user = policyContext.state?.user;
 
   if (!user) {
-    throw new errors.UnauthorizedError('You must be signed in to do that.');
+    throw new errors.UnauthorizedError("You must be signed in to do that.");
   }
 
-  const resource: Resource = config.resource ?? 'course';
-  const param = config.param ?? 'id';
+  const resource: Resource = config.resource ?? "course";
+  const param = config.param ?? "id";
   const key = policyContext.params?.[param];
 
   const course =
-    resource === 'course'
+    resource === "course"
       ? await findCourse(strapi, key)
-      : await findParentCourse(strapi, resource === 'lesson' ? LESSON_UID : QUIZ_UID, key);
+      : await findParentCourse(
+          strapi,
+          resource === "lesson" ? LESSON_UID : QUIZ_UID,
+          key,
+        );
 
   if (!course) {
-    throw new errors.NotFoundError('Course not found.');
+    throw new errors.NotFoundError("Course not found.");
   }
 
   // Throws ForbiddenError when the student has no enrollment row.

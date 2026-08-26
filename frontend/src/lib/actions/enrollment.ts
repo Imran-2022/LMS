@@ -60,7 +60,9 @@ export async function unenroll(form: FormData) {
   const courseId = str(form, "courseId");
   if (!enrollmentId) return;
 
-  const result = await apiFetch(`/api/enrollments/${enrollmentId}`, { method: "DELETE" });
+  const result = await apiFetch(`/api/enrollments/${enrollmentId}`, {
+    method: "DELETE",
+  });
 
   finish(
     coursePaths(courseId),

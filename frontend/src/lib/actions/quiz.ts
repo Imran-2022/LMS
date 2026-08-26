@@ -18,7 +18,15 @@ import { apiFetch } from "@/lib/api";
 import { requireAuthor, requireStudent } from "@/lib/session";
 import type { ApiItem, QuizAttempt, QuizWithAnswers } from "@/lib/types";
 
-import { coursePaths, finish, num, optionalNum, optionalStr, refresh, str } from "./shared";
+import {
+  coursePaths,
+  finish,
+  num,
+  optionalNum,
+  optionalStr,
+  refresh,
+  str,
+} from "./shared";
 import type { FormState } from "./shared";
 
 /** Matches the option slots the builder renders per question. */
@@ -91,7 +99,8 @@ function describeProblem(questions: DraftQuestion[]): string | null {
     const question = questions[index];
     const label = `Question ${index + 1}`;
     if (!question.text) return `${label}: write the question text.`;
-    if (question.options.length < 2) return `${label}: give at least two answer options.`;
+    if (question.options.length < 2)
+      return `${label}: give at least two answer options.`;
   }
 
   return null;
@@ -107,7 +116,10 @@ function quizPayload(form: FormData) {
   };
 }
 
-export async function createQuiz(_prev: FormState, form: FormData): Promise<FormState> {
+export async function createQuiz(
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   await requireAuthor();
   const courseId = str(form, "courseId");
   const payload = quizPayload(form);
@@ -129,7 +141,10 @@ export async function createQuiz(_prev: FormState, form: FormData): Promise<Form
   finish(coursePaths(courseId), `/manage/courses/${courseId}`, "quiz-created");
 }
 
-export async function updateQuiz(_prev: FormState, form: FormData): Promise<FormState> {
+export async function updateQuiz(
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   await requireAuthor();
   const courseId = str(form, "courseId");
   const quizId = str(form, "quizId");
@@ -177,9 +192,14 @@ export async function deleteQuiz(form: FormData) {
  * page would mean re-reading the attempt from history, where the breakdown is not
  * included, and the student would see a bare score with no explanations.
  */
-export type AttemptState = { error?: string; attempt?: QuizAttempt } | undefined;
+export type AttemptState =
+  | { error?: string; attempt?: QuizAttempt }
+  | undefined;
 
-export async function submitQuizAttempt(_prev: AttemptState, form: FormData): Promise<AttemptState> {
+export async function submitQuizAttempt(
+  _prev: AttemptState,
+  form: FormData,
+): Promise<AttemptState> {
   await requireStudent();
 
   const quizId = str(form, "quizId");

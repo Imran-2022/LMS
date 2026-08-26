@@ -16,65 +16,80 @@
 export default {
   routes: [
     {
-      method: 'GET',
-      path: '/courses',
-      handler: 'course.find',
+      method: "GET",
+      path: "/courses",
+      handler: "course.find",
     },
     {
       // Must stay above `/courses/:id`.
-      method: 'GET',
-      path: '/courses/mine',
-      handler: 'course.mine',
+      method: "GET",
+      path: "/courses/mine",
+      handler: "course.mine",
       config: {
-        policies: ['global::can-author-courses'],
+        policies: ["global::can-author-courses"],
       },
     },
     {
-      method: 'GET',
-      path: '/courses/:id',
-      handler: 'course.findOne',
+      method: "GET",
+      path: "/courses/:id",
+      handler: "course.findOne",
     },
     {
-      method: 'GET',
-      path: '/courses/:id/progress',
-      handler: 'course.progress',
+      method: "GET",
+      path: "/courses/:id/progress",
+      handler: "course.progress",
       config: {
         // Row-level rule ("own progress only" vs "own courses only") is resolved
         // inside the controller by `assertProgressReadAccess`, because it depends
         // on the `studentId` query param as well as the role.
-        policies: ['global::is-authenticated'],
+        policies: ["global::is-authenticated"],
       },
     },
     {
-      method: 'GET',
-      path: '/courses/:id/roster',
-      handler: 'course.roster',
+      method: "GET",
+      path: "/courses/:id/roster",
+      handler: "course.roster",
       config: {
-        policies: [{ name: 'global::owns-course-or-privileged', config: { resource: 'course' } }],
+        policies: [
+          {
+            name: "global::owns-course-or-privileged",
+            config: { resource: "course" },
+          },
+        ],
       },
     },
     {
-      method: 'POST',
-      path: '/courses',
-      handler: 'course.create',
+      method: "POST",
+      path: "/courses",
+      handler: "course.create",
       config: {
-        policies: ['global::can-author-courses'],
+        policies: ["global::can-author-courses"],
       },
     },
     {
-      method: 'PUT',
-      path: '/courses/:id',
-      handler: 'course.update',
+      method: "PUT",
+      path: "/courses/:id",
+      handler: "course.update",
       config: {
-        policies: [{ name: 'global::owns-course-or-privileged', config: { resource: 'course' } }],
+        policies: [
+          {
+            name: "global::owns-course-or-privileged",
+            config: { resource: "course" },
+          },
+        ],
       },
     },
     {
-      method: 'DELETE',
-      path: '/courses/:id',
-      handler: 'course.delete',
+      method: "DELETE",
+      path: "/courses/:id",
+      handler: "course.delete",
       config: {
-        policies: [{ name: 'global::owns-course-or-privileged', config: { resource: 'course' } }],
+        policies: [
+          {
+            name: "global::owns-course-or-privileged",
+            config: { resource: "course" },
+          },
+        ],
       },
     },
   ],

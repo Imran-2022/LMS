@@ -11,8 +11,8 @@
  * matrix in `bootstrap/permissions.ts` is the single source of truth, and each start
  * reconciles the database back to it.
  */
-import { syncRolesAndPermissions } from './bootstrap/permissions';
-import { seedDemoData } from './bootstrap/seed';
+import { syncRolesAndPermissions } from "./bootstrap/permissions";
+import { seedDemoData } from "./bootstrap/seed";
 
 export default {
   /**
@@ -35,14 +35,14 @@ export default {
     try {
       await syncRolesAndPermissions(strapi);
     } catch (error) {
-      strapi.log.error('[bootstrap] role/permission sync failed');
+      strapi.log.error("[bootstrap] role/permission sync failed");
       strapi.log.error(error);
     }
 
     try {
       await seedDemoData(strapi);
     } catch (error) {
-      strapi.log.error('[bootstrap] demo seed failed');
+      strapi.log.error("[bootstrap] demo seed failed");
       strapi.log.error(error);
     }
   },

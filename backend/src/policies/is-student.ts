@@ -5,19 +5,21 @@
  * those two rows ❌ for every staff role. An admin who wants to see the student
  * experience signs in as a student account — the same rule the brief describes.
  */
-import { errors } from '@strapi/utils';
+import { errors } from "@strapi/utils";
 
-import { isStudent } from '../utils/roles';
+import { isStudent } from "../utils/roles";
 
 export default (policyContext: any) => {
   const user = policyContext.state?.user;
 
   if (!user) {
-    throw new errors.UnauthorizedError('You must be signed in to do that.');
+    throw new errors.UnauthorizedError("You must be signed in to do that.");
   }
 
   if (!isStudent(user)) {
-    throw new errors.ForbiddenError('Only students can enroll in courses and take quizzes.');
+    throw new errors.ForbiddenError(
+      "Only students can enroll in courses and take quizzes.",
+    );
   }
 
   return true;

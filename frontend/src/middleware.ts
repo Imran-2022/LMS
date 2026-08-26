@@ -42,7 +42,9 @@ export function middleware(request: NextRequest) {
   }
 
   const guard = GUARDS.find(
-    (candidate) => pathname === candidate.prefix || pathname.startsWith(`${candidate.prefix}/`),
+    (candidate) =>
+      pathname === candidate.prefix ||
+      pathname.startsWith(`${candidate.prefix}/`),
   );
   if (!guard) return NextResponse.next();
 
@@ -83,5 +85,7 @@ export const config = {
    * Skip static assets and Next's internals. Without this the middleware would run
    * for every image and chunk request, which is wasted work on the edge.
    */
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|ico)$).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|ico)$).*)",
+  ],
 };

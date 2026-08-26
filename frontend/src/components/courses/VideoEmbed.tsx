@@ -8,8 +8,10 @@ function youtubeEmbedUrl(value: string): string | null {
       videoId = url.pathname.slice(1);
     } else if (hostname === "youtube.com" || hostname === "m.youtube.com") {
       if (url.pathname === "/watch") videoId = url.searchParams.get("v") ?? "";
-      if (url.pathname.startsWith("/embed/")) videoId = url.pathname.split("/")[2] ?? "";
-      if (url.pathname.startsWith("/shorts/")) videoId = url.pathname.split("/")[2] ?? "";
+      if (url.pathname.startsWith("/embed/"))
+        videoId = url.pathname.split("/")[2] ?? "";
+      if (url.pathname.startsWith("/shorts/"))
+        videoId = url.pathname.split("/")[2] ?? "";
     }
 
     return /^[A-Za-z0-9_-]{11}$/.test(videoId)

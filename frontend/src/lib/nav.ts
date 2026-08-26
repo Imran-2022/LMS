@@ -38,7 +38,12 @@ export type NavGroup = { heading: string; items: NavItem[] };
 const ALL: RoleType[] = ["admin", "content_manager", "instructor", "student"];
 const AUTHORS: RoleType[] = ["admin", "content_manager", "instructor"];
 const BLOG: RoleType[] = ["admin", "content_manager"];
-const BLOG_READERS: RoleType[] = ["admin", "content_manager", "instructor", "student"];
+const BLOG_READERS: RoleType[] = [
+  "admin",
+  "content_manager",
+  "instructor",
+  "student",
+];
 const ADMIN: RoleType[] = ["admin"];
 const STUDENT: RoleType[] = ["student"];
 
@@ -46,25 +51,58 @@ const GROUPS: NavGroup[] = [
   {
     heading: "Learning",
     items: [
-      { label: "My courses", href: "/my-courses", icon: "library", roles: STUDENT, nested: true },
+      {
+        label: "My courses",
+        href: "/my-courses",
+        icon: "library",
+        roles: STUDENT,
+        nested: true,
+      },
       { label: "My results", href: "/results", icon: "award", roles: STUDENT },
-      { label: "Course catalogue", href: "/courses", icon: "compass", roles: ALL },
+      {
+        label: "Course catalogue",
+        href: "/courses",
+        icon: "compass",
+        roles: ALL,
+      },
       { label: "Blog", href: "/blog", icon: "pen", roles: BLOG_READERS },
     ],
   },
   {
     heading: "Teaching",
     items: [
-      { label: "Courses", href: "/manage/courses", icon: "book", roles: AUTHORS, nested: true },
-      { label: "Manage blog", href: "/manage/blog", icon: "pen", roles: BLOG, nested: true },
+      {
+        label: "Courses",
+        href: "/manage/courses",
+        icon: "book",
+        roles: AUTHORS,
+        nested: true,
+      },
+      {
+        label: "Manage blog",
+        href: "/manage/blog",
+        icon: "pen",
+        roles: BLOG,
+        nested: true,
+      },
     ],
   },
   {
     heading: "Administration",
     items: [
       { label: "Overview", href: "/admin", icon: "chart", roles: ADMIN },
-      { label: "Users & roles", href: "/admin/users", icon: "users", roles: ADMIN },
-      { label: "All courses", href: "/admin/courses", icon: "layers", roles: ADMIN },
+      {
+        label: "Users & roles",
+        href: "/admin/users",
+        icon: "users",
+        roles: ADMIN,
+      },
+      {
+        label: "All courses",
+        href: "/admin/courses",
+        icon: "layers",
+        roles: ADMIN,
+      },
       { label: "All posts", href: "/admin/blog", icon: "pen", roles: ADMIN },
     ],
   },

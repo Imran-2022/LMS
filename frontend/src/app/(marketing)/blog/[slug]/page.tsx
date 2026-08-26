@@ -7,9 +7,16 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { fetchItem } from "@/lib/api";
 import type { BlogPost } from "@/lib/types";
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
-  const post = await fetchItem<BlogPost>(`/api/blog-posts/${slug}`, { anonymous: true, revalidate: 60 });
+  const post = await fetchItem<BlogPost>(`/api/blog-posts/${slug}`, {
+    anonymous: true,
+    revalidate: 60,
+  });
   if (!post) notFound();
   return (
     <div className="min-h-dvh bg-ink-50">

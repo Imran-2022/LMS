@@ -9,8 +9,8 @@
  * It also owns lesson ordering, because "sequential lesson viewing" only works if
  * `order` is dense and unique, and that cannot be guaranteed from the client.
  */
-import { factories } from '@strapi/strapi';
-import { errors } from '@strapi/utils';
+import { factories } from "@strapi/strapi";
+import { errors } from "@strapi/utils";
 
 import {
   LESSON_PROGRESS_UID,
@@ -18,13 +18,20 @@ import {
   assertCourseReadAccess,
   findCourse,
   requireUser,
-} from '../../../utils/authorization';
-import { lessonDetail, lessonSummary } from '../../../utils/serialize';
-import { isStudent } from '../../../utils/roles';
+} from "../../../utils/authorization";
+import { lessonDetail, lessonSummary } from "../../../utils/serialize";
+import { isStudent } from "../../../utils/roles";
 
 const { NotFoundError, ValidationError } = errors;
 
-const WRITABLE_FIELDS = ['title', 'summary', 'content', 'videoUrl', 'durationMinutes', 'order'] as const;
+const WRITABLE_FIELDS = [
+  "title",
+  "summary",
+  "content",
+  "videoUrl",
+  "durationMinutes",
+  "order",
+] as const;
 
 function pickWritable(payload: Record<string, any> = {}) {
   return WRITABLE_FIELDS.reduce<Record<string, any>>((acc, field) => {
@@ -42,7 +49,7 @@ function readBody(ctx: any) {
 function orderedLessons(strapi: any, courseId: number) {
   return strapi.db.query(LESSON_UID).findMany({
     where: { course: courseId },
-    orderBy: [{ order: 'asc' }, { id: 'asc' }],
+    orderBy: [{ order: "asc" }, { id: "asc" }],
   });
 }
 
@@ -76,14 +83,16 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
    */
   async find(ctx) {
     const user = requireUser(ctx.state.user);
-    const courseKey = (ctx.query.courseId ?? ctx.query.course) as string | undefined;
+    const courseKey = (ctx.query.courseId ?? ctx.query.course) as
+      | string
+      | undefined;
 
     if (!courseKey) {
-      throw new ValidationError('A `courseId` query parameter is required.');
+      throw new ValidationError("A `courseId` query parameter is required.");
     }
 
     const course = await findCourse(strapi, courseKey);
-    if (!course) throw new NotFoundError('Course not found.');
+    if (!course) throw new NotFoundError("Course not found.");
 
     // Same wall as `findOne`, applied to the list.
     await assertCourseReadAccess(strapi, user, course);
@@ -94,9 +103,11 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
     if (isStudent(user)) {
       const rows = await strapi.db.query(LESSON_PROGRESS_UID).findMany({
         where: { student: user.id, course: course.id, completed: true },
-        populate: ['lesson'],
+        populate: ["lesson"],
       });
-      completedLessonIds = rows.map((row: any) => row.lesson?.id).filter(Boolean);
+      completedLessonIds = rows
+        .map((row: any) => row.lesson?.id)
+        .filter(Boolean);
     }
 
     ctx.body = {
@@ -104,7 +115,7 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
         lessonSummary(lesson, {
           position: index + 1,
           completed: completedLessonIds.includes(lesson.id),
-        })
+        }),
       ),
       meta: { total: lessons.length, courseId: course.id },
     };
@@ -124,14 +135,16 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
     const user = requireUser(ctx.state.user);
     const key = String(ctx.params.id);
 
-    const where = /^\d+$/.test(key) ? { $or: [{ id: Number(key) }, { documentId: key }] } : { documentId: key };
+    const where = /^\d+$/.test(key)
+      ? { $or: [{ id: Number(key) }, { documentId: key }] }
+      : { documentId: key };
 
     const lesson = await strapi.db.query(LESSON_UID).findOne({
       where,
-      populate: { course: { populate: ['owner'] } },
+      populate: { course: { populate: ["owner"] } },
     });
 
-    if (!lesson || !lesson.course) throw new NotFoundError('Lesson not found.');
+    if (!lesson || !lesson.course) throw new NotFoundError("Lesson not found.");
 
     const siblings = await orderedLessons(strapi, lesson.course.id);
     const index = siblings.findIndex((item: any) => item.id === lesson.id);
@@ -150,7 +163,10 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
         totalLessons: siblings.length,
         completed,
         previousLessonId: index > 0 ? siblings[index - 1].id : null,
-        nextLessonId: index >= 0 && index < siblings.length - 1 ? siblings[index + 1].id : null,
+        nextLessonId:
+          index >= 0 && index < siblings.length - 1
+            ? siblings[index + 1].id
+            : null,
         course: {
           id: lesson.course.id,
           documentId: lesson.course.documentId,
@@ -173,15 +189,17 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
 
     // The policy resolved and validated the course from the body.
     const course = ctx.state.course;
-    if (!course) throw new ValidationError('A `course` reference is required.');
+    if (!course) throw new ValidationError("A `course` reference is required.");
 
     const data = pickWritable(payload);
     if (!data.title || !String(data.title).trim()) {
-      throw new ValidationError('A lesson title is required.');
+      throw new ValidationError("A lesson title is required.");
     }
 
     if (data.order === undefined || data.order === null) {
-      const existing = await strapi.db.query(LESSON_UID).count({ where: { course: course.id } });
+      const existing = await strapi.db
+        .query(LESSON_UID)
+        .count({ where: { course: course.id } });
       data.order = existing + 1;
     }
 
@@ -189,7 +207,7 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
       // `title` is validated above; the allow-list map is too dynamic for TypeScript
       // to prove that, so the cast stays scoped to this call.
       data: { ...data, course: course.id } as any,
-      populate: ['course'],
+      populate: ["course"],
     });
 
     ctx.status = 201;
@@ -199,15 +217,17 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
   /** PUT /api/lessons/:id — ownership already checked by the route policy. */
   async update(ctx) {
     const key = String(ctx.params.id);
-    const where = /^\d+$/.test(key) ? { $or: [{ id: Number(key) }, { documentId: key }] } : { documentId: key };
+    const where = /^\d+$/.test(key)
+      ? { $or: [{ id: Number(key) }, { documentId: key }] }
+      : { documentId: key };
 
     const lesson = await strapi.db.query(LESSON_UID).findOne({ where });
-    if (!lesson) throw new NotFoundError('Lesson not found.');
+    if (!lesson) throw new NotFoundError("Lesson not found.");
 
     const updated = await strapi.documents(LESSON_UID).update({
       documentId: lesson.documentId,
       data: pickWritable(readBody(ctx)),
-      populate: ['course'],
+      populate: ["course"],
     });
 
     ctx.body = { data: lessonDetail(updated) };
@@ -222,15 +242,23 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
    */
   async delete(ctx) {
     const key = String(ctx.params.id);
-    const where = /^\d+$/.test(key) ? { $or: [{ id: Number(key) }, { documentId: key }] } : { documentId: key };
+    const where = /^\d+$/.test(key)
+      ? { $or: [{ id: Number(key) }, { documentId: key }] }
+      : { documentId: key };
 
-    const lesson = await strapi.db.query(LESSON_UID).findOne({ where, populate: ['course'] });
-    if (!lesson) throw new NotFoundError('Lesson not found.');
+    const lesson = await strapi.db
+      .query(LESSON_UID)
+      .findOne({ where, populate: ["course"] });
+    if (!lesson) throw new NotFoundError("Lesson not found.");
 
     const courseId = lesson.course?.id;
 
-    await strapi.db.query(LESSON_PROGRESS_UID).deleteMany({ where: { lesson: lesson.id } });
-    await strapi.documents(LESSON_UID).delete({ documentId: lesson.documentId });
+    await strapi.db
+      .query(LESSON_PROGRESS_UID)
+      .deleteMany({ where: { lesson: lesson.id } });
+    await strapi
+      .documents(LESSON_UID)
+      .delete({ documentId: lesson.documentId });
 
     if (courseId) await resequence(strapi, courseId);
 
@@ -248,22 +276,30 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
   async reorder(ctx) {
     const payload = readBody(ctx);
     const course = ctx.state.course;
-    if (!course) throw new ValidationError('A `course` reference is required.');
+    if (!course) throw new ValidationError("A `course` reference is required.");
 
     const lessonIds: unknown = payload.lessonIds ?? payload.order;
     if (!Array.isArray(lessonIds) || lessonIds.length === 0) {
-      throw new ValidationError('`lessonIds` must be a non-empty array of lesson ids.');
+      throw new ValidationError(
+        "`lessonIds` must be a non-empty array of lesson ids.",
+      );
     }
 
-    const lessons = await strapi.db.query(LESSON_UID).findMany({ where: { course: course.id } });
-    const byId = new Map<number, any>(lessons.map((lesson: any) => [lesson.id, lesson]));
+    const lessons = await strapi.db
+      .query(LESSON_UID)
+      .findMany({ where: { course: course.id } });
+    const byId = new Map<number, any>(
+      lessons.map((lesson: any) => [lesson.id, lesson]),
+    );
 
     // Reject ids that are not in this course rather than silently ignoring them —
     // a mismatch means the client's view is stale and the author should reload.
     const requested = lessonIds.map(Number);
     const unknownId = requested.find((id) => !byId.has(id));
     if (unknownId !== undefined) {
-      throw new ValidationError(`Lesson ${unknownId} does not belong to this course.`);
+      throw new ValidationError(
+        `Lesson ${unknownId} does not belong to this course.`,
+      );
     }
 
     let position = 1;
@@ -289,6 +325,10 @@ export default factories.createCoreController(LESSON_UID, ({ strapi }) => ({
     }
 
     const updated = await orderedLessons(strapi, course.id);
-    ctx.body = { data: updated.map((lesson: any, index: number) => lessonSummary(lesson, { position: index + 1 })) };
+    ctx.body = {
+      data: updated.map((lesson: any, index: number) =>
+        lessonSummary(lesson, { position: index + 1 }),
+      ),
+    };
   },
 }));

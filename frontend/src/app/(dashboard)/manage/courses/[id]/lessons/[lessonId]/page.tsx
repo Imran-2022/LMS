@@ -3,7 +3,11 @@ import { BackButton } from "@/components/ui/BackButton";
 import { fetchItem } from "@/lib/api";
 import type { LessonDetail } from "@/lib/types";
 
-export default async function ManageLessonPage({ params }: { params: Promise<{ id: string; lessonId: string }> }) {
+export default async function ManageLessonPage({
+  params,
+}: {
+  params: Promise<{ id: string; lessonId: string }>;
+}) {
   const { id, lessonId } = await params;
   const lesson = await fetchItem<LessonDetail>(`/api/lessons/${lessonId}`);
   if (!lesson) return <p className="text-ink-600">Lesson not found.</p>;

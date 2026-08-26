@@ -1,7 +1,11 @@
 import { QuizForm } from "@/components/quiz/QuizForm";
 import { BackButton } from "@/components/ui/BackButton";
 
-export default async function NewQuizPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function NewQuizPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   return (
     <>

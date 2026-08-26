@@ -27,7 +27,9 @@ export function CoverImage({
   ratio?: string;
 }) {
   return (
-    <div className={cx("relative overflow-hidden bg-ink-100", ratio, className)}>
+    <div
+      className={cx("relative overflow-hidden bg-ink-100", ratio, className)}
+    >
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element -- see the note above
         <img

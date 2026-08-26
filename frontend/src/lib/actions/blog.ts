@@ -33,12 +33,16 @@ function postPayload(form: FormData) {
   };
 }
 
-export async function createPost(_prev: FormState, form: FormData): Promise<FormState> {
+export async function createPost(
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   await requireBlogManager();
   const payload = postPayload(form);
 
   if (!payload.title) return { error: "Give the post a title." };
-  if (!payload.body) return { error: "A post needs a body before it can be saved." };
+  if (!payload.body)
+    return { error: "A post needs a body before it can be saved." };
 
   const result = await apiFetch<ApiItem<BlogPost>>("/api/blog-posts", {
     method: "POST",
@@ -47,7 +51,11 @@ export async function createPost(_prev: FormState, form: FormData): Promise<Form
 
   if (!result.ok) return { error: result.error };
 
-  finish([...BLOG_PATHS, `/blog/${result.data.data.slug}`], "/manage/blog", "post-created");
+  finish(
+    [...BLOG_PATHS, `/blog/${result.data.data.slug}`],
+    "/manage/blog",
+    "post-created",
+  );
 }
 
 /**
@@ -59,7 +67,10 @@ export async function createPost(_prev: FormState, form: FormData): Promise<Form
  * link to the article. So the form ships the slug field as `slug` only if it changed,
  * and this action forwards it only if it arrived.
  */
-export async function updatePost(_prev: FormState, form: FormData): Promise<FormState> {
+export async function updatePost(
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   await requireBlogManager();
   const id = str(form, "postId");
   const payload = postPayload(form);
@@ -68,7 +79,8 @@ export async function updatePost(_prev: FormState, form: FormData): Promise<Form
 
   if (!id) return { error: "Missing post reference." };
   if (!payload.title) return { error: "Give the post a title." };
-  if (!payload.body) return { error: "A post needs a body before it can be saved." };
+  if (!payload.body)
+    return { error: "A post needs a body before it can be saved." };
 
   const body = slug && slug !== originalSlug ? { ...payload, slug } : payload;
 
@@ -80,7 +92,11 @@ export async function updatePost(_prev: FormState, form: FormData): Promise<Form
   if (!result.ok) return { error: result.error };
 
   finish(
-    [...BLOG_PATHS, `/blog/${result.data.data.slug}`, ...(originalSlug ? [`/blog/${originalSlug}`] : [])],
+    [
+      ...BLOG_PATHS,
+      `/blog/${result.data.data.slug}`,
+      ...(originalSlug ? [`/blog/${originalSlug}`] : []),
+    ],
     "/manage/blog",
     "post-saved",
   );
@@ -116,7 +132,11 @@ export async function setPostStatus(form: FormData) {
   finish(
     [...BLOG_PATHS, ...(slug ? [`/blog/${slug}`] : [])],
     from,
-    result.ok ? (status === "published" ? "post-published" : "post-unpublished") : "forbidden",
+    result.ok
+      ? status === "published"
+        ? "post-published"
+        : "post-unpublished"
+      : "forbidden",
     !result.ok,
   );
 }

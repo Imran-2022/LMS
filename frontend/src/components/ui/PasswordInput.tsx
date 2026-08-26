@@ -6,7 +6,10 @@ import type { ComponentProps } from "react";
 
 import { Input } from "./Input";
 
-type PasswordInputProps = Omit<ComponentProps<typeof Input>, "type" | "value" | "defaultValue" | "onChange">;
+type PasswordInputProps = Omit<
+  ComponentProps<typeof Input>,
+  "type" | "value" | "defaultValue" | "onChange"
+>;
 
 export function PasswordInput({ className, ...props }: PasswordInputProps) {
   const [visible, setVisible] = useState(false);
@@ -27,7 +30,11 @@ export function PasswordInput({ className, ...props }: PasswordInputProps) {
           aria-label={visible ? "Hide password" : "Show password"}
           title={visible ? "Hide password" : "Show password"}
         >
-          {visible ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
+          {visible ? (
+            <EyeOff size={17} aria-hidden="true" />
+          ) : (
+            <Eye size={17} aria-hidden="true" />
+          )}
         </button>
       }
     />

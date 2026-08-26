@@ -9,27 +9,27 @@ export default {
   routes: [
     {
       // Must stay above any `/quiz-attempts/:id` route.
-      method: 'GET',
-      path: '/quiz-attempts/mine',
-      handler: 'quiz-attempt.mine',
+      method: "GET",
+      path: "/quiz-attempts/mine",
+      handler: "quiz-attempt.mine",
       config: {
-        policies: ['global::is-authenticated'],
+        policies: ["global::is-authenticated"],
       },
     },
     {
-      method: 'GET',
-      path: '/quiz-attempts',
-      handler: 'quiz-attempt.find',
+      method: "GET",
+      path: "/quiz-attempts",
+      handler: "quiz-attempt.find",
       config: {
-        policies: ['global::is-authenticated'],
+        policies: ["global::is-authenticated"],
       },
     },
     {
-      method: 'POST',
-      path: '/quiz-attempts',
-      handler: 'quiz-attempt.create',
+      method: "POST",
+      path: "/quiz-attempts",
+      handler: "quiz-attempt.create",
       config: {
-        policies: ['global::is-student'],
+        policies: ["global::is-student"],
       },
     },
   ],

@@ -3,7 +3,11 @@ import { BackButton } from "@/components/ui/BackButton";
 import { fetchItem } from "@/lib/api";
 import type { Quiz } from "@/lib/types";
 
-export default async function QuizPage({ params }: { params: Promise<{ id: string; quizId: string }> }) {
+export default async function QuizPage({
+  params,
+}: {
+  params: Promise<{ id: string; quizId: string }>;
+}) {
   const { id, quizId } = await params;
   const quiz = await fetchItem<Quiz>(`/api/quizzes/${quizId}`);
   if (!quiz) return <p className="text-ink-600">Quiz not found.</p>;
@@ -21,7 +25,8 @@ export default async function QuizPage({ params }: { params: Promise<{ id: strin
           <BackButton />
         </div>
         <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-500">
-          {quiz.description ?? "Test your understanding and see your score immediately."}
+          {quiz.description ??
+            "Test your understanding and see your score immediately."}
         </p>
       </header>
 

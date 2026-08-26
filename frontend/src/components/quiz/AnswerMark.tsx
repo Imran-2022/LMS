@@ -1,6 +1,10 @@
 import { AlertCircle, Check, X } from "lucide-react";
 
-export function AnswerMark({ state }: { state: "correct" | "wrong" | "missed" }) {
+export function AnswerMark({
+  state,
+}: {
+  state: "correct" | "wrong" | "missed";
+}) {
   if (state === "correct") {
     return (
       <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-success-500 text-white">

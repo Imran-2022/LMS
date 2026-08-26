@@ -65,8 +65,9 @@
   --color-danger-500: #dc2626;
   --color-danger-600: #b91c1c;
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", sans-serif;
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
 
   --radius-card: 20px;
 

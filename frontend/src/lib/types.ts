@@ -128,7 +128,15 @@ export type Quiz = {
   myAttempt?: QuizAttempt;
 };
 
-export type CourseQuizSummary = Pick<Quiz, "id" | "documentId" | "title" | "description" | "passingScore" | "questionCount"> & {
+export type CourseQuizSummary = Pick<
+  Quiz,
+  | "id"
+  | "documentId"
+  | "title"
+  | "description"
+  | "passingScore"
+  | "questionCount"
+> & {
   position: number;
   completed: boolean;
   score: number | null;
@@ -163,7 +171,12 @@ export type QuizAttempt = {
   passed: boolean;
   answers: { questionIndex: number; selectedOptionIndex: number | null }[];
   submittedAt: string;
-  quiz: { id: number; documentId: string; title: string; passingScore: number } | null;
+  quiz: {
+    id: number;
+    documentId: string;
+    title: string;
+    passingScore: number;
+  } | null;
   course: { id: number; title: string } | null;
   student: UserSummary | null;
   /** Only on the response to `POST /api/quiz-attempts`, never on history reads. */
@@ -224,7 +237,12 @@ export type PlatformStats = {
   quizzes: { attempts: number; averageScore: number; passRate: number };
   blog: { total: number; published: number; drafts: number };
   recent: {
-    enrollments: { id: number; studentName: string; courseTitle: string; enrolledAt: string }[];
+    enrollments: {
+      id: number;
+      studentName: string;
+      courseTitle: string;
+      enrolledAt: string;
+    }[];
     posts: {
       id: number;
       title: string;

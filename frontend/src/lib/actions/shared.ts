@@ -77,7 +77,10 @@ export function bool(form: FormData, key: string): boolean {
  * looks like it belongs to this site, and the site itself does the forwarding. Anything
  * that is not a single-slash-prefixed local path is discarded in favour of `fallback`.
  */
-export function safePath(raw: FormDataEntryValue | null, fallback: string): string {
+export function safePath(
+  raw: FormDataEntryValue | null,
+  fallback: string,
+): string {
   if (typeof raw !== "string" || raw === "") return fallback;
   if (!raw.startsWith("/") || raw.startsWith("//")) return fallback;
   return raw;
@@ -89,7 +92,12 @@ export function safePath(raw: FormDataEntryValue | null, fallback: string): stri
  * `redirect()` works by throwing, so nothing after it runs — hence every
  * `revalidatePath` call happens first.
  */
-export function finish(paths: string[], destination: string, code: string, failed = false): never {
+export function finish(
+  paths: string[],
+  destination: string,
+  code: string,
+  failed = false,
+): never {
   refresh(paths);
   const separator = destination.includes("?") ? "&" : "?";
   redirect(`${destination}${separator}${failed ? "err" : "ok"}=${code}`);

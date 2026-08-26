@@ -40,7 +40,10 @@ function coursePayload(form: FormData) {
   };
 }
 
-export async function createCourse(_prev: FormState, form: FormData): Promise<FormState> {
+export async function createCourse(
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   await requireAuthor();
   const payload = coursePayload(form);
 
@@ -55,10 +58,17 @@ export async function createCourse(_prev: FormState, form: FormData): Promise<Fo
 
   // Straight into the editor for the new course, because the next thing anyone does
   // after creating a course is add its first lesson.
-  finish(["/manage/courses", "/courses"], `/manage/courses/${result.data.data.id}`, "course-created");
+  finish(
+    ["/manage/courses", "/courses"],
+    `/manage/courses/${result.data.data.id}`,
+    "course-created",
+  );
 }
 
-export async function updateCourse(_prev: FormState, form: FormData): Promise<FormState> {
+export async function updateCourse(
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   await requireAuthor();
   const id = str(form, "courseId");
   const payload = coursePayload(form);
@@ -73,11 +83,7 @@ export async function updateCourse(_prev: FormState, form: FormData): Promise<Fo
 
   if (!result.ok) return { error: result.error };
 
-  finish(
-    coursePaths(id),
-    `/manage/courses/${id}`,
-    "course-updated",
-  );
+  finish(coursePaths(id), `/manage/courses/${id}`, "course-updated");
 }
 
 /**
@@ -93,12 +99,19 @@ export async function setCourseStatus(form: FormData) {
   const status = str(form, "status") === "published" ? "published" : "draft";
   if (!id) return;
 
-  const result = await apiFetch(`/api/courses/${id}`, { method: "PUT", body: { status } });
+  const result = await apiFetch(`/api/courses/${id}`, {
+    method: "PUT",
+    body: { status },
+  });
 
   finish(
     coursePaths(id),
     "/manage/courses",
-    result.ok ? (status === "published" ? "published" : "unpublished") : "forbidden",
+    result.ok
+      ? status === "published"
+        ? "published"
+        : "unpublished"
+      : "forbidden",
     !result.ok,
   );
 }

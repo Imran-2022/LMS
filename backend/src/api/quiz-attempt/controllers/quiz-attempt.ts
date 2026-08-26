@@ -13,8 +13,8 @@
  * Each student may submit a quiz once. The stored attempt is the student's review
  * record, while the answer key is only released in the immediate graded response.
  */
-import { factories } from '@strapi/strapi';
-import { errors } from '@strapi/utils';
+import { factories } from "@strapi/strapi";
+import { errors } from "@strapi/utils";
 
 import {
   QUIZ_ATTEMPT_UID,
@@ -23,9 +23,9 @@ import {
   findCourse,
   findEnrollment,
   requireUser,
-} from '../../../utils/authorization';
-import { quizAttemptSummary } from '../../../utils/serialize';
-import { isPrivileged, isStudent, type AuthUser } from '../../../utils/roles';
+} from "../../../utils/authorization";
+import { quizAttemptSummary } from "../../../utils/serialize";
+import { isPrivileged, isStudent, type AuthUser } from "../../../utils/roles";
 
 const { ForbiddenError, NotFoundError, ValidationError } = errors;
 
@@ -45,7 +45,9 @@ function readBody(ctx: any) {
  */
 function toAnswerMap(rawAnswers: unknown): Map<number, number | null> {
   if (!Array.isArray(rawAnswers)) {
-    throw new ValidationError('`answers` must be an array of { questionIndex, selectedOptionIndex }.');
+    throw new ValidationError(
+      "`answers` must be an array of { questionIndex, selectedOptionIndex }.",
+    );
   }
 
   const map = new Map<number, number | null>();
@@ -55,9 +57,13 @@ function toAnswerMap(rawAnswers: unknown): Map<number, number | null> {
     if (!Number.isInteger(questionIndex) || questionIndex < 0) continue;
 
     const raw = answer?.selectedOptionIndex;
-    const selected = raw === null || raw === undefined || raw === '' ? null : Number(raw);
+    const selected =
+      raw === null || raw === undefined || raw === "" ? null : Number(raw);
 
-    map.set(questionIndex, Number.isInteger(selected as number) ? (selected as number) : null);
+    map.set(
+      questionIndex,
+      Number.isInteger(selected as number) ? (selected as number) : null,
+    );
   }
 
   return map;
@@ -75,13 +81,21 @@ function toAnswerMap(rawAnswers: unknown): Map<number, number | null> {
  * answers. A client that omits the questions it does not know still gets marked on
  * all of them.
  */
-function grade(questions: any[], answerMap: Map<number, number | null>, passingScore: number) {
+function grade(
+  questions: any[],
+  answerMap: Map<number, number | null>,
+  passingScore: number,
+) {
   const breakdown = questions.map((question: any, questionIndex: number) => {
-    const selectedOptionIndex = answerMap.has(questionIndex) ? answerMap.get(questionIndex)! : null;
+    const selectedOptionIndex = answerMap.has(questionIndex)
+      ? answerMap.get(questionIndex)!
+      : null;
     const correctOptionIndex = Number(question.correctOptionIndex ?? 0);
 
     // An unanswered question is simply wrong — no partial credit, no skipping.
-    const isCorrect = selectedOptionIndex !== null && selectedOptionIndex === correctOptionIndex;
+    const isCorrect =
+      selectedOptionIndex !== null &&
+      selectedOptionIndex === correctOptionIndex;
 
     return {
       questionIndex,
@@ -102,7 +116,8 @@ function grade(questions: any[], answerMap: Map<number, number | null>, passingS
 
   // Round once, at the end. Rounding per-question would let a 2/3 quiz report 67%
   // in one place and 66% in another.
-  const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+  const score =
+    totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
   return {
     breakdown,
@@ -113,174 +128,200 @@ function grade(questions: any[], answerMap: Map<number, number | null>, passingS
   };
 }
 
-export default factories.createCoreController(QUIZ_ATTEMPT_UID, ({ strapi }) => ({
-  /**
-   * POST /api/quiz-attempts
-   *
-   * Grade, store, respond. The response includes a per-question breakdown — the
-   * correct answer is revealed *after* submission, which is safe and makes the quiz
-   * a teaching tool rather than just a gate.
-   */
-  async create(ctx) {
-    const user = requireUser(ctx.state.user);
-    const payload = readBody(ctx);
+export default factories.createCoreController(
+  QUIZ_ATTEMPT_UID,
+  ({ strapi }) => ({
+    /**
+     * POST /api/quiz-attempts
+     *
+     * Grade, store, respond. The response includes a per-question breakdown — the
+     * correct answer is revealed *after* submission, which is safe and makes the quiz
+     * a teaching tool rather than just a gate.
+     */
+    async create(ctx) {
+      const user = requireUser(ctx.state.user);
+      const payload = readBody(ctx);
 
-    const quizRef = payload.quiz ?? payload.quizId;
-    const quizKey = quizRef?.id ?? quizRef?.documentId ?? quizRef;
-    if (!quizKey) throw new ValidationError('A `quiz` reference is required.');
+      const quizRef = payload.quiz ?? payload.quizId;
+      const quizKey = quizRef?.id ?? quizRef?.documentId ?? quizRef;
+      if (!quizKey)
+        throw new ValidationError("A `quiz` reference is required.");
 
-    const key = String(quizKey);
-    const where = /^\d+$/.test(key) ? { $or: [{ id: Number(key) }, { documentId: key }] } : { documentId: key };
+      const key = String(quizKey);
+      const where = /^\d+$/.test(key)
+        ? { $or: [{ id: Number(key) }, { documentId: key }] }
+        : { documentId: key };
 
-    const quiz = await strapi.db.query(QUIZ_UID).findOne({
-      where,
-      populate: { questions: { populate: ['options'] }, course: { populate: ['owner'] } },
-    });
-
-    if (!quiz || !quiz.course) throw new NotFoundError('Quiz not found.');
-
-    // Same wall as opening the quiz: you cannot submit to a course you never joined.
-    const enrollment = await findEnrollment(strapi, user.id, quiz.course.id);
-    if (!enrollment) {
-      throw new ForbiddenError('Enroll in this course before taking its quizzes.');
-    }
-
-    const existingAttempt = await strapi.db.query(QUIZ_ATTEMPT_UID).findOne({
-      where: { student: user.id, quiz: quiz.id },
-    });
-    if (existingAttempt) {
-      throw new ValidationError('You have already submitted this quiz.');
-    }
-
-    const questions = Array.isArray(quiz.questions) ? quiz.questions : [];
-    if (questions.length === 0) {
-      throw new ValidationError('This quiz has no questions yet.');
-    }
-
-    const answerMap = toAnswerMap(payload.answers);
-    const graded = grade(questions, answerMap, quiz.passingScore ?? 70);
-
-    const attempt = await strapi.documents(QUIZ_ATTEMPT_UID).create({
-      data: {
-        student: user.id,
-        quiz: quiz.id,
-        course: quiz.course.id,
-        // Store what they actually chose, normalised — useful for review screens and
-        // for an instructor diagnosing a badly-worded question.
-        answers: graded.breakdown.map(({ questionIndex, selectedOptionIndex }) => ({
-          questionIndex,
-          selectedOptionIndex,
-        })),
-        score: graded.score,
-        correctCount: graded.correctCount,
-        totalQuestions: graded.totalQuestions,
-        passed: graded.passed,
-        submittedAt: new Date(),
-      },
-      populate: { quiz: true, course: true },
-    });
-
-    ctx.status = 201;
-    ctx.body = {
-      data: {
-        ...quizAttemptSummary(attempt),
-        // The review payload — correct answers and explanations, released only now.
-        breakdown: graded.breakdown,
-      },
-    };
-  },
-
-  /**
-   * GET /api/quiz-attempts/mine
-   *
-   * "Viewable later": a student's full attempt history, newest first, optionally
-   * filtered to one course.
-   */
-  async mine(ctx) {
-    const user = requireUser(ctx.state.user);
-    const where: Record<string, any> = { student: user.id };
-
-    if (ctx.query.courseId) {
-      const course = await findCourse(strapi, String(ctx.query.courseId));
-      if (!course) throw new NotFoundError('Course not found.');
-      where.course = course.id;
-    }
-    if (ctx.query.quizId) where.quiz = Number(ctx.query.quizId);
-
-    const attempts = await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
-      where,
-      populate: ['quiz', 'course'],
-      orderBy: [{ createdAt: 'desc' }],
-    });
-
-    ctx.body = {
-      data: attempts.map((attempt: any) => quizAttemptSummary(attempt)),
-      meta: {
-        total: attempts.length,
-        bestScore: attempts.length ? Math.max(...attempts.map((a: any) => a.score ?? 0)) : null,
-      },
-    };
-  },
-
-  /**
-   * GET /api/quiz-attempts?courseId=…&quizId=…
-   *
-   * The staff/instructor view of results. An instructor may only read attempts inside
-   * a course they own — enforced by loading the course and running the same
-   * `canWriteCourse` rule used everywhere else, rather than trusting the filter.
-   */
-  async find(ctx) {
-    const user = requireUser(ctx.state.user) as AuthUser;
-
-    if (isStudent(user)) {
-      throw new ForbiddenError('Students can only view their own attempts.');
-    }
-
-    const where: Record<string, any> = {};
-
-    if (ctx.query.courseId) {
-      const course = await findCourse(strapi, String(ctx.query.courseId));
-      if (!course) throw new NotFoundError('Course not found.');
-
-      if (!canWriteCourse(user, course)) {
-        throw new ForbiddenError('You can only review results for your own courses.');
-      }
-      where.course = course.id;
-    } else if (!isPrivileged(user)) {
-      // An instructor with no course filter would otherwise see the whole platform.
-      // Scope them to every course they own instead of refusing outright.
-      const owned = await strapi.db.query('api::course.course').findMany({
-        where: { owner: user.id },
+      const quiz = await strapi.db.query(QUIZ_UID).findOne({
+        where,
+        populate: {
+          questions: { populate: ["options"] },
+          course: { populate: ["owner"] },
+        },
       });
-      const ownedIds = owned.map((course: any) => course.id);
-      if (ownedIds.length === 0) {
-        ctx.body = { data: [], meta: { total: 0 } };
-        return;
+
+      if (!quiz || !quiz.course) throw new NotFoundError("Quiz not found.");
+
+      // Same wall as opening the quiz: you cannot submit to a course you never joined.
+      const enrollment = await findEnrollment(strapi, user.id, quiz.course.id);
+      if (!enrollment) {
+        throw new ForbiddenError(
+          "Enroll in this course before taking its quizzes.",
+        );
       }
-      where.course = { $in: ownedIds };
-    }
 
-    if (ctx.query.quizId) where.quiz = Number(ctx.query.quizId);
-    if (ctx.query.studentId) where.student = Number(ctx.query.studentId);
+      const existingAttempt = await strapi.db.query(QUIZ_ATTEMPT_UID).findOne({
+        where: { student: user.id, quiz: quiz.id },
+      });
+      if (existingAttempt) {
+        throw new ValidationError("You have already submitted this quiz.");
+      }
 
-    const attempts = await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
-      where,
-      populate: ['quiz', 'course', 'student'],
-      orderBy: [{ createdAt: 'desc' }],
-      limit: 200,
-    });
+      const questions = Array.isArray(quiz.questions) ? quiz.questions : [];
+      if (questions.length === 0) {
+        throw new ValidationError("This quiz has no questions yet.");
+      }
 
-    ctx.body = {
-      data: attempts.map((attempt: any) => quizAttemptSummary(attempt)),
-      meta: {
-        total: attempts.length,
-        averageScore: attempts.length
-          ? Math.round(attempts.reduce((sum: number, a: any) => sum + (a.score ?? 0), 0) / attempts.length)
-          : 0,
-        passRate: attempts.length
-          ? Math.round((attempts.filter((a: any) => a.passed).length / attempts.length) * 100)
-          : 0,
-      },
-    };
-  },
-}));
+      const answerMap = toAnswerMap(payload.answers);
+      const graded = grade(questions, answerMap, quiz.passingScore ?? 70);
+
+      const attempt = await strapi.documents(QUIZ_ATTEMPT_UID).create({
+        data: {
+          student: user.id,
+          quiz: quiz.id,
+          course: quiz.course.id,
+          // Store what they actually chose, normalised — useful for review screens and
+          // for an instructor diagnosing a badly-worded question.
+          answers: graded.breakdown.map(
+            ({ questionIndex, selectedOptionIndex }) => ({
+              questionIndex,
+              selectedOptionIndex,
+            }),
+          ),
+          score: graded.score,
+          correctCount: graded.correctCount,
+          totalQuestions: graded.totalQuestions,
+          passed: graded.passed,
+          submittedAt: new Date(),
+        },
+        populate: { quiz: true, course: true },
+      });
+
+      ctx.status = 201;
+      ctx.body = {
+        data: {
+          ...quizAttemptSummary(attempt),
+          // The review payload — correct answers and explanations, released only now.
+          breakdown: graded.breakdown,
+        },
+      };
+    },
+
+    /**
+     * GET /api/quiz-attempts/mine
+     *
+     * "Viewable later": a student's full attempt history, newest first, optionally
+     * filtered to one course.
+     */
+    async mine(ctx) {
+      const user = requireUser(ctx.state.user);
+      const where: Record<string, any> = { student: user.id };
+
+      if (ctx.query.courseId) {
+        const course = await findCourse(strapi, String(ctx.query.courseId));
+        if (!course) throw new NotFoundError("Course not found.");
+        where.course = course.id;
+      }
+      if (ctx.query.quizId) where.quiz = Number(ctx.query.quizId);
+
+      const attempts = await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
+        where,
+        populate: ["quiz", "course"],
+        orderBy: [{ createdAt: "desc" }],
+      });
+
+      ctx.body = {
+        data: attempts.map((attempt: any) => quizAttemptSummary(attempt)),
+        meta: {
+          total: attempts.length,
+          bestScore: attempts.length
+            ? Math.max(...attempts.map((a: any) => a.score ?? 0))
+            : null,
+        },
+      };
+    },
+
+    /**
+     * GET /api/quiz-attempts?courseId=…&quizId=…
+     *
+     * The staff/instructor view of results. An instructor may only read attempts inside
+     * a course they own — enforced by loading the course and running the same
+     * `canWriteCourse` rule used everywhere else, rather than trusting the filter.
+     */
+    async find(ctx) {
+      const user = requireUser(ctx.state.user) as AuthUser;
+
+      if (isStudent(user)) {
+        throw new ForbiddenError("Students can only view their own attempts.");
+      }
+
+      const where: Record<string, any> = {};
+
+      if (ctx.query.courseId) {
+        const course = await findCourse(strapi, String(ctx.query.courseId));
+        if (!course) throw new NotFoundError("Course not found.");
+
+        if (!canWriteCourse(user, course)) {
+          throw new ForbiddenError(
+            "You can only review results for your own courses.",
+          );
+        }
+        where.course = course.id;
+      } else if (!isPrivileged(user)) {
+        // An instructor with no course filter would otherwise see the whole platform.
+        // Scope them to every course they own instead of refusing outright.
+        const owned = await strapi.db.query("api::course.course").findMany({
+          where: { owner: user.id },
+        });
+        const ownedIds = owned.map((course: any) => course.id);
+        if (ownedIds.length === 0) {
+          ctx.body = { data: [], meta: { total: 0 } };
+          return;
+        }
+        where.course = { $in: ownedIds };
+      }
+
+      if (ctx.query.quizId) where.quiz = Number(ctx.query.quizId);
+      if (ctx.query.studentId) where.student = Number(ctx.query.studentId);
+
+      const attempts = await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
+        where,
+        populate: ["quiz", "course", "student"],
+        orderBy: [{ createdAt: "desc" }],
+        limit: 200,
+      });
+
+      ctx.body = {
+        data: attempts.map((attempt: any) => quizAttemptSummary(attempt)),
+        meta: {
+          total: attempts.length,
+          averageScore: attempts.length
+            ? Math.round(
+                attempts.reduce(
+                  (sum: number, a: any) => sum + (a.score ?? 0),
+                  0,
+                ) / attempts.length,
+              )
+            : 0,
+          passRate: attempts.length
+            ? Math.round(
+                (attempts.filter((a: any) => a.passed).length /
+                  attempts.length) *
+                  100,
+              )
+            : 0,
+        },
+      };
+    },
+  }),
+);

@@ -25,7 +25,10 @@ function lessonPayload(form: FormData) {
   };
 }
 
-export async function createLesson(_prev: FormState, form: FormData): Promise<FormState> {
+export async function createLesson(
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   await requireAuthor();
   const courseId = str(form, "courseId");
   const payload = lessonPayload(form);
@@ -43,10 +46,17 @@ export async function createLesson(_prev: FormState, form: FormData): Promise<Fo
 
   if (!result.ok) return { error: result.error };
 
-  finish(coursePaths(courseId), `/manage/courses/${courseId}`, "lesson-created");
+  finish(
+    coursePaths(courseId),
+    `/manage/courses/${courseId}`,
+    "lesson-created",
+  );
 }
 
-export async function updateLesson(_prev: FormState, form: FormData): Promise<FormState> {
+export async function updateLesson(
+  _prev: FormState,
+  form: FormData,
+): Promise<FormState> {
   await requireAuthor();
   const courseId = str(form, "courseId");
   const lessonId = str(form, "lessonId");
@@ -55,7 +65,10 @@ export async function updateLesson(_prev: FormState, form: FormData): Promise<Fo
   if (!lessonId) return { error: "Missing lesson reference." };
   if (!payload.title) return { error: "Give the lesson a title." };
 
-  const result = await apiFetch(`/api/lessons/${lessonId}`, { method: "PUT", body: payload });
+  const result = await apiFetch(`/api/lessons/${lessonId}`, {
+    method: "PUT",
+    body: payload,
+  });
   if (!result.ok) return { error: result.error };
 
   finish(
@@ -78,7 +91,9 @@ export async function deleteLesson(form: FormData) {
   const lessonId = str(form, "lessonId");
   if (!lessonId) return;
 
-  const result = await apiFetch(`/api/lessons/${lessonId}`, { method: "DELETE" });
+  const result = await apiFetch(`/api/lessons/${lessonId}`, {
+    method: "DELETE",
+  });
 
   finish(
     coursePaths(courseId),
@@ -125,7 +140,12 @@ export async function moveLesson(form: FormData) {
   });
 
   if (!result.ok) {
-    finish(coursePaths(courseId), `/manage/courses/${courseId}`, "reorder-failed", true);
+    finish(
+      coursePaths(courseId),
+      `/manage/courses/${courseId}`,
+      "reorder-failed",
+      true,
+    );
   }
 
   // No redirect: the author is mid-edit on this page and a full navigation would lose

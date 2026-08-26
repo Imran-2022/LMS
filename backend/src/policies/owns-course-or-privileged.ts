@@ -18,7 +18,7 @@
  * so the ownership rule itself exists in exactly one place — the policy only decides
  * *which row* to check, never *what counts as ownership*.
  */
-import { errors } from '@strapi/utils';
+import { errors } from "@strapi/utils";
 
 import {
   LESSON_UID,
@@ -26,28 +26,28 @@ import {
   assertCourseWriteAccess,
   findCourse,
   findParentCourse,
-} from '../utils/authorization';
+} from "../utils/authorization";
 
-type Resource = 'course' | 'lesson' | 'quiz' | 'body';
+type Resource = "course" | "lesson" | "quiz" | "body";
 
 export default async (
   policyContext: any,
   config: { resource?: Resource; param?: string; bodyField?: string } = {},
-  { strapi }: { strapi: any }
+  { strapi }: { strapi: any },
 ) => {
   const user = policyContext.state?.user;
 
   if (!user) {
-    throw new errors.UnauthorizedError('You must be signed in to do that.');
+    throw new errors.UnauthorizedError("You must be signed in to do that.");
   }
 
-  const resource: Resource = config.resource ?? 'course';
-  const param = config.param ?? 'id';
-  const bodyField = config.bodyField ?? 'course';
+  const resource: Resource = config.resource ?? "course";
+  const param = config.param ?? "id";
+  const bodyField = config.bodyField ?? "course";
 
   let course: any = null;
 
-  if (resource === 'body') {
+  if (resource === "body") {
     // `strapi::body` puts JSON payloads under `request.body`; the REST convention
     // for Strapi is `{ data: { ... } }`, but we accept a flat body too so the
     // route is forgiving to hand-written curl requests during the demo.
@@ -57,19 +57,21 @@ export default async (
     const courseId = courseRef?.id ?? courseRef?.documentId ?? courseRef;
 
     if (!courseId) {
-      throw new errors.ValidationError(`A "${bodyField}" reference is required.`);
+      throw new errors.ValidationError(
+        `A "${bodyField}" reference is required.`,
+      );
     }
 
     course = await findCourse(strapi, courseId);
-  } else if (resource === 'course') {
+  } else if (resource === "course") {
     course = await findCourse(strapi, policyContext.params?.[param]);
   } else {
-    const uid = resource === 'lesson' ? LESSON_UID : QUIZ_UID;
+    const uid = resource === "lesson" ? LESSON_UID : QUIZ_UID;
     course = await findParentCourse(strapi, uid, policyContext.params?.[param]);
   }
 
   if (!course) {
-    throw new errors.NotFoundError('Course not found.');
+    throw new errors.NotFoundError("Course not found.");
   }
 
   // Throws ForbiddenError for a non-owning instructor or any other role.

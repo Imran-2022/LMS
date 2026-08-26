@@ -9,8 +9,8 @@
  * added (`quizWithAnswers()`) for a caller who could edit the course anyway. The
  * decision is made here, on the server, not by the frontend choosing what to render.
  */
-import { factories } from '@strapi/strapi';
-import { errors } from '@strapi/utils';
+import { factories } from "@strapi/strapi";
+import { errors } from "@strapi/utils";
 
 import {
   QUIZ_ATTEMPT_UID,
@@ -19,8 +19,8 @@ import {
   canWriteCourse,
   findCourse,
   requireUser,
-} from '../../../utils/authorization';
-import { quizForStudent, quizWithAnswers } from '../../../utils/serialize';
+} from "../../../utils/authorization";
+import { quizForStudent, quizWithAnswers } from "../../../utils/serialize";
 
 const { NotFoundError, ValidationError } = errors;
 
@@ -31,14 +31,18 @@ function readBody(ctx: any) {
 
 function reviewAttempt(quiz: any, attempt: any) {
   const answers = new Map(
-    (Array.isArray(attempt.answers) ? attempt.answers : []).map((answer: any) => [
-      Number(answer.questionIndex),
-      answer.selectedOptionIndex ?? null,
-    ]),
+    (Array.isArray(attempt.answers) ? attempt.answers : []).map(
+      (answer: any) => [
+        Number(answer.questionIndex),
+        answer.selectedOptionIndex ?? null,
+      ],
+    ),
   );
 
   return (quiz.questions ?? []).map((question: any, questionIndex: number) => {
-    const selectedOptionIndex = answers.has(questionIndex) ? answers.get(questionIndex) : null;
+    const selectedOptionIndex = answers.has(questionIndex)
+      ? answers.get(questionIndex)
+      : null;
     const correctOptionIndex = Number(question.correctOptionIndex ?? 0);
 
     return {
@@ -46,7 +50,9 @@ function reviewAttempt(quiz: any, attempt: any) {
       questionText: question.text,
       selectedOptionIndex,
       correctOptionIndex,
-      isCorrect: selectedOptionIndex !== null && selectedOptionIndex === correctOptionIndex,
+      isCorrect:
+        selectedOptionIndex !== null &&
+        selectedOptionIndex === correctOptionIndex,
       explanation: question.explanation ?? null,
       options: (question.options ?? []).map((option: any, index: number) => ({
         index,
@@ -68,28 +74,35 @@ function normaliseQuestions(rawQuestions: unknown) {
   if (rawQuestions === undefined) return undefined;
 
   if (!Array.isArray(rawQuestions)) {
-    throw new ValidationError('`questions` must be an array.');
+    throw new ValidationError("`questions` must be an array.");
   }
 
   return rawQuestions.map((question: any, index: number) => {
     const label = `Question ${index + 1}`;
 
-    const text = String(question?.text ?? '').trim();
-    if (!text) throw new ValidationError(`${label}: question text is required.`);
+    const text = String(question?.text ?? "").trim();
+    if (!text)
+      throw new ValidationError(`${label}: question text is required.`);
 
     const options = Array.isArray(question?.options) ? question.options : [];
     const cleanOptions = options
-      .map((option: any) => ({ text: String(option?.text ?? '').trim() }))
+      .map((option: any) => ({ text: String(option?.text ?? "").trim() }))
       .filter((option: { text: string }) => option.text.length > 0);
 
     if (cleanOptions.length < 2) {
-      throw new ValidationError(`${label}: at least two answer options are required.`);
+      throw new ValidationError(
+        `${label}: at least two answer options are required.`,
+      );
     }
 
     const correctOptionIndex = Number(question?.correctOptionIndex ?? 0);
-    if (!Number.isInteger(correctOptionIndex) || correctOptionIndex < 0 || correctOptionIndex >= cleanOptions.length) {
+    if (
+      !Number.isInteger(correctOptionIndex) ||
+      correctOptionIndex < 0 ||
+      correctOptionIndex >= cleanOptions.length
+    ) {
       throw new ValidationError(
-        `${label}: the correct answer must be one of the ${cleanOptions.length} options provided.`
+        `${label}: the correct answer must be one of the ${cleanOptions.length} options provided.`,
       );
     }
 
@@ -111,30 +124,35 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
    */
   async find(ctx) {
     const user = requireUser(ctx.state.user);
-    const courseKey = (ctx.query.courseId ?? ctx.query.course) as string | undefined;
+    const courseKey = (ctx.query.courseId ?? ctx.query.course) as
+      | string
+      | undefined;
 
-    if (!courseKey) throw new ValidationError('A `courseId` query parameter is required.');
+    if (!courseKey)
+      throw new ValidationError("A `courseId` query parameter is required.");
 
     const course = await findCourse(strapi, courseKey);
-    if (!course) throw new NotFoundError('Course not found.');
+    if (!course) throw new NotFoundError("Course not found.");
 
     await assertCourseReadAccess(strapi, user, course);
 
     const quizzes = await strapi.db.query(QUIZ_UID).findMany({
       where: { course: course.id },
-      populate: ['questions'],
-      orderBy: [{ id: 'asc' }],
+      populate: ["questions"],
+      orderBy: [{ id: "asc" }],
     });
 
     // How the caller has done so far, so the course page can show "Best: 80%".
     const attempts = await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
       where: { student: user.id, course: course.id },
-      populate: ['quiz'],
+      populate: ["quiz"],
     });
 
     ctx.body = {
       data: quizzes.map((quiz: any) => {
-        const quizAttempts = attempts.filter((attempt: any) => attempt.quiz?.id === quiz.id);
+        const quizAttempts = attempts.filter(
+          (attempt: any) => attempt.quiz?.id === quiz.id,
+        );
         return {
           id: quiz.id,
           documentId: quiz.documentId,
@@ -143,7 +161,9 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
           passingScore: quiz.passingScore ?? 70,
           questionCount: quiz.questions?.length ?? 0,
           attemptCount: quizAttempts.length,
-          bestScore: quizAttempts.length ? Math.max(...quizAttempts.map((a: any) => a.score ?? 0)) : null,
+          bestScore: quizAttempts.length
+            ? Math.max(...quizAttempts.map((a: any) => a.score ?? 0))
+            : null,
         };
       }),
       meta: { total: quizzes.length, courseId: course.id },
@@ -160,14 +180,19 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
   async findOne(ctx) {
     const user = requireUser(ctx.state.user);
     const key = String(ctx.params.id);
-    const where = /^\d+$/.test(key) ? { $or: [{ id: Number(key) }, { documentId: key }] } : { documentId: key };
+    const where = /^\d+$/.test(key)
+      ? { $or: [{ id: Number(key) }, { documentId: key }] }
+      : { documentId: key };
 
     const quiz = await strapi.db.query(QUIZ_UID).findOne({
       where,
-      populate: { questions: { populate: ['options'] }, course: { populate: ['owner'] } },
+      populate: {
+        questions: { populate: ["options"] },
+        course: { populate: ["owner"] },
+      },
     });
 
-    if (!quiz || !quiz.course) throw new NotFoundError('Quiz not found.');
+    if (!quiz || !quiz.course) throw new NotFoundError("Quiz not found.");
 
     const isAuthor = canWriteCourse(user, quiz.course);
 
@@ -175,14 +200,18 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
     // can be shown again later, as the brief requires.
     const attempts = await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
       where: { student: user.id, quiz: quiz.id },
-      orderBy: [{ createdAt: 'desc' }],
+      orderBy: [{ createdAt: "desc" }],
     });
     const latestAttempt = attempts[0];
 
     ctx.body = {
       data: {
         ...(isAuthor ? quizWithAnswers(quiz) : quizForStudent(quiz)),
-        course: { id: quiz.course.id, documentId: quiz.course.documentId, title: quiz.course.title },
+        course: {
+          id: quiz.course.id,
+          documentId: quiz.course.documentId,
+          title: quiz.course.title,
+        },
         canEdit: isAuthor,
         myAttempts: attempts.map((attempt: any) => ({
           id: attempt.id,
@@ -202,8 +231,14 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
                 totalQuestions: latestAttempt.totalQuestions ?? 0,
                 passed: Boolean(latestAttempt.passed),
                 answers: latestAttempt.answers ?? [],
-                submittedAt: latestAttempt.submittedAt ?? latestAttempt.createdAt,
-                quiz: { id: quiz.id, documentId: quiz.documentId, title: quiz.title, passingScore: quiz.passingScore ?? 70 },
+                submittedAt:
+                  latestAttempt.submittedAt ?? latestAttempt.createdAt,
+                quiz: {
+                  id: quiz.id,
+                  documentId: quiz.documentId,
+                  title: quiz.title,
+                  passingScore: quiz.passingScore ?? 70,
+                },
                 course: { id: quiz.course.id, title: quiz.course.title },
                 student: null,
                 breakdown: reviewAttempt(quiz, latestAttempt),
@@ -219,10 +254,10 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
     const payload = readBody(ctx);
     const course = ctx.state.course;
 
-    if (!course) throw new ValidationError('A `course` reference is required.');
+    if (!course) throw new ValidationError("A `course` reference is required.");
 
-    const title = String(payload.title ?? '').trim();
-    if (!title) throw new ValidationError('A quiz title is required.');
+    const title = String(payload.title ?? "").trim();
+    if (!title) throw new ValidationError("A quiz title is required.");
 
     const questions = normaliseQuestions(payload.questions) ?? [];
 
@@ -234,7 +269,7 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
         course: course.id,
         questions,
       },
-      populate: { questions: { populate: ['options'] }, course: true },
+      populate: { questions: { populate: ["options"] }, course: true },
     });
 
     ctx.status = 201;
@@ -251,21 +286,25 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
   async update(ctx) {
     requireUser(ctx.state.user);
     const key = String(ctx.params.id);
-    const where = /^\d+$/.test(key) ? { $or: [{ id: Number(key) }, { documentId: key }] } : { documentId: key };
+    const where = /^\d+$/.test(key)
+      ? { $or: [{ id: Number(key) }, { documentId: key }] }
+      : { documentId: key };
 
     const quiz = await strapi.db.query(QUIZ_UID).findOne({ where });
-    if (!quiz) throw new NotFoundError('Quiz not found.');
+    if (!quiz) throw new NotFoundError("Quiz not found.");
 
     const payload = readBody(ctx);
     const data: Record<string, any> = {};
 
     if (payload.title !== undefined) {
       const title = String(payload.title).trim();
-      if (!title) throw new ValidationError('A quiz title is required.');
+      if (!title) throw new ValidationError("A quiz title is required.");
       data.title = title;
     }
-    if (payload.description !== undefined) data.description = payload.description;
-    if (payload.passingScore !== undefined) data.passingScore = this.clampPassingScore(payload.passingScore);
+    if (payload.description !== undefined)
+      data.description = payload.description;
+    if (payload.passingScore !== undefined)
+      data.passingScore = this.clampPassingScore(payload.passingScore);
 
     const questions = normaliseQuestions(payload.questions);
     if (questions !== undefined) data.questions = questions;
@@ -273,7 +312,7 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
     const updated = await strapi.documents(QUIZ_UID).update({
       documentId: quiz.documentId,
       data,
-      populate: { questions: { populate: ['options'] }, course: true },
+      populate: { questions: { populate: ["options"] }, course: true },
     });
 
     ctx.body = { data: quizWithAnswers(updated) };
@@ -282,12 +321,16 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
   /** DELETE /api/quizzes/:id — takes the attempt history with it. */
   async delete(ctx) {
     const key = String(ctx.params.id);
-    const where = /^\d+$/.test(key) ? { $or: [{ id: Number(key) }, { documentId: key }] } : { documentId: key };
+    const where = /^\d+$/.test(key)
+      ? { $or: [{ id: Number(key) }, { documentId: key }] }
+      : { documentId: key };
 
     const quiz = await strapi.db.query(QUIZ_UID).findOne({ where });
-    if (!quiz) throw new NotFoundError('Quiz not found.');
+    if (!quiz) throw new NotFoundError("Quiz not found.");
 
-    await strapi.db.query(QUIZ_ATTEMPT_UID).deleteMany({ where: { quiz: quiz.id } });
+    await strapi.db
+      .query(QUIZ_ATTEMPT_UID)
+      .deleteMany({ where: { quiz: quiz.id } });
     await strapi.documents(QUIZ_UID).delete({ documentId: quiz.documentId });
 
     ctx.body = { data: { id: quiz.id, deleted: true } };

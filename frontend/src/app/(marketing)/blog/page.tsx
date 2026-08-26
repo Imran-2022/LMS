@@ -9,7 +9,10 @@ import { formatDate } from "@/lib/format";
 import type { BlogPost } from "@/lib/types";
 
 export default async function BlogPage() {
-  const posts = await fetchList<BlogPost>("/api/blog-posts", { anonymous: true, revalidate: 60 });
+  const posts = await fetchList<BlogPost>("/api/blog-posts", {
+    anonymous: true,
+    revalidate: 60,
+  });
 
   return (
     <div className="min-h-dvh bg-ink-50">
