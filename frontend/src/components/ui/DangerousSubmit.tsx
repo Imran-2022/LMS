@@ -8,7 +8,7 @@
  * The guard is UX, not security — the Strapi policy still checks ownership on the
  * request, so cancelling here and deleting via curl are two different questions.
  */
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { AlertTriangle } from "lucide-react";
 import type { ComponentProps } from "react";
@@ -24,6 +24,7 @@ export function DangerousSubmit({
 }: { confirm: string; pendingLabel?: string } & ComponentProps<typeof Button>) {
   const { pending } = useFormStatus();
   const [open, setOpen] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   return (
     <>
@@ -32,6 +33,7 @@ export function DangerousSubmit({
         variant="danger"
         onClick={(event) => {
           event.preventDefault();
+          formRef.current = event.currentTarget.form;
           setOpen(true);
         }}
         disabled={pending || rest.disabled}
@@ -69,7 +71,15 @@ export function DangerousSubmit({
             <Button type="button" variant="secondary" size="sm" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="danger" size="sm" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="danger"
+              size="sm"
+              onClick={() => {
+                setOpen(false);
+                formRef.current?.requestSubmit();
+              }}
+            >
               Delete
             </Button>
           </div>
