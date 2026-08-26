@@ -140,6 +140,13 @@ a {
   outline-offset: 2px;
 }
 
+/* Form controls use their single border focus state instead of the global ring. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
 /* Keep the viewport scrollbar aligned with the primary action colour. */
 html {
   scrollbar-width: thin;

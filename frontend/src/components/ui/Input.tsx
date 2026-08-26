@@ -16,10 +16,10 @@ import type { ComponentProps, ReactNode } from "react";
 import { cx } from "@/lib/format";
 
 const CONTROL =
-  "w-full rounded border bg-white px-3.5 py-2.5 text-sm text-ink-800 transition-all " +
+  "w-full rounded border bg-white px-3.5 py-2.5 text-sm text-ink-800 transition-colors " +
   "placeholder:text-ink-400 focus:outline-none disabled:bg-ink-50 disabled:text-ink-500";
 
-const OK = "border-ink-200";
+const OK = "border-ink-200 focus:border-brand-500";
 const BAD = "border-danger-500/60 focus:border-danger-500";
 
 function Field({
