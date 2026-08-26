@@ -125,6 +125,14 @@ export type Quiz = {
   courseId: number | null;
   questionCount: number;
   questions: QuizQuestion[];
+  myAttempt?: QuizAttempt;
+};
+
+export type CourseQuizSummary = Pick<Quiz, "id" | "documentId" | "title" | "description" | "passingScore" | "questionCount"> & {
+  position: number;
+  completed: boolean;
+  score: number | null;
+  passed: boolean | null;
 };
 
 /** The authoring view: same payload plus the key. Staff and owning instructors only. */

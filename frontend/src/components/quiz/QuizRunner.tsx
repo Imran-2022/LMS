@@ -16,7 +16,7 @@
  * key. Same for `passed`: that is the server comparing against the quiz's own
  * `passingScore`, not this component's opinion.
  */
-import { AlertCircle, ArrowLeft, Check, RotateCcw, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useActionState, useState } from "react";
 
 import { submitQuizAttempt } from "@/lib/actions/quiz";
@@ -25,19 +25,18 @@ import { Card } from "@/components/ui/Card";
 import { FormError } from "@/components/ui/Input";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cx } from "@/lib/format";
-import type { Quiz } from "@/lib/types";
+import type { Quiz, QuizAttempt } from "@/lib/types";
 
 import { QuizResult } from "./QuizResult";
 
 export function QuizRunner({
   quiz,
   courseId,
-  previousBest,
+  initialAttempt,
 }: {
   quiz: Quiz;
   courseId: number | string;
-  /** Best score so far, so a retake knows what it is trying to beat. */
-  previousBest?: number | null;
+  initialAttempt?: QuizAttempt;
 }) {
   const [state, action] = useActionState(submitQuizAttempt, undefined);
 
@@ -48,8 +47,8 @@ export function QuizRunner({
   const answered = Object.keys(selected).length;
   const total = quiz.questions.length;
 
-  if (state?.attempt) {
-    return <QuizResult attempt={state.attempt} quiz={quiz} courseId={courseId} />;
+  if (state?.attempt || initialAttempt) {
+    return <QuizResult attempt={state?.attempt ?? initialAttempt!} quiz={quiz} />;
   }
 
   return (
@@ -59,14 +58,6 @@ export function QuizRunner({
       <input type="hidden" name="questionCount" value={total} />
 
       <FormError>{state?.error}</FormError>
-
-      {typeof previousBest === "number" ? (
-        <div className="flex items-center gap-2 rounded border border-brand-500/20 bg-brand-50 px-4 py-3 text-[13px] font-medium text-brand-700">
-          <RotateCcw className="h-4 w-4 shrink-0" />
-          You&apos;ve taken this before — your best score is {previousBest}%. Every attempt is
-          kept, so this one won&apos;t overwrite it.
-        </div>
-      ) : null}
 
       <ol className="space-y-4">
         {quiz.questions.map((question, index) => (
@@ -148,25 +139,3 @@ export function QuizRunner({
   );
 }
 
-/** Small legend used by `QuizResult`, kept here so both files share the styling. */
-export function AnswerMark({ state }: { state: "correct" | "wrong" | "missed" }) {
-  if (state === "correct") {
-    return (
-      <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-success-500 text-white">
-        <Check className="h-3 w-3" strokeWidth={3} />
-      </span>
-    );
-  }
-  if (state === "wrong") {
-    return (
-      <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-danger-500 text-white">
-        <X className="h-3 w-3" strokeWidth={3} />
-      </span>
-    );
-  }
-  return (
-    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent-500 text-white">
-      <AlertCircle className="h-3 w-3" strokeWidth={3} />
-    </span>
-  );
-}

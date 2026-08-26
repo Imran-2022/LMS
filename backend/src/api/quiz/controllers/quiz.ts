@@ -29,6 +29,33 @@ function readBody(ctx: any) {
   return body.data ?? body;
 }
 
+function reviewAttempt(quiz: any, attempt: any) {
+  const answers = new Map(
+    (Array.isArray(attempt.answers) ? attempt.answers : []).map((answer: any) => [
+      Number(answer.questionIndex),
+      answer.selectedOptionIndex ?? null,
+    ]),
+  );
+
+  return (quiz.questions ?? []).map((question: any, questionIndex: number) => {
+    const selectedOptionIndex = answers.has(questionIndex) ? answers.get(questionIndex) : null;
+    const correctOptionIndex = Number(question.correctOptionIndex ?? 0);
+
+    return {
+      questionIndex,
+      questionText: question.text,
+      selectedOptionIndex,
+      correctOptionIndex,
+      isCorrect: selectedOptionIndex !== null && selectedOptionIndex === correctOptionIndex,
+      explanation: question.explanation ?? null,
+      options: (question.options ?? []).map((option: any, index: number) => ({
+        index,
+        text: option.text,
+      })),
+    };
+  });
+}
+
 /**
  * Validates the question set before it is stored.
  *
@@ -150,6 +177,7 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
       where: { student: user.id, quiz: quiz.id },
       orderBy: [{ createdAt: 'desc' }],
     });
+    const latestAttempt = attempts[0];
 
     ctx.body = {
       data: {
@@ -164,6 +192,23 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
           passed: Boolean(attempt.passed),
           submittedAt: attempt.submittedAt ?? attempt.createdAt,
         })),
+        myAttempt:
+          !isAuthor && latestAttempt
+            ? {
+                id: latestAttempt.id,
+                documentId: latestAttempt.documentId,
+                score: latestAttempt.score ?? 0,
+                correctCount: latestAttempt.correctCount ?? 0,
+                totalQuestions: latestAttempt.totalQuestions ?? 0,
+                passed: Boolean(latestAttempt.passed),
+                answers: latestAttempt.answers ?? [],
+                submittedAt: latestAttempt.submittedAt ?? latestAttempt.createdAt,
+                quiz: { id: quiz.id, documentId: quiz.documentId, title: quiz.title, passingScore: quiz.passingScore ?? 70 },
+                course: { id: quiz.course.id, title: quiz.course.title },
+                student: null,
+                breakdown: reviewAttempt(quiz, latestAttempt),
+              }
+            : undefined,
       },
     };
   },

@@ -254,6 +254,19 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
       }
     }
 
+    const attempts = isEnrolled
+      ? await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
+          where: { student: (user as AuthUser).id, course: course.id },
+          orderBy: [{ createdAt: 'desc' }],
+        })
+      : [];
+    const attemptsByQuiz = new Map(
+      attempts.map((attempt: any) => {
+        const quizId = attempt.quiz?.id ?? attempt.quiz?.documentId ?? attempt.quiz;
+        return [String(quizId), attempt] as const;
+      }),
+    );
+
     ctx.body = {
       data: {
         ...courseDetail(course, {
@@ -265,14 +278,21 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
           progress,
         }),
         lessons: lessons.map((lesson: any) => lessonSummary(lesson)),
-        quizzes: quizzes.map((quiz: any) => ({
-          id: quiz.id,
-          documentId: quiz.documentId,
-          title: quiz.title,
-          description: quiz.description ?? null,
-          passingScore: quiz.passingScore ?? 70,
-          questionCount: quiz.questions?.length ?? 0,
-        })),
+        quizzes: quizzes.map((quiz: any, index: number) => {
+          const attempt = attemptsByQuiz.get(String(quiz.id));
+          return {
+            id: quiz.id,
+            documentId: quiz.documentId,
+            title: quiz.title,
+            description: quiz.description ?? null,
+            passingScore: quiz.passingScore ?? 70,
+            questionCount: quiz.questions?.length ?? 0,
+            position: index + 1,
+            completed: Boolean(attempt),
+            score: attempt?.score ?? null,
+            passed: attempt ? Boolean(attempt.passed) : null,
+          };
+        }),
       },
     };
   },

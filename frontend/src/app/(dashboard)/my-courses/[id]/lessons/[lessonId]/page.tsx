@@ -58,9 +58,6 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
             >
               {completed ? "Mark as incomplete" : "Mark complete"}
             </SubmitButton>
-            {completed ? (
-              <span className="text-sm font-semibold text-success-600">Completed</span>
-            ) : null}
           </form>
         </article>
 
