@@ -191,8 +191,10 @@ export async function registerAccount(input: {
   username: string;
   email: string;
   password: string;
+  fullName?: string;
+  mobileNumber?: string;
 }): Promise<ApiResult<{ jwt: string }>> {
-  return apiFetch<{ jwt: string }>("/api/auth/local/register", {
+  return apiFetch<{ jwt: string }>("/api/auth/register", {
     method: "POST",
     anonymous: true,
     body: input,

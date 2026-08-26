@@ -47,6 +47,7 @@ type SeedUser = {
   username: string;
   email: string;
   fullName: string;
+  mobileNumber: string;
   bio?: string;
   role: RoleType;
 };
@@ -57,6 +58,7 @@ const USERS: SeedUser[] = [
     username: 'amara.admin',
     email: 'admin@lms.dev',
     fullName: 'Amara Okafor',
+    mobileNumber: '+8801700000001',
     bio: 'Platform administrator. Manages accounts, roles and everything published.',
     role: ROLES.ADMIN,
   },
@@ -65,6 +67,7 @@ const USERS: SeedUser[] = [
     username: 'diego.manager',
     email: 'manager@lms.dev',
     fullName: 'Diego Alvarez',
+    mobileNumber: '+8801700000002',
     bio: 'Content manager. Curates the catalogue and writes for the blog.',
     role: ROLES.CONTENT_MANAGER,
   },
@@ -73,6 +76,7 @@ const USERS: SeedUser[] = [
     username: 'priya.instructor',
     email: 'instructor@lms.dev',
     fullName: 'Priya Raman',
+    mobileNumber: '+8801700000003',
     bio: 'Frontend engineer. Teaches React, Next.js and TypeScript.',
     role: ROLES.INSTRUCTOR,
   },
@@ -82,6 +86,7 @@ const USERS: SeedUser[] = [
     username: 'kwame.instructor',
     email: 'instructor2@lms.dev',
     fullName: 'Kwame Mensah',
+    mobileNumber: '+8801700000004',
     bio: 'Backend engineer. Teaches API design and databases.',
     role: ROLES.INSTRUCTOR,
   },
@@ -90,6 +95,7 @@ const USERS: SeedUser[] = [
     username: 'tom.student',
     email: 'student@lms.dev',
     fullName: 'Tom Whitfield',
+    mobileNumber: '+8801700000005',
     bio: 'Career switcher working through the frontend track.',
     role: ROLES.STUDENT,
   },
@@ -98,6 +104,7 @@ const USERS: SeedUser[] = [
     username: 'lena.student',
     email: 'student2@lms.dev',
     fullName: 'Lena Fischer',
+    mobileNumber: '+8801700000006',
     bio: 'Computer science student.',
     role: ROLES.STUDENT,
   },
@@ -524,6 +531,7 @@ async function ensureUser(strapi: any, seed: SeedUser, roleIdByType: Record<stri
     email: seed.email,
     password: DEMO_PASSWORD,
     fullName: seed.fullName,
+    mobileNumber: seed.mobileNumber,
     bio: seed.bio ?? null,
     provider: 'local',
     confirmed: true,

@@ -12,16 +12,26 @@ export function SignupForm() {
   const [state, action] = useActionState(signUp, {});
 
   return (
-    <form action={action} className="mt-8 space-y-5">
+    <form action={action} className="mt-6 space-y-4">
       <FormError>{state?.error}</FormError>
       <Input
-        label="Username"
-        name="username"
+        label="Full name"
+        name="fullName"
         type="text"
-        autoComplete="username"
-        defaultValue={state?.values?.username}
-        placeholder="yourname"
-        minLength={3}
+        autoComplete="name"
+        defaultValue={state?.values?.fullName}
+        placeholder="Your full name"
+        maxLength={120}
+        required
+      />
+      <Input
+        label="Mobile number"
+        name="mobileNumber"
+        type="tel"
+        autoComplete="tel"
+        defaultValue={state?.values?.mobileNumber}
+        placeholder="E.g +88017712078**"
+        inputMode="tel"
         required
       />
       <Input

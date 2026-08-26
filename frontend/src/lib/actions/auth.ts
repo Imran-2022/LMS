@@ -21,7 +21,10 @@ import { endSession, startSession } from "@/lib/session";
 
 import { safePath } from "./shared";
 
-export type AuthState = { error?: string; values?: { identifier?: string; email?: string; username?: string } };
+export type AuthState = {
+  error?: string;
+  values?: { identifier?: string; email?: string; username?: string; fullName?: string; mobileNumber?: string };
+};
 
 function text(form: FormData, key: string): string {
   const value = form.get(key);
@@ -56,28 +59,37 @@ export async function signIn(_prev: AuthState, form: FormData): Promise<AuthStat
 }
 
 export async function signUp(_prev: AuthState, form: FormData): Promise<AuthState> {
-  const username = text(form, "username");
   const email = text(form, "email");
+  const fullName = text(form, "fullName");
+  const mobileNumber = text(form, "mobileNumber");
   const password = String(form.get("password") ?? "");
   const confirm = String(form.get("confirmPassword") ?? "");
-  const values = { username, email };
+  const values = { email, fullName, mobileNumber };
 
-  if (!username || !email || !password) {
+  if (!email || !fullName || !mobileNumber || !password) {
     return { error: "Fill in every field to create your account.", values };
-  }
-  if (username.length < 3) {
-    return { error: "Your username needs at least 3 characters.", values };
   }
   // Mirrors Strapi's own minimum. Checking it here means the user finds out before
   // the round-trip, not after.
   if (password.length < 8) {
     return { error: "Use a password of at least 8 characters.", values };
   }
+  if (fullName.length > 120) {
+    return { error: "Your full name is too long.", values };
+  }
+  if (!/^[+\d][\d\s().-]{6,19}$/.test(mobileNumber)) {
+    return { error: "Enter a valid mobile number.", values };
+  }
   if (password !== confirm) {
     return { error: "Those two passwords do not match.", values };
   }
 
-  const result = await registerAccount({ username, email, password });
+  // Strapi requires a unique username internally, but it is not useful to ask
+  // learners to invent a second identifier. Derive one privately from the email
+  // and add a short suffix so repeated local parts remain unique.
+  const emailName = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 32) || "learner";
+  const username = `${emailName}-${Date.now().toString(36)}`;
+  const result = await registerAccount({ username, email, password, fullName, mobileNumber });
   if (!result.ok) {
     return { error: result.error, values };
   }

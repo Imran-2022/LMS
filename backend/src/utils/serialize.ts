@@ -31,6 +31,7 @@ export function publicUser(user: any) {
     username: user.username,
     email: user.email,
     fullName: user.fullName ?? null,
+    mobileNumber: user.mobileNumber ?? null,
     avatarUrl: user.avatarUrl ?? null,
     bio: user.bio ?? null,
     blocked: Boolean(user.blocked),

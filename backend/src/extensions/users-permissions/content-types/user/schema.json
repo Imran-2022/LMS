@@ -68,7 +68,13 @@
     },
     "fullName": {
       "type": "string",
-      "maxLength": 120
+      "maxLength": 120,
+      "required": true
+    },
+    "mobileNumber": {
+      "type": "string",
+      "maxLength": 30,
+      "required": true
     },
     "avatarUrl": {
       "type": "string"

@@ -37,6 +37,43 @@ function readBody(ctx: any) {
 }
 
 export default ({ strapi }: { strapi: any }) => ({
+  /** POST /api/auth/register with the application's required profile fields. */
+  async register(ctx: any) {
+    const body = readBody(ctx);
+    const username = typeof body.username === 'string' ? body.username.trim() : '';
+    const email = typeof body.email === 'string' ? body.email.trim() : '';
+    const password = typeof body.password === 'string' ? body.password : '';
+    const fullName = typeof body.fullName === 'string' ? body.fullName.trim() : '';
+    const mobileNumber = typeof body.mobileNumber === 'string' ? body.mobileNumber.trim() : '';
+
+    if (!username || !email || !password || !fullName || !mobileNumber) {
+      throw new ValidationError('Email, password, full name, and mobile number are required.');
+    }
+
+    const existing = await strapi.db.query(USER_UID).findOne({
+      where: { $or: [{ email }, { username }] },
+    });
+    if (existing) throw new ValidationError('Email or username is already taken.');
+
+    const studentRole = await strapi.db.query(ROLE_UID).findOne({ where: { type: 'student' } });
+    if (!studentRole) throw new ValidationError('Student role is not configured.');
+
+    const user = await strapi.plugin('users-permissions').service('user').add({
+      username,
+      email,
+      password,
+      fullName,
+      mobileNumber,
+      provider: 'local',
+      confirmed: true,
+      blocked: false,
+      role: studentRole.id,
+    });
+    const jwt = strapi.plugin('users-permissions').service('jwt').issue({ id: user.id });
+
+    ctx.body = { jwt, user: publicUser(user) };
+  },
+
   /**
    * GET /api/me
    *

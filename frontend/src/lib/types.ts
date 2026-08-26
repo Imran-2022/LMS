@@ -24,6 +24,7 @@ export type UserSummary = {
   id: number;
   username: string;
   fullName: string | null;
+  mobileNumber: string | null;
   avatarUrl: string | null;
 };
 
