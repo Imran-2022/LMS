@@ -38,7 +38,7 @@ export type NavGroup = { heading: string; items: NavItem[] };
 const ALL: RoleType[] = ["admin", "content_manager", "instructor", "student"];
 const AUTHORS: RoleType[] = ["admin", "content_manager", "instructor"];
 const BLOG: RoleType[] = ["admin", "content_manager"];
-const BLOG_READERS: RoleType[] = ["admin", "content_manager", "student"];
+const BLOG_READERS: RoleType[] = ["admin", "content_manager", "instructor", "student"];
 const ADMIN: RoleType[] = ["admin"];
 const STUDENT: RoleType[] = ["student"];
 

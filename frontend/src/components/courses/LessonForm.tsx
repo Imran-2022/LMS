@@ -10,7 +10,8 @@
  */
 import { useActionState } from "react";
 
-import { createLesson, updateLesson } from "@/lib/actions/lessons";
+import { createLesson, deleteLesson, updateLesson } from "@/lib/actions/lessons";
+import { DangerousSubmit } from "@/components/ui/DangerousSubmit";
 import { Input, FormError, Textarea } from "@/components/ui/Input";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import type { LessonDetail } from "@/lib/types";
@@ -27,7 +28,8 @@ export function LessonForm({
   const [state, action] = useActionState(editing ? updateLesson : createLesson, undefined);
 
   return (
-    <form action={action} className="space-y-5">
+    <>
+      <form id="lesson-form" action={action} className="space-y-5">
       <FormError>{state?.error}</FormError>
 
       <input type="hidden" name="courseId" value={courseId} />
@@ -80,12 +82,26 @@ export function LessonForm({
           hint="In minutes. Feeds the course's total running time."
         />
       </div>
+      </form>
 
-      <div className="border-t border-ink-100 pt-5">
-        <SubmitButton size="lg" pendingLabel={editing ? "Saving…" : "Adding…"}>
+      <div className="flex flex-wrap items-center gap-3 border-t border-ink-100 pt-5">
+        <SubmitButton form="lesson-form" size="lg" pendingLabel={editing ? "Saving…" : "Adding…"}>
           {editing ? "Save lesson" : "Add lesson"}
         </SubmitButton>
+      {editing ? (
+        <form action={deleteLesson} className="inline">
+          <input type="hidden" name="courseId" value={courseId} />
+          <input type="hidden" name="lessonId" value={lesson?.id} />
+          <DangerousSubmit
+            confirm="Delete this lesson? Student progress for it will also be removed."
+            pendingLabel="Deleting..."
+            size="lg"
+          >
+            Delete lesson
+          </DangerousSubmit>
+        </form>
+      ) : null}
       </div>
-    </form>
+    </>
   );
 }

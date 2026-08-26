@@ -1,6 +1,27 @@
 import { CourseForm } from "@/components/courses/CourseForm";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { BackButton } from "@/components/ui/BackButton";
 
 export default function NewCoursePage() {
-  return <><PageHeader eyebrow="Teaching workspace" title="Create a course" description="Start a new course and add lessons and quizzes as it takes shape." /><div className="mt-8 max-w-3xl rounded border border-ink-200 bg-white p-6 sm:p-8"><CourseForm /></div></>;
+  return (
+    <>
+      <header>
+        <p className="mb-2 text-[11.5px] font-bold uppercase tracking-[0.1em] text-brand-500">
+          Teaching workspace
+        </p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h1 className="min-w-0 text-[26px] font-bold leading-tight tracking-tight text-ink-900 sm:text-[30px]">
+            Create a course
+          </h1>
+          <BackButton />
+        </div>
+        <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-500">
+          Start a new course and add lessons and quizzes as it takes shape.
+        </p>
+      </header>
+
+      <div className="mt-8 max-w-3xl rounded border border-ink-200 bg-white p-6 sm:p-8">
+        <CourseForm />
+      </div>
+    </>
+  );
 }

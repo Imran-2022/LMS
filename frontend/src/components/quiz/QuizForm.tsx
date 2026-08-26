@@ -23,8 +23,9 @@ import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { useId, useState } from "react";
 import { useActionState } from "react";
 
-import { createQuiz, updateQuiz } from "@/lib/actions/quiz";
+import { createQuiz, deleteQuiz, updateQuiz } from "@/lib/actions/quiz";
 import { Button } from "@/components/ui/Button";
+import { DangerousSubmit } from "@/components/ui/DangerousSubmit";
 import { FormError, Input, Textarea } from "@/components/ui/Input";
 import { FieldsetLegend } from "@/components/ui/PageHeader";
 import { SubmitButton } from "@/components/ui/SubmitButton";
@@ -113,7 +114,8 @@ export function QuizForm({
   }
 
   return (
-    <form action={action} className="space-y-6">
+    <>
+      <form id="quiz-form" action={action} className="space-y-6">
       <FormError>{state?.error}</FormError>
 
       <input type="hidden" name="courseId" value={courseId} />
@@ -308,16 +310,26 @@ export function QuizForm({
         <Plus className="h-4 w-4" />
         Add question
       </Button>
+      </form>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-ink-100 pt-5">
-        <SubmitButton size="lg" pendingLabel={editing ? "Saving…" : "Creating…"}>
+        <SubmitButton form="quiz-form" size="lg" pendingLabel={editing ? "Saving…" : "Creating…"}>
           {editing ? "Save quiz" : "Create quiz"}
         </SubmitButton>
-        <p className="text-[12.5px] text-ink-500">
-          {questions.length} question{questions.length === 1 ? "" : "s"}. Correct answers are
-          stored server-side and never sent to a student&apos;s browser.
-        </p>
+        {editing ? (
+          <form action={deleteQuiz} className="inline">
+            <input type="hidden" name="courseId" value={courseId} />
+            <input type="hidden" name="quizId" value={quiz?.id} />
+            <DangerousSubmit
+              confirm="Delete this quiz and its attempt history?"
+              pendingLabel="Deleting..."
+              size="lg"
+            >
+              Delete quiz
+            </DangerousSubmit>
+          </form>
+        ) : null}
       </div>
-    </form>
+    </>
   );
 }
