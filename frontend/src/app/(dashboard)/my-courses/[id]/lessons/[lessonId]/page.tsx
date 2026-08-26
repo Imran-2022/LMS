@@ -53,7 +53,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
               value={`/my-courses/${id}/lessons/${lessonId}`}
             />
             <SubmitButton
-              variant={completed ? "secondary" : "primary"}
+              variant="primary"
               pendingLabel="Saving..."
             >
               {completed ? "Mark as incomplete" : "Mark complete"}

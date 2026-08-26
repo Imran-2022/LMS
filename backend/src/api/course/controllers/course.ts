@@ -257,6 +257,7 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
     const attempts = isEnrolled
       ? await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
           where: { student: (user as AuthUser).id, course: course.id },
+          populate: ['quiz'],
           orderBy: [{ createdAt: 'desc' }],
         })
       : [];
