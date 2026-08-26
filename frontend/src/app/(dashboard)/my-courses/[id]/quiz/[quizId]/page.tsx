@@ -1,5 +1,5 @@
 import { QuizRunner } from "@/components/quiz/QuizRunner";
-import { ButtonLink } from "@/components/ui/Button";
+import { BackButton } from "@/components/ui/BackButton";
 import { fetchItem } from "@/lib/api";
 import type { Quiz } from "@/lib/types";
 
@@ -18,9 +18,7 @@ export default async function QuizPage({ params }: { params: Promise<{ id: strin
           <h1 className="min-w-0 text-[26px] font-bold leading-tight tracking-tight text-ink-900 sm:text-[30px]">
             {quiz.title}
           </h1>
-          <ButtonLink href={`/my-courses/${id}`} variant="secondary" size="sm">
-            Back to course
-          </ButtonLink>
+          <BackButton />
         </div>
         <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-500">
           {quiz.description ?? "Test your understanding and see your score immediately."}
