@@ -2,20 +2,19 @@
 
 /**
  * The dashboard shell: sidebar, topbar, content column.
- *
- * A client component, but only because the mobile drawer's open/closed state has to
- * live somewhere. The pages it wraps stay Server Components — `children` arrives
- * already-rendered from the server, so making the shell interactive does not drag the
- * whole dashboard into the client bundle. That is the reason the state sits here and
  * not one level up in the layout.
  */
 import { useState } from "react";
 import { Menu } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Sidebar } from "./Sidebar";
 import { UserMenu } from "./UserMenu";
 import { Brand } from "./Brand";
 import { Button } from "@/components/ui/Button";
+import { cx } from "@/lib/format";
+import { setSidebarPreference } from "@/lib/actions/sidebar";
+import { SIDEBAR_COOKIE } from "@/lib/sidebar-preference";
 import type { RoleType } from "@/lib/types";
 import type { ReactNode } from "react";
 
@@ -24,23 +23,38 @@ export function AppShell({
   email,
   avatarUrl,
   role,
+  sidebarCollapsed: initialSidebarCollapsed,
   children,
 }: {
   name: string;
   email: string;
   avatarUrl: string | null;
   role: RoleType | null;
+  sidebarCollapsed: boolean;
   children: ReactNode;
 }) {
+  const router = useRouter();
   const [navOpen, setNavOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(initialSidebarCollapsed);
+
+  function toggleSidebar() {
+    const nextValue = !sidebarCollapsed;
+    setSidebarCollapsed(nextValue);
+    void setSidebarPreference(nextValue).then(() => router.refresh());
+  }
 
   return (
     <div className="min-h-dvh">
-      <Sidebar role={role} open={navOpen} onClose={() => setNavOpen(false)} />
+      <Sidebar
+        role={role}
+        open={navOpen}
+        onClose={() => setNavOpen(false)}
+        collapsed={sidebarCollapsed}
+      />
 
       {/* Offset by the sidebar width on desktop; full width below it. */}
-      <div className="lg:pl-[264px]">
-        <header className="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-ink-200/70 bg-white/90 px-4 backdrop-blur-md sm:px-6 lg:left-[264px]">
+      <div className={cx("transition-[padding] duration-500 ease-in-out", sidebarCollapsed ? "lg:pl-[76px]" : "lg:pl-[264px]")}>
+        <header className={cx("fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-ink-200/70 bg-white/90 px-4 backdrop-blur-md transition-[left] duration-500 ease-in-out sm:px-6", sidebarCollapsed ? "lg:left-[76px]" : "lg:left-[264px]")}>
           <div className="flex items-center gap-3">
             <Button
               type="button"
@@ -51,6 +65,17 @@ export function AppShell({
               aria-label="Open navigation"
             >
               <Menu size={18} />
+            </Button>
+            <Button
+              type="button"
+              onClick={toggleSidebar}
+              variant="secondary"
+              size="sm"
+              className="hidden h-10 w-10 p-0 lg:inline-flex"
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              <Menu size={20} strokeWidth={2} aria-hidden="true" />
             </Button>
             <span className="lg:hidden">
               <Brand compact />

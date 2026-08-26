@@ -47,10 +47,12 @@ export function Sidebar({
   role,
   open,
   onClose,
+  collapsed,
 }: {
   role: RoleType | null;
   open: boolean;
   onClose: () => void;
+  collapsed: boolean;
 }) {
   const pathname = usePathname();
   const groups = navFor(role);
@@ -78,12 +80,13 @@ export function Sidebar({
 
       <aside
         className={cx(
-          "fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col border-r border-ink-200/70 bg-white transition-transform duration-300 lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-ink-200/70 bg-white transition-[width,transform] duration-500 ease-in-out lg:translate-x-0",
+          collapsed ? "lg:w-[76px]" : "w-[264px]",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-16 shrink-0 items-center justify-between px-5">
-          <Brand />
+        <div className={cx("flex h-16 shrink-0 items-center px-5", collapsed ? "lg:justify-center" : "justify-between")}>
+          <Brand collapsed={collapsed} />
           <Button
             type="button"
             onClick={onClose}
@@ -99,7 +102,7 @@ export function Sidebar({
         <nav className="scroll-slim flex-1 overflow-y-auto px-3 pb-6">
           {groups.map((group) => (
             <div key={group.heading} className="mb-6">
-              <p className="mb-2 px-3 text-[10.5px] font-bold uppercase tracking-[0.12em] text-ink-400">
+              <p className={cx("mb-2 px-3 text-[10.5px] font-bold uppercase tracking-[0.12em] text-ink-400", collapsed && "lg:sr-only")}>
                 {group.heading}
               </p>
               <ul className="space-y-0.5">
@@ -111,8 +114,10 @@ export function Sidebar({
                       <Link
                         href={item.href}
                         aria-current={active ? "page" : undefined}
+                        title={collapsed ? item.label : undefined}
                         className={cx(
                           "group flex items-center gap-3 rounded px-3 py-2.5 text-[13.5px] font-medium transition-all",
+                          collapsed && "lg:justify-center lg:px-0",
                           active
                             ? "bg-brand-50 text-brand-700 shadow-[inset_2px_0_0_var(--color-brand-500)]"
                             : "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
@@ -125,7 +130,9 @@ export function Sidebar({
                             active ? "text-brand-500" : "text-ink-400 group-hover:text-ink-600",
                           )}
                         />
-                        {item.label}
+                        <span className={cx("overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-500 ease-in-out", collapsed ? "lg:max-w-0 lg:opacity-0" : "lg:max-w-[160px] lg:opacity-100")}>
+                          {item.label}
+                        </span>
                       </Link>
                     </li>
                   );
@@ -135,14 +142,6 @@ export function Sidebar({
           ))}
         </nav>
 
-        {/* A standing reminder of where authorisation actually lives. It is also the
-            honest answer to "why can't I see the admin section" for a demo viewer. */}
-        <div className="mx-3 mb-4 rounded bg-ink-50 p-3.5">
-          <p className="text-[11.5px] leading-relaxed text-ink-500">
-            This menu is filtered by your role. The API enforces the same rules
-            independently — hidden links are not the protection.
-          </p>
-        </div>
       </aside>
     </>
   );

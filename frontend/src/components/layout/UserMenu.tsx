@@ -68,7 +68,12 @@ export function UserMenu({
         aria-haspopup="menu"
         className="h-auto rounded-full py-1 pl-1 pr-2.5"
       >
-        <Avatar name={name} src={avatarUrl} size="sm" />
+        <Avatar
+          name={name}
+          src={avatarUrl}
+          size="sm"
+          className="!bg-brand-500 !text-white"
+        />
         <span className="hidden text-left sm:block">
           <span className="block max-w-[140px] truncate text-[13px] font-semibold leading-tight text-ink-800">
             {name}
@@ -87,7 +92,12 @@ export function UserMenu({
         >
           <div className="border-b border-ink-100 p-4">
             <div className="flex items-center gap-3">
-              <Avatar name={name} src={avatarUrl} size="md" />
+              <Avatar
+                name={name}
+                src={avatarUrl}
+                size="md"
+                className="!bg-brand-500 !text-white"
+              />
               <div className="min-w-0">
                 <p className="truncate text-[14px] font-semibold text-ink-900">{name}</p>
                 <p className="truncate text-[12px] text-ink-500">{email}</p>
