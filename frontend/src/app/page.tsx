@@ -2,7 +2,6 @@ import { ArrowRight, BookOpen, ChartNoAxesCombined, GraduationCap } from "lucide
 import Image from "next/image";
 import { PublicNav } from "@/components/layout/PublicNav";
 import { ButtonLink } from "@/components/ui/Button";
-import { getSession } from "@/lib/api";
 
 const highlights = [
   {
@@ -23,8 +22,6 @@ const highlights = [
 ];
 
 export default async function HomePage() {
-  const user = await getSession();
-
   return (
     <div className="min-h-dvh overflow-hidden bg-white">
       <PublicNav />
@@ -64,46 +61,15 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {user ? (
-              <div className="relative overflow-hidden rounded bg-gradient-to-br from-[#1a1530] via-[#241a3d] to-[#0f1b26] p-7 text-white shadow-2xl shadow-brand-900/25 sm:p-9">
-                <div className="pointer-events-none absolute inset-0 opacity-40 [background:radial-gradient(600px_circle_at_90%_10%,rgba(124,58,237,0.35),transparent_60%)]" />
-                <div className="relative">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-white/90">Your learning path</span>
-                    <span className="text-xs font-medium tabular-nums text-white/50">01 / 04</span>
-                  </div>
-                  <div className="mt-16">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-brand-200">Continue where you left off</p>
-                    <h2 className="mt-2 text-2xl font-bold tracking-tight">Build better habits</h2>
-                    <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
-                      <div className="h-full w-[68%] rounded-full bg-gradient-to-r from-brand-500 to-brand-200" />
-                    </div>
-                    <div className="mt-3 flex items-center justify-between text-xs text-white/60">
-                      <span>68% complete</span>
-                      <span>3 lessons left</span>
-                    </div>
-                  </div>
-                  <ButtonLink
-                    href="/courses"
-                    variant="ghost"
-                    size="md"
-                    className="relative mt-8 w-full !text-white bg-white/10 backdrop-blur hover:bg-white/15 hover:!text-white"
-                  >
-                    Resume lesson <ArrowRight size={17} aria-hidden="true" />
-                  </ButtonLink>
-                </div>
-              </div>
-            ) : (
-              <div className="relative flex items-center justify-center">
-                <Image
-                  src="/learning-path.svg"
-                  alt="A visual learning path with milestones and progress notes"
-                  width={720}
-                  height={480}
-                  className="h-auto w-full max-w-[640px]"
-                />
-              </div>
-            )}
+            <div className="relative flex items-center justify-center">
+              <Image
+                src="/learning-path.svg"
+                alt="A visual learning path with milestones and progress notes"
+                width={720}
+                height={480}
+                className="h-auto w-full max-w-[640px]"
+              />
+            </div>
           </div>
         </section>
 
