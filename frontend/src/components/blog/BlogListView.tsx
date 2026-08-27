@@ -19,7 +19,7 @@ export function BlogListView({ posts, fromAdmin = false }: { posts: BlogPost[]; 
             <Link href={`/blog/${post.slug}`} aria-label={`View ${post.title}`} title="View post" className="grid h-9 w-9 place-items-center rounded text-ink-500 hover:bg-brand-50 hover:text-brand-700">
               <Eye size={18} strokeWidth={2.25} aria-hidden="true" />
             </Link>
-            <BlogAuthoringDialog post={post} />
+            <BlogAuthoringDialog post={post} iconOnly />
             <form action={deletePost}>
               <input type="hidden" name="postId" value={post.id} />
               <input type="hidden" name="slug" value={post.slug} />

@@ -86,6 +86,8 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
       string,
       string | undefined
     >;
+    const page = Math.max(1, Number.parseInt(String(ctx.query.page ?? "1"), 10) || 1);
+    const pageSize = Math.min(50, Math.max(1, Number.parseInt(String(ctx.query.pageSize ?? "25"), 10) || 25));
 
     const filters: Record<string, any> = {};
 
@@ -105,13 +107,15 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
     }
     if (tag) filters.tags = { $containsi: tag };
 
+    const total = await strapi.db.query(BLOG_POST_UID).count({ where: filters });
     const posts = await strapi.db.query(BLOG_POST_UID).findMany({
       where: filters,
       populate: ["author"],
       // Published posts sort by their publish date; drafts have none, so fall back to
       // creation order for the admin table.
       orderBy: [{ publishedDate: "desc" }, { createdAt: "desc" }],
-      limit: 100,
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     });
 
     ctx.body = {
@@ -122,7 +126,7 @@ export default factories.createCoreController(BLOG_POST_UID, ({ strapi }) => ({
             ? isAdmin(user) || Number(post.author?.id) === Number(user.id)
             : false,
       })),
-      meta: { total: posts.length },
+      meta: { total, page, pageSize, pageCount: Math.ceil(total / pageSize) },
     };
   },
 

@@ -28,30 +28,35 @@ export function BlogForm({ post, onDone }: { post?: BlogPost; onDone?: () => voi
         name="title"
         required
         defaultValue={post?.title ?? ""}
+        placeholder="Give your blog a clear title"
       />
       <Textarea
         label="Excerpt"
         name="excerpt"
         rows={2}
         defaultValue={post?.excerpt ?? ""}
+        placeholder="Summarize what readers will learn"
       />
       <Textarea
         label="Body"
         name="body"
-        rows={14}
+        rows={7}
         required
         defaultValue={post?.body ?? ""}
+        placeholder="Start writing your blog here..."
       />
       <Input
         label="Cover image URL"
         name="coverImageUrl"
         type="url"
         defaultValue={post?.coverImageUrl ?? ""}
+        placeholder="https://example.com/cover.jpg"
       />
       <Input
         label="Tags"
         name="tags"
         defaultValue={post?.tags.join(", ") ?? ""}
+        placeholder="javascript, learning, career"
         hint="Separate tags with commas."
       />
       <Input
@@ -60,6 +65,7 @@ export function BlogForm({ post, onDone }: { post?: BlogPost; onDone?: () => voi
         type="number"
         min={0}
         defaultValue={post?.readingMinutes ?? 5}
+        placeholder="5"
       />
       <Checkbox
         name="publishNow"
@@ -67,7 +73,7 @@ export function BlogForm({ post, onDone }: { post?: BlogPost; onDone?: () => voi
         defaultChecked={post?.status === "published"}
       />
       <SubmitButton pendingLabel="Saving...">
-        {post ? "Save post" : "Create post"}
+        {post ? "Save blog" : "Create blog"}
       </SubmitButton>
     </form>
   );
