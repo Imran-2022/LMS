@@ -33,7 +33,7 @@ export function CourseCard({
   showStatus?: boolean;
 }) {
   const enrolled = course.isEnrolled === true;
-  const percent = course.progress?.percent ?? 0;
+  const percent = Math.min(100, Math.max(0, course.progress?.percent ?? 0));
 
   return (
     <Link

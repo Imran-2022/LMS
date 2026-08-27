@@ -42,17 +42,17 @@ export async function computeCourseProgress(
 
   // A progress row whose lesson was deleted must not count towards completion,
   // otherwise a student could show 4/3 lessons done.
-  const completedLessonIds: number[] = completedRows
+  const completedLessonIds = Array.from(new Set<number>(completedRows
     .map((row: any) => row.lesson?.id)
-    .filter((id: number | undefined): id is number => typeof id === "number");
+    .filter((id: number | undefined): id is number => typeof id === "number")));
 
-  const completed = completedLessonIds.length;
+  const completed = Math.min(completedLessonIds.length, total);
 
   return {
     completed,
     total,
     // Guard the divide: a course with no lessons yet is 0%, not NaN.
-    percent: total > 0 ? Math.round((completed / total) * 100) : 0,
+    percent: total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0,
     completedLessonIds,
   };
 }
