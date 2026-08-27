@@ -36,8 +36,8 @@ export type NavItem = {
 export type NavGroup = { heading: string; items: NavItem[] };
 
 const ALL: RoleType[] = ["admin", "content_manager", "instructor", "student"];
-const AUTHORS: RoleType[] = ["admin", "content_manager", "instructor"];
-const BLOG: RoleType[] = ["admin", "content_manager"];
+const AUTHORS: RoleType[] = ["content_manager", "instructor"];
+const BLOG: RoleType[] = ["content_manager"];
 const BLOG_READERS: RoleType[] = [
   "admin",
   "content_manager",
@@ -103,7 +103,7 @@ const GROUPS: NavGroup[] = [
         icon: "layers",
         roles: ADMIN,
       },
-      { label: "All posts", href: "/admin/blog", icon: "pen", roles: ADMIN },
+      { label: "All Blogs", href: "/admin/blog", icon: "pen", roles: ADMIN },
     ],
   },
 ];

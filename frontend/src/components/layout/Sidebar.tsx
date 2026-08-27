@@ -106,10 +106,10 @@ export function Sidebar({
 
         <nav className="scroll-slim flex-1 overflow-y-auto px-3 pb-6">
           {groups.map((group) => (
-            <div key={group.heading} className="mb-6">
+            <div key={group.heading} className="mb-4 last:mb-0">
               <p
                 className={cx(
-                  "mb-2 px-3 text-[10.5px] font-bold uppercase tracking-[0.12em] text-ink-400",
+                  "mb-2 mt-2 px-3 text-[10.5px] font-bold uppercase tracking-[0.12em] text-ink-400",
                   collapsed && "lg:sr-only",
                 )}
               >

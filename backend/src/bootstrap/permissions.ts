@@ -72,6 +72,7 @@ const COURSE_AUTHORING = [
     "find",
     "findOne",
     "mine",
+    "instructors",
     "create",
     "update",
     "delete",

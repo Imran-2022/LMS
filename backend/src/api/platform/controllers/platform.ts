@@ -25,7 +25,7 @@ import {
   requireUser,
 } from "../../../utils/authorization";
 import { ROLES, ROLE_LABELS, type RoleType } from "../../../utils/roles";
-import { publicUser } from "../../../utils/serialize";
+import { courseCard, publicUser } from "../../../utils/serialize";
 
 const { ForbiddenError, NotFoundError, ValidationError } = errors;
 
@@ -469,27 +469,11 @@ export default ({ strapi }: { strapi: any }) => ({
             .count({ where: { course: course.id } }),
         ]);
 
-        return {
-          id: course.id,
-          documentId: course.documentId,
-          title: course.title,
-          slug: course.slug,
-          status: course.status,
-          level: course.level,
-          category: course.category,
-          createdAt: course.createdAt,
-          updatedAt: course.updatedAt,
-          owner: course.owner
-            ? {
-                id: course.owner.id,
-                username: course.owner.username,
-                fullName: course.owner.fullName ?? null,
-              }
-            : null,
+        return courseCard(course, {
           lessonCount,
           quizCount,
           enrollmentCount,
-        };
+        });
       }),
     );
 
