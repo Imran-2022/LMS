@@ -43,10 +43,7 @@ export async function setUserRole(form: FormData) {
 
   if (!userId || !ROLES.has(role)) return;
 
-  const result = await apiFetch(`/api/admin/users/${userId}/role`, {
-    method: "PUT",
-    body: { role },
-  });
+  const result = await updateUserRole(userId, role);
 
   finish(
     ADMIN_PATHS,
@@ -54,6 +51,16 @@ export async function setUserRole(form: FormData) {
     result.ok ? "role-updated" : "role-failed",
     !result.ok,
   );
+}
+
+export async function updateUserRole(userId: string, role: string) {
+  await requireAdmin();
+  if (!userId || !ROLES.has(role)) return { ok: false as const };
+  const result = await apiFetch(`/api/admin/users/${userId}/role`, {
+    method: "PUT",
+    body: { role },
+  });
+  return { ok: result.ok, error: result.ok ? undefined : result.error };
 }
 
 /**
@@ -70,10 +77,7 @@ export async function setUserStatus(form: FormData) {
   const blocked = str(form, "blocked") === "true";
   if (!userId) return;
 
-  const result = await apiFetch(`/api/admin/users/${userId}/status`, {
-    method: "PUT",
-    body: { blocked },
-  });
+  const result = await updateUserStatus(userId, blocked);
 
   finish(
     ADMIN_PATHS,
@@ -81,6 +85,16 @@ export async function setUserStatus(form: FormData) {
     result.ok ? (blocked ? "user-blocked" : "user-unblocked") : "status-failed",
     !result.ok,
   );
+}
+
+export async function updateUserStatus(userId: string, blocked: boolean) {
+  await requireAdmin();
+  if (!userId) return { ok: false as const };
+  const result = await apiFetch(`/api/admin/users/${userId}/status`, {
+    method: "PUT",
+    body: { blocked },
+  });
+  return { ok: result.ok, error: result.ok ? undefined : result.error };
 }
 
 /**
@@ -97,9 +111,7 @@ export async function deleteUser(form: FormData) {
   const userId = str(form, "userId");
   if (!userId) return;
 
-  const result = await apiFetch(`/api/admin/users/${userId}`, {
-    method: "DELETE",
-  });
+  const result = await removeUser(userId);
 
   finish(
     ADMIN_PATHS,
@@ -107,4 +119,13 @@ export async function deleteUser(form: FormData) {
     result.ok ? "user-deleted" : "delete-failed",
     !result.ok,
   );
+}
+
+export async function removeUser(userId: string) {
+  await requireAdmin();
+  if (!userId) return { ok: false as const };
+  const result = await apiFetch(`/api/admin/users/${userId}`, {
+    method: "DELETE",
+  });
+  return { ok: result.ok, error: result.ok ? undefined : result.error };
 }
