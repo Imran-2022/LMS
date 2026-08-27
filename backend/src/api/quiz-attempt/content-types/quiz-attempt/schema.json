@@ -32,6 +32,10 @@
       "type": "json",
       "description": "Array of { questionIndex, selectedOptionIndex } exactly as submitted."
     },
+    "questionSnapshot": {
+      "type": "json",
+      "description": "The graded question review as it existed when this attempt was submitted."
+    },
     "score": {
       "type": "integer",
       "min": 0,
