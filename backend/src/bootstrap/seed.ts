@@ -673,7 +673,6 @@ export async function seedDemoData(strapi: any) {
 
   await enrol(strapi, users.student, reactCourse, 2);
   await enrol(strapi, users.student, tsCourse, 0);
-  await enrol(strapi, users.student, reactCourse, 4);
 
   await recordQuizAttempt(strapi, users.student, reactCourse);
 
