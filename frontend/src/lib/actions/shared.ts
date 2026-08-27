@@ -15,24 +15,38 @@
  *    field that should be a number arrives as a string — or as nothing at all when the
  *    input was disabled or renamed. Coercing in one place stops `NaN` reaching the API.
  *
- * 2. `finish()`, which pairs `revalidatePath` with `redirect`. Order matters: the
- *    revalidate must be queued before the redirect throws, or the next render serves
- *    the stale cache. Getting that backwards is the classic "I saved it but the list
- *    still shows the old title" bug.
+ * 2. The two ways an action can end:
+ *
+ *    - `done()` / `fail()` — revalidate and *return* a result. This is what form-bound
+ *      actions use, because the form is inside an overlay: it needs to hear "saved" so it
+ *      can close itself and toast, with the list refreshing underneath. An action that
+ *      only ever redirected could not say that, which is precisely why every create and
+ *      edit screen used to be its own route.
+ *
+ *    - `finish()` — revalidate and redirect. Still correct where the destination genuinely
+ *      changes: signing in, signing out, being turned away by `requireRole`, or deleting
+ *      the record whose page you are standing on. It carries its message as a `?ok=` code
+ *      because a redirect discards any return value.
+ *
+ *    Order matters in both: the revalidation must be queued before `redirect()` throws, or
+ *    the next render serves the stale cache. Getting that backwards is the classic "I
+ *    saved it but the list still shows the old title" bug.
  */
 import "server-only";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import type { FormState } from "@/lib/form";
+
 /**
- * What every form-bound action returns to `useActionState`.
+ * Re-exported so an action can keep importing everything it needs from one module.
  *
- * `undefined` is the initial state (nothing submitted yet), and a successful action
- * never returns at all — it redirects. So the only value a form ever renders is an
- * error, which is why this type is as small as it is.
+ * The type itself lives in `@/lib/form`, which has no `server-only` guard, because the
+ * client components that read the returned state need it too and importing it from here
+ * would fail the build.
  */
-export type FormState = { error?: string } | undefined;
+export type { FormState };
 
 export function str(form: FormData, key: string): string {
   const value = form.get(key);
@@ -101,6 +115,30 @@ export function finish(
   refresh(paths);
   const separator = destination.includes("?") ? "&" : "?";
   redirect(`${destination}${separator}${failed ? "err" : "ok"}=${code}`);
+}
+
+/**
+ * Succeed: revalidate, and hand the message back to the form that submitted.
+ *
+ * The caller stays where it is. The overlay closes itself, raises the message as a toast,
+ * and the revalidated list re-renders underneath with the change already in it — which is
+ * what makes editing feel like editing rather than like navigating.
+ *
+ * `id` is returned for the one case that needs it: after creating a course, the workspace
+ * for the new course is where the author is going next, and only the action knows its id.
+ */
+export function done(
+  paths: string[],
+  message: string,
+  id?: number,
+): FormState {
+  refresh(paths);
+  return { ok: true, message, ...(id === undefined ? {} : { id }) };
+}
+
+/** Fail: no revalidation (nothing changed), just the reason, rendered next to the form. */
+export function fail(error: string): FormState {
+  return { ok: false, error };
 }
 
 /** Refresh in place without navigating — used by the progress toggles. */

@@ -9,6 +9,8 @@
  * that they had done it.
  */
 import { useActionState } from "react";
+import { errorOf } from "@/lib/form";
+import { useActionResult } from "@/components/ui/useActionResult";
 
 import {
   createLesson,
@@ -23,21 +25,24 @@ import type { LessonDetail } from "@/lib/types";
 export function LessonForm({
   courseId,
   lesson,
+  onDone,
 }: {
   courseId: number | string;
   /** Absent when adding a new lesson. */
   lesson?: LessonDetail;
+  onDone?: () => void;
 }) {
   const editing = Boolean(lesson);
   const [state, action] = useActionState(
     editing ? updateLesson : createLesson,
     undefined,
   );
+  useActionResult(state, onDone);
 
   return (
     <>
       <form id="lesson-form" action={action} className="space-y-5">
-        <FormError>{state?.error}</FormError>
+        <FormError>{errorOf(state)}</FormError>
 
         <input type="hidden" name="courseId" value={courseId} />
         {lesson ? (

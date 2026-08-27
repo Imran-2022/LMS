@@ -1,19 +1,22 @@
 "use client";
 
 import { useActionState } from "react";
+import { errorOf } from "@/lib/form";
+import { useActionResult } from "@/components/ui/useActionResult";
 import { createPost, updatePost } from "@/lib/actions/blog";
 import { Input, Textarea, FormError, Checkbox } from "@/components/ui/Input";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import type { BlogPost } from "@/lib/types";
 
-export function BlogForm({ post }: { post?: BlogPost }) {
+export function BlogForm({ post, onDone }: { post?: BlogPost; onDone?: () => void }) {
   const [state, action] = useActionState(
     post ? updatePost : createPost,
     undefined,
   );
+  useActionResult(state, onDone ? () => onDone() : undefined);
   return (
     <form action={action} className="space-y-5">
-      <FormError>{state?.error}</FormError>
+      <FormError>{errorOf(state)}</FormError>
       {post ? (
         <>
           <input type="hidden" name="postId" value={post.id} />

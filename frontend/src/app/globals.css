@@ -76,6 +76,12 @@
   --shadow-brand: 0 12px 30px rgba(124, 58, 237, 0.25);
 
   --animate-rise: rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  /* Overlay motion. The drawer and the toast come in from the edge they live on, so
+     the movement reads as the panel arriving rather than the page changing. */
+  --animate-fade: fade 0.2s ease-out both;
+  --animate-drawer: drawer 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-toast: toast 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes rise {
@@ -86,6 +92,37 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawer {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 

@@ -14,11 +14,15 @@
  * The tick marks come from `completedLessonIds` on the progress payload rather than
  * from a per-lesson flag, which is what lets one request colour the whole list.
  */
+"use client";
+
 import { Check, Clock, FileText, Lock, Pencil } from "lucide-react";
 import Link from "next/link";
 
+import { LessonAuthoringDialog } from "./LessonAuthoringDialog";
+import { LessonRailActions } from "./LessonRailActions";
 import { cx, formatDuration } from "@/lib/format";
-import type { LessonSummary } from "@/lib/types";
+import type { LessonDetail, LessonSummary } from "@/lib/types";
 
 export function LessonRail({
   lessons,
@@ -44,6 +48,7 @@ export function LessonRail({
   // A Set rather than `.includes()` in the loop: O(1) per row instead of O(n), which
   // matters not at all for six lessons and costs nothing to do properly.
   const done = new Set(completedIds);
+  const lessonIds = lessons.map((lesson) => lesson.id);
 
   return (
     <ol className="space-y-2">
@@ -113,10 +118,20 @@ export function LessonRail({
           );
         }
 
-        const href =
-          mode === "learn"
-            ? `/my-courses/${courseId}/lessons/${lesson.id}`
-            : `/manage/courses/${courseId}/lessons/${lesson.id}`;
+        if (mode === "manage") {
+          return (
+            <li key={lesson.id}>
+              <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <LessonAuthoringDialog courseId={courseId} lesson={lesson as LessonDetail} trigger={<button type="button" className={cx(shell, "w-full text-left border-ink-200/70 bg-white hover:border-brand-200")}>{inner}</button>} />
+                </div>
+                <LessonRailActions courseId={courseId} lessonId={lesson.id} lessonIds={lessonIds} index={index} />
+              </div>
+            </li>
+          );
+        }
+
+        const href = `/my-courses/${courseId}/lessons/${lesson.id}`;
 
         return (
           <li key={lesson.id}>

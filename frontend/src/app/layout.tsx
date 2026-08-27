@@ -12,9 +12,21 @@
  * no runtime request to Google, no flash of unstyled text, and it satisfies the
  * "no third-party font CDN at request time" instinct without extra config. The
  * variable it exposes is wired to `--font-sans` in globals.css.
+ *
+ * The two providers are the exception to "thin". Toasts and confirmations have to be
+ * mounted above every route group — a confirmation raised from the dashboard renders into
+ * `document.body`, and marketing pages report sign-out through the same toast stack — and
+ * mounting them per group would give the app two independent toast stacks that could
+ * both be on screen at once. They are client components, but only their own subtree is
+ * client-rendered: `children` stays a server-rendered tree passed straight through.
  */
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
+
+import { ConfirmProvider } from "@/components/ui/ConfirmDialog";
+import { FlashToasts } from "@/components/ui/FlashToasts";
+import { ToastProvider } from "@/components/ui/Toast";
 
 import "./globals.css";
 
@@ -41,7 +53,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-dvh bg-ink-50 font-sans text-ink-800 antialiased">
-        {children}
+        <ToastProvider>
+          <ConfirmProvider>
+            {children}
+            {/*
+              Suspended because `useSearchParams()` inside it would otherwise opt every
+              route into client rendering, and the marketing pages are worth prerendering.
+            */}
+            <Suspense fallback={null}>
+              <FlashToasts />
+            </Suspense>
+          </ConfirmProvider>
+        </ToastProvider>
       </body>
     </html>
   );

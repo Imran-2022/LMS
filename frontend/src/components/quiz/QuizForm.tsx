@@ -22,6 +22,8 @@
 import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { useId, useState } from "react";
 import { useActionState } from "react";
+import { errorOf } from "@/lib/form";
+import { useActionResult } from "@/components/ui/useActionResult";
 
 import { createQuiz, deleteQuiz, updateQuiz } from "@/lib/actions/quiz";
 import { Button } from "@/components/ui/Button";
@@ -98,15 +100,18 @@ function toDrafts(quiz?: QuizWithAnswers): Draft[] {
 export function QuizForm({
   courseId,
   quiz,
+  onDone,
 }: {
   courseId: number | string;
   quiz?: QuizWithAnswers;
+  onDone?: () => void;
 }) {
   const editing = Boolean(quiz);
   const [state, action] = useActionState(
     editing ? updateQuiz : createQuiz,
     undefined,
   );
+  useActionResult(state, onDone);
   const [questions, setQuestions] = useState<Draft[]>(() => toDrafts(quiz));
   const formId = useId();
 
@@ -121,7 +126,7 @@ export function QuizForm({
   return (
     <>
       <form id="quiz-form" action={action} className="space-y-6">
-        <FormError>{state?.error}</FormError>
+        <FormError>{errorOf(state)}</FormError>
 
         <input type="hidden" name="courseId" value={courseId} />
         {quiz ? <input type="hidden" name="quizId" value={quiz.id} /> : null}

@@ -1,21 +1,18 @@
 /**
- * Flash — the confirmation strip after a redirect.
+ * Flash copy — the message behind a `?ok=` / `?err=` code.
  *
- * Server Actions in this app finish with `redirect()`, which means the action's own
- * return value is thrown away. To still tell the user what happened, the action
- * appends `?ok=` or `?err=` to the destination and the page renders this from its
- * `searchParams`. The message survives the redirect, survives a refresh, and needs no
- * client state or toast provider.
+ * Most actions now return their own message and the form raises a toast directly, so
+ * this map only covers the cases where a *redirect* is still the right outcome and the
+ * message has to survive it: signing in and out, being bounced by `requireRole`,
+ * deleting the record whose page you were standing on.
  *
- * Codes rather than free text in the URL: the message copy lives here, so a crafted
- * link cannot make the app display arbitrary text of someone else's choosing.
+ * Codes rather than free text in the URL: the copy lives here, so a crafted link cannot
+ * make the app display arbitrary text of someone else's choosing.
  */
-import { cx } from "@/lib/format";
 
-const MESSAGES: Record<
-  string,
-  { tone: "success" | "danger" | "info"; text: string }
-> = {
+export type FlashTone = "success" | "danger" | "info";
+
+const MESSAGES: Record<string, { tone: FlashTone; text: string }> = {
   // Success
   enrolled: {
     tone: "success",
@@ -119,50 +116,31 @@ const MESSAGES: Record<
   },
 };
 
-const TONES = {
-  success: "border-success-500/25 bg-success-50 text-success-600",
-  danger: "border-danger-500/25 bg-danger-50 text-danger-600",
-  info: "border-brand-500/20 bg-brand-50 text-brand-700",
-} as const;
-
-export function Flash({
-  ok,
-  err,
-  className,
-}: {
-  ok?: string | string[];
-  err?: string | string[];
-  className?: string;
-}) {
-  // `searchParams` values are `string | string[]` — a repeated query key gives an
-  // array. Take the first entry so `?ok=a&ok=b` cannot crash the page.
-  const code = first(ok) ?? first(err);
+/**
+ * Resolve a flash code to copy, or `null` for a code we don't recognise.
+ *
+ * `failed` forces the danger tone even on a code whose map entry is a success, which
+ * covers `?err=course-updated` — an action that reused a success code on its failure
+ * path should still read as a failure.
+ */
+export function flashMessage(
+  code: string | undefined,
+  failed = false,
+): { tone: FlashTone; text: string } | null {
   if (!code) return null;
-
   const entry = MESSAGES[code];
   if (!entry) return null;
-
-  const tone = first(err)
-    ? entry.tone === "success"
-      ? "danger"
-      : entry.tone
-    : entry.tone;
-
-  return (
-    <div
-      role="status"
-      className={cx(
-        "animate-rise rounded border px-4 py-3 text-[13.5px] font-medium",
-        TONES[tone],
-        className,
-      )}
-    >
-      {entry.text}
-    </div>
-  );
+  if (failed && entry.tone === "success") return { ...entry, tone: "danger" };
+  return entry;
 }
 
-function first(value: string | string[] | undefined): string | undefined {
+/**
+ * `searchParams` values are `string | string[]` — a repeated query key gives an array.
+ * Take the first entry so `?ok=a&ok=b` cannot crash a page.
+ */
+export function firstParam(
+  value: string | string[] | undefined | null,
+): string | undefined {
   if (!value) return undefined;
   return Array.isArray(value) ? value[0] : value;
 }

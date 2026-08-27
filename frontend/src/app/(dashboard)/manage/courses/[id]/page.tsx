@@ -1,4 +1,6 @@
-import { CourseForm } from "@/components/courses/CourseForm";
+import { CourseAuthoringDialog } from "@/components/courses/CourseAuthoringDialog";
+import { LessonAuthoringDialog } from "@/components/courses/LessonAuthoringDialog";
+import { QuizAuthoringDialog } from "@/components/quiz/QuizAuthoringDialog";
 import { LessonRail } from "@/components/courses/LessonRail";
 import { QuizRail } from "@/components/quiz/QuizRail";
 import { BackButton } from "@/components/ui/BackButton";
@@ -79,19 +81,19 @@ export default async function ManageCoursePage({
 
       <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="rounded border border-ink-200 bg-white p-6">
-          <CourseForm
-            course={course}
-            instructors={instructors}
-            canAssignInstructor={canAssignInstructor}
-          />
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-ink-400">Course details</p>
+              <p className="mt-3 text-sm leading-relaxed text-ink-600">{course.description || course.summary || "No description yet."}</p>
+            </div>
+            <CourseAuthoringDialog course={course} instructors={instructors} canAssignInstructor={canAssignInstructor} />
+          </div>
         </div>
         <div className="space-y-6">
           <section className="rounded border border-ink-200 bg-white p-5">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h2 className="font-bold text-ink-900">Lessons</h2>
-              <ButtonLink href={`/manage/courses/${id}/lessons/new`} size="sm">
-                Add lesson
-              </ButtonLink>
+              <LessonAuthoringDialog courseId={id} />
             </div>
             <LessonRail
               lessons={course.lessons ?? []}
@@ -103,9 +105,7 @@ export default async function ManageCoursePage({
           <section className="rounded border border-ink-200 bg-white p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-bold text-ink-900">Quizzes</h2>
-              <ButtonLink href={`/manage/courses/${id}/quiz/new`} size="sm">
-                Add quiz
-              </ButtonLink>
+              <QuizAuthoringDialog courseId={id} />
             </div>
             <QuizRail
               quizzes={(course.quizzes ?? []).map((quiz, index) => ({
