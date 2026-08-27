@@ -14,9 +14,8 @@
  *     deploy would set.
  *
  * The specific shape is chosen to make the permission rules demonstrable rather than
- * just present. Two instructors exist so "instructor B cannot edit instructor A's
- * course" can be shown live; one course is left in draft so a student's 404 can be
- * shown; two students are enrolled in the same course so the roster is not a list of one.
+ * just present. One account exists for each application role, and one course is left
+ * in draft so a student's 404 can be shown.
  */
 import {
   BLOG_POST_UID,
@@ -40,8 +39,6 @@ const ROLE_UID = "plugin::users-permissions.role";
  * treated as secrets: nothing else in the system depends on them, and a real
  * deployment sets `SEED_DEMO_DATA=false` so they are never created.
  */
-const DEMO_PASSWORD = "Password123!";
-
 type SeedUser = {
   key: string;
   username: string;
@@ -55,57 +52,38 @@ type SeedUser = {
 const USERS: SeedUser[] = [
   {
     key: "admin",
-    username: "amara.admin",
-    email: "admin@lms.dev",
-    fullName: "Amara Okafor",
+    username: "admin",
+    email: "admin@gmail.com",
+    fullName: "Mr Admin",
     mobileNumber: "+8801700000001",
     bio: "Platform administrator. Manages accounts, roles and everything published.",
     role: ROLES.ADMIN,
   },
   {
     key: "manager",
-    username: "diego.manager",
-    email: "manager@lms.dev",
-    fullName: "Diego Alvarez",
+    username: "contentmanager",
+    email: "contentmanager@gmail.com",
+    fullName: "Mr Content Manager",
     mobileNumber: "+8801700000002",
     bio: "Content manager. Curates the catalogue and writes for the blog.",
     role: ROLES.CONTENT_MANAGER,
   },
   {
     key: "instructor",
-    username: "priya.instructor",
-    email: "instructor@lms.dev",
-    fullName: "Priya Raman",
+    username: "instructor",
+    email: "instructor@gmail.com",
+    fullName: "Mr Instructor",
     mobileNumber: "+8801700000003",
     bio: "Frontend engineer. Teaches React, Next.js and TypeScript.",
     role: ROLES.INSTRUCTOR,
   },
   {
-    // The second instructor is the one that makes ownership demonstrable.
-    key: "instructor2",
-    username: "kwame.instructor",
-    email: "instructor2@lms.dev",
-    fullName: "Kwame Mensah",
-    mobileNumber: "+8801700000004",
-    bio: "Backend engineer. Teaches API design and databases.",
-    role: ROLES.INSTRUCTOR,
-  },
-  {
     key: "student",
-    username: "tom.student",
-    email: "student@lms.dev",
-    fullName: "Tom Whitfield",
-    mobileNumber: "+8801700000005",
+    username: "student",
+    email: "student@gmail.com",
+    fullName: "Mr Student",
+    mobileNumber: "+8801700000004",
     bio: "Career switcher working through the frontend track.",
-    role: ROLES.STUDENT,
-  },
-  {
-    key: "student2",
-    username: "lena.student",
-    email: "student2@lms.dev",
-    fullName: "Lena Fischer",
-    mobileNumber: "+8801700000006",
-    bio: "Computer science student.",
     role: ROLES.STUDENT,
   },
 ];
@@ -356,7 +334,7 @@ const COURSES: SeedCourse[] = [
     ],
   },
   {
-    ownerKey: "instructor2",
+    ownerKey: "instructor",
     title: "Designing REST APIs with Strapi",
     summary:
       "Content types, custom controllers, and authorization that holds up to a direct curl request.",
@@ -567,7 +545,7 @@ async function ensureUser(
     .add({
       username: seed.username,
       email: seed.email,
-      password: DEMO_PASSWORD,
+      password: seed.email,
       fullName: seed.fullName,
       mobileNumber: seed.mobileNumber,
       bio: seed.bio ?? null,
@@ -695,12 +673,12 @@ export async function seedDemoData(strapi: any) {
 
   await enrol(strapi, users.student, reactCourse, 2);
   await enrol(strapi, users.student, tsCourse, 0);
-  await enrol(strapi, users.student2, reactCourse, 4);
+  await enrol(strapi, users.student, reactCourse, 4);
 
   await recordQuizAttempt(strapi, users.student, reactCourse);
 
   strapi.log.info(
-    `[seed] done: ${USERS.length} accounts, ${COURSES.length} courses, ${POSTS.length} posts. Demo password: ${DEMO_PASSWORD}`,
+    `[seed] done: ${USERS.length} accounts, ${COURSES.length} courses, ${POSTS.length} posts. Each demo password matches its email.`,
   );
 }
 

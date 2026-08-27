@@ -231,6 +231,7 @@ export function quizAttemptSummary(attempt: any) {
     score: attempt.score ?? 0,
     correctCount: attempt.correctCount ?? 0,
     totalQuestions: attempt.totalQuestions ?? 0,
+    currentQuestionCount: attempt.quiz?.questions?.length,
     passed: Boolean(attempt.passed),
     answers: attempt.answers ?? [],
     submittedAt: attempt.submittedAt ?? attempt.createdAt,

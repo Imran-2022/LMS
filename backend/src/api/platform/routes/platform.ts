@@ -44,6 +44,11 @@ export default {
       config: { policies: ["global::is-admin"] },
     },
     {
+      method: "POST",
+      path: "/admin/users",
+      handler: "platform.createUser",
+    },
+    {
       method: "PUT",
       path: "/admin/users/:id/role",
       handler: "platform.setUserRole",

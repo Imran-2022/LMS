@@ -14,12 +14,14 @@
  * to the browser, which is why `GET /api/quizzes/:id` strips `correctOptionIndex` for
  * students in the first place.
  */
-import { apiFetch } from "@/lib/api";
+import { apiFetch, fetchItem } from "@/lib/api";
 import { requireAuthor, requireStudent } from "@/lib/session";
 import type { ApiItem, QuizAttempt, QuizWithAnswers } from "@/lib/types";
 
 import {
   coursePaths,
+  done,
+  fail,
   finish,
   num,
   optionalNum,
@@ -28,6 +30,11 @@ import {
   str,
 } from "./shared";
 import type { FormState } from "./shared";
+
+export async function loadQuiz(id: number): Promise<QuizWithAnswers | null> {
+  await requireAuthor();
+  return fetchItem(`/api/quizzes/${id}`);
+}
 
 /** Matches the option slots the builder renders per question. */
 const MAX_OPTIONS = 6;
@@ -125,20 +132,20 @@ export async function createQuiz(
   const payload = quizPayload(form);
   const questions = readQuestions(form);
 
-  if (!courseId) return { error: "Missing course reference." };
-  if (!payload.title) return { error: "Give the quiz a title." };
+  if (!courseId) return fail("Missing course reference.");
+  if (!payload.title) return fail("Give the quiz a title.");
 
   const problem = describeProblem(questions);
-  if (problem) return { error: problem };
+  if (problem) return fail(problem);
 
   const result = await apiFetch<ApiItem<QuizWithAnswers>>("/api/quizzes", {
     method: "POST",
     body: { ...payload, course: courseId, questions },
   });
 
-  if (!result.ok) return { error: result.error };
+  if (!result.ok) return fail(result.error);
 
-  finish(coursePaths(courseId), `/manage/courses/${courseId}`, "quiz-created");
+  return done(coursePaths(courseId), "Quiz created.", result.data.data.id);
 }
 
 export async function updateQuiz(
@@ -151,20 +158,20 @@ export async function updateQuiz(
   const payload = quizPayload(form);
   const questions = readQuestions(form);
 
-  if (!quizId) return { error: "Missing quiz reference." };
-  if (!payload.title) return { error: "Give the quiz a title." };
+  if (!quizId) return fail("Missing quiz reference.");
+  if (!payload.title) return fail("Give the quiz a title.");
 
   const problem = describeProblem(questions);
-  if (problem) return { error: problem };
+  if (problem) return fail(problem);
 
   const result = await apiFetch(`/api/quizzes/${quizId}`, {
     method: "PUT",
     body: { ...payload, questions },
   });
 
-  if (!result.ok) return { error: result.error };
+  if (!result.ok) return fail(result.error);
 
-  finish(coursePaths(courseId), `/manage/courses/${courseId}`, "quiz-saved");
+  return done(coursePaths(courseId), "Quiz saved.");
 }
 
 export async function deleteQuiz(form: FormData) {

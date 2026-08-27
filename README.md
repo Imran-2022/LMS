@@ -1,6 +1,6 @@
-# CPS Academy LMS
+# Learning Management System
 
-CPS Academy LMS is a role-based Learning Management System built for the Junior Software Engineer project round.
+This is a role-based Learning Management System for managing courses, lessons, quizzes, enrollments, progress, blog content, and user access.
 
 Students can enrol in courses, complete lessons, track progress, and take auto-graded quizzes. Instructors and Content Managers can build course content, while Admins manage the platform and user roles.
 
@@ -16,16 +16,14 @@ The frontend is deployed on Vercel and the Strapi backend is deployed on Railway
 
 ## Demo Accounts
 
-The development seed creates the following accounts. The password for every account is `Password123!`.
+The development seed creates one account for each application role. Each password is the same as that account's email.
 
-| Role | Email | Username |
-| --- | --- | --- |
-| Admin | `admin@lms.dev` | `amara.admin` |
-| Content Manager | `manager@lms.dev` | `diego.manager` |
-| Instructor | `instructor@lms.dev` | `priya.instructor` |
-| Instructor 2 | `instructor2@lms.dev` | `kwame.instructor` |
-| Student | `student@lms.dev` | `tom.student` |
-| Student 2 | `student2@lms.dev` | `lena.student` |
+| Role | Email | Username | Password |
+| --- | --- | --- | --- |
+| Admin | `admin@gmail.com` | `admin` | `admin@gmail.com` |
+| Content Manager | `contentmanager@gmail.com` | `contentmanager` | `contentmanager@gmail.com` |
+| Instructor | `instructor@gmail.com` | `instructor` | `instructor@gmail.com` |
+| Student | `student@gmail.com` | `student` | `student@gmail.com` |
 
 Use the LMS login page for these accounts. The Strapi Admin account at `/admin` is a separate account used only to manage the CMS.
 
@@ -131,15 +129,10 @@ Permissions are enforced in two layers:
 | Route | Purpose |
 | --- | --- |
 | `/manage/courses` | Owned or manageable courses |
-| `/manage/courses/new` | Create a course |
 | `/manage/courses/[id]` | Edit course, lessons, and quizzes |
-| `/manage/courses/[id]/lessons/new` | Add a lesson |
-| `/manage/courses/[id]/lessons/[lessonId]` | Edit a lesson |
-| `/manage/courses/[id]/quiz/new` | Add a quiz |
-| `/manage/courses/[id]/quiz/[quizId]` | Edit a quiz |
 | `/manage/blog` | Manage blog posts, Content Manager/Admin only |
-| `/manage/blog/new` | Create a blog post |
-| `/manage/blog/[id]` | Edit a blog post |
+
+Course, lesson, quiz, and blog post authoring opens in shared overlays from the management pages.
 
 ### Admin
 
@@ -155,11 +148,8 @@ Permissions are enforced in two layers:
 | Layer | Technology | Hosting |
 | --- | --- | --- |
 | Frontend | Next.js 15, React 19, TypeScript | Vercel |
-| Styling | Tailwind CSS v4 | Vercel |
-| Icons | Lucide React | Vercel |
-| Backend/CMS | Strapi 5, TypeScript | Railway |
+| Backend | Strapi 5, TypeScript | Railway |
 | Database | PostgreSQL | Railway |
-| Authentication | Strapi JWT with Next.js `httpOnly` cookie | Vercel/Railway |
 
 ## Project Structure
 
@@ -170,14 +160,16 @@ lms-project/
 │   ├── database/               # Database migrations
 │   ├── public/uploads/         # Local upload directory
 │   └── src/
-│       ├── api/                # Courses, lessons, quizzes, blog, enrollment, admin APIs
-│       ├── bootstrap/          # Role/permission sync and demo data seed
+│       ├── api/                # Course, lesson, quiz, blog, enrollment, and admin APIs
+│       ├── bootstrap/          # Permission sync and demo data seed
+│       ├── components/         # Reusable Strapi components
+│       ├── extensions/         # Users-permissions extensions
 │       ├── policies/            # Backend authorization policies
 │       └── utils/               # Authorization, serialization, progress, and roles
 ├── frontend/
-│   ├── src/app/                # Next.js App Router pages and route groups
-│   ├── src/components/         # Layout, course, quiz, auth, admin, and UI components
-│   └── src/lib/                # API client, session helpers, roles, and server actions
+│   ├── src/app/                # Next.js App Router pages, layouts, and boundaries
+│   ├── src/components/         # Auth, courses, quizzes, blog, admin, layout, and UI
+│   └── src/lib/                # API client, sessions, roles, flash, and server actions
 ├── README.md
 └── .gitignore
 ```
@@ -316,7 +308,7 @@ Do not include `/admin` or `/api` in `STRAPI_URL`.
 
 1. Sign in as `manager@lms.dev`.
 2. Create and manage courses.
-3. Create a blog draft at `/manage/blog/new`.
+3. Create a blog draft from `/manage/blog`.
 4. Publish the post and confirm it appears at `/blog`.
 5. Confirm `/admin/users` is inaccessible.
 
@@ -342,9 +334,3 @@ Do not include `/admin` or `/api` in `STRAPI_URL`.
 - Railway's local upload filesystem is ephemeral. Uploaded files can disappear after a restart or redeploy. Persistent production uploads should use S3, Cloudinary, or another object-storage provider.
 - Demo data is intended for evaluation. Set `SEED_DEMO_DATA=false` for a real production environment after initial setup.
 - The deployed Vercel frontend and Railway API must remain active for evaluation.
-
-## Video Walkthrough
-
-The assignment requires a screen recording of up to ten minutes covering the student flow, authoring flow, admin role management, frontend-to-Strapi data flow, backend authorization, progress calculation, quiz auto-grading, and Vercel/Railway deployment configuration.
-
-Add the final Google Drive or unlisted YouTube link to the submission form.

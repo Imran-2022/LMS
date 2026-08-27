@@ -13,6 +13,8 @@
  * so React never needs to hold them in state.
  */
 import { useActionState } from "react";
+import { errorOf } from "@/lib/form";
+import { useActionResult } from "@/components/ui/useActionResult";
 
 import {
   createCourse,
@@ -37,6 +39,7 @@ export function CourseForm({
   categories = [],
   instructors = [],
   canAssignInstructor = false,
+  onDone,
 }: {
   /** Absent when creating. */
   course?: Course;
@@ -44,17 +47,19 @@ export function CourseForm({
   categories?: string[];
   instructors?: InstructorOption[];
   canAssignInstructor?: boolean;
+  onDone?: (id?: number) => void;
 }) {
   const editing = Boolean(course);
   const [state, action] = useActionState(
     editing ? updateCourse : createCourse,
     undefined,
   );
+  useActionResult(state, onDone ? (result) => onDone(result.id) : undefined);
 
   return (
     <>
       <form id="course-form" action={action} className="space-y-5">
-        <FormError>{state?.error}</FormError>
+        <FormError>{errorOf(state)}</FormError>
 
         {course ? (
           <input type="hidden" name="courseId" value={course.id} />

@@ -198,6 +198,7 @@ export default factories.createCoreController(
               selectedOptionIndex,
             }),
           ),
+          questionSnapshot: graded.breakdown,
           score: graded.score,
           correctCount: graded.correctCount,
           totalQuestions: graded.totalQuestions,
@@ -236,7 +237,7 @@ export default factories.createCoreController(
 
       const attempts = await strapi.db.query(QUIZ_ATTEMPT_UID).findMany({
         where,
-        populate: ["quiz", "course"],
+        populate: { quiz: { populate: ["questions"] }, course: true },
         orderBy: [{ createdAt: "desc" }],
       });
 

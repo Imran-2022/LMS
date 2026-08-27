@@ -8,12 +8,17 @@
  * These actions therefore worry about *form shape*, not about permission — the same
  * split as `courses.ts`, for the same reason.
  */
-import { apiFetch } from "@/lib/api";
+import { apiFetch, fetchItem } from "@/lib/api";
 import { requireAuthor } from "@/lib/session";
 import type { ApiItem, LessonDetail } from "@/lib/types";
 
-import { coursePaths, finish, num, optionalStr, refresh, str } from "./shared";
+import { coursePaths, done, fail, finish, num, optionalStr, refresh, str } from "./shared";
 import type { FormState } from "./shared";
+
+export async function loadLesson(id: number): Promise<LessonDetail | null> {
+  await requireAuthor();
+  return fetchItem(`/api/lessons/${id}`);
+}
 
 function lessonPayload(form: FormData) {
   return {
@@ -33,8 +38,8 @@ export async function createLesson(
   const courseId = str(form, "courseId");
   const payload = lessonPayload(form);
 
-  if (!courseId) return { error: "Missing course reference." };
-  if (!payload.title) return { error: "Give the lesson a title." };
+  if (!courseId) return fail("Missing course reference.");
+  if (!payload.title) return fail("Give the lesson a title.");
 
   // `order` is deliberately not sent. The controller assigns `count + 1`, which is the
   // only place that can count without a race — two authors adding a lesson at the same
@@ -44,13 +49,9 @@ export async function createLesson(
     body: { ...payload, course: courseId },
   });
 
-  if (!result.ok) return { error: result.error };
+  if (!result.ok) return fail(result.error);
 
-  finish(
-    coursePaths(courseId),
-    `/manage/courses/${courseId}`,
-    "lesson-created",
-  );
+  return done(coursePaths(courseId), "Lesson added.");
 }
 
 export async function updateLesson(
@@ -62,20 +63,16 @@ export async function updateLesson(
   const lessonId = str(form, "lessonId");
   const payload = lessonPayload(form);
 
-  if (!lessonId) return { error: "Missing lesson reference." };
-  if (!payload.title) return { error: "Give the lesson a title." };
+  if (!lessonId) return fail("Missing lesson reference.");
+  if (!payload.title) return fail("Give the lesson a title.");
 
   const result = await apiFetch(`/api/lessons/${lessonId}`, {
     method: "PUT",
     body: payload,
   });
-  if (!result.ok) return { error: result.error };
+  if (!result.ok) return fail(result.error);
 
-  finish(
-    [...coursePaths(courseId), `/my-courses/${courseId}/lessons/${lessonId}`],
-    `/manage/courses/${courseId}`,
-    "lesson-saved",
-  );
+  return done([...coursePaths(courseId), `/my-courses/${courseId}/lessons/${lessonId}`], "Lesson saved.");
 }
 
 /**

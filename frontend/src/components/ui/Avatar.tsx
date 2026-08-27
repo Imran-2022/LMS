@@ -46,9 +46,7 @@ export function Avatar({
 
   if (src) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element -- avatar URLs are arbitrary
-      // external strings entered by users; next/image would need every possible host
-      // whitelisted in next.config to render them.
+      /* eslint-disable-next-line @next/next/no-img-element */
       <img
         src={src}
         alt={label}

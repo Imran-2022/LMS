@@ -14,11 +14,15 @@
  * The tick marks come from `completedLessonIds` on the progress payload rather than
  * from a per-lesson flag, which is what lets one request colour the whole list.
  */
-import { Check, Clock, FileText, Lock, Pencil } from "lucide-react";
+"use client";
+
+import { Check, FileText, Lock } from "lucide-react";
 import Link from "next/link";
 
-import { cx, formatDuration } from "@/lib/format";
-import type { LessonSummary } from "@/lib/types";
+import { LessonAuthoringDialog } from "./LessonAuthoringDialog";
+import { LessonRailActions } from "./LessonRailActions";
+import { cx } from "@/lib/format";
+import type { LessonDetail, LessonSummary } from "@/lib/types";
 
 export function LessonRail({
   lessons,
@@ -44,6 +48,7 @@ export function LessonRail({
   // A Set rather than `.includes()` in the loop: O(1) per row instead of O(n), which
   // matters not at all for six lessons and costs nothing to do properly.
   const done = new Set(completedIds);
+  const lessonIds = lessons.map((lesson) => lesson.id);
 
   return (
     <ol className="space-y-2">
@@ -74,27 +79,17 @@ export function LessonRail({
             <span className="min-w-0 flex-1">
               <span
                 className={cx(
-                  "block truncate text-[14px] font-semibold transition-colors",
+                  "block truncate whitespace-nowrap text-[14px] font-semibold leading-snug transition-colors",
                   complete ? "text-ink-500" : "text-ink-900",
                   mode !== "locked" && "group-hover:text-brand-700",
                 )}
               >
                 {lesson.title}
               </span>
-              {lesson.summary ? (
-                <span className="mt-0.5 block truncate text-[12.5px] text-ink-500">
-                  {lesson.summary}
-                </span>
-              ) : null}
             </span>
 
             <span className="flex shrink-0 items-center gap-3 text-[12px] text-ink-400">
-              <span className="inline-flex items-center gap-1 tabular-nums">
-                <Clock className="h-3.5 w-3.5" />
-                {formatDuration(lesson.durationMinutes)}
-              </span>
               {mode === "locked" ? <Lock className="h-3.5 w-3.5" /> : null}
-              {mode === "manage" ? <Pencil className="h-3.5 w-3.5" /> : null}
               {mode === "learn" ? <FileText className="h-3.5 w-3.5" /> : null}
             </span>
           </>
@@ -113,10 +108,18 @@ export function LessonRail({
           );
         }
 
-        const href =
-          mode === "learn"
-            ? `/my-courses/${courseId}/lessons/${lesson.id}`
-            : `/manage/courses/${courseId}/lessons/${lesson.id}`;
+        if (mode === "manage") {
+          return (
+            <li key={lesson.id}>
+              <div className="relative">
+                <LessonAuthoringDialog courseId={courseId} lesson={lesson as LessonDetail} trigger={<button type="button" className={cx(shell, "w-full cursor-pointer pr-36 text-left border-ink-200/70 bg-white hover:border-brand-200")}>{inner}</button>} />
+                <LessonRailActions courseId={courseId} lessonId={lesson.id} lessonIds={lessonIds} index={index} />
+              </div>
+            </li>
+          );
+        }
+
+        const href = `/my-courses/${courseId}/lessons/${lesson.id}`;
 
         return (
           <li key={lesson.id}>

@@ -24,7 +24,6 @@ export default async function BlogPage() {
           title="CPS Academy blog"
           description="Ideas and practical notes for better learning and teaching."
         />
-
         {posts.length ? (
           <div className="mt-8 grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (

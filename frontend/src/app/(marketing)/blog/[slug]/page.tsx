@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { BlogContent } from "@/components/blog/BlogContent";
+import { CoverImage } from "@/components/courses/CoverImage";
 import { Footer } from "@/components/layout/Footer";
 import { PublicNav } from "@/components/layout/PublicNav";
 import { BackButton } from "@/components/ui/BackButton";
@@ -33,7 +34,15 @@ export default async function BlogPostPage({
           description={post.excerpt ?? undefined}
         />
         <article className="mt-8 overflow-hidden rounded border border-ink-200 bg-white">
+          <CoverImage src={post.coverImageUrl} alt={post.title} />
           <div className="p-6 sm:p-10">
+            <div className="mb-7 flex flex-wrap items-center gap-2">
+              {post.tags.map((tag) => (
+                <span key={tag} className="rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-medium text-brand-700">
+                  {tag}
+                </span>
+              ))}
+            </div>
             <BlogContent body={post.body} />
           </div>
         </article>

@@ -17,6 +17,12 @@ export function QuizResult({
       <p className="mt-3 text-ink-600">
         Score: <strong className="text-ink-900">{attempt.score}%</strong>
       </p>
+      {attempt.currentQuestionCount !== undefined &&
+      attempt.currentQuestionCount !== attempt.totalQuestions ? (
+        <p className="mt-3 rounded border border-brand-100 bg-brand-50 px-3 py-2 text-sm text-brand-800">
+          This quiz has been updated since you submitted. Your result remains {attempt.correctCount} of {attempt.totalQuestions} questions from the original version.
+        </p>
+      ) : null}
 
       {attempt.breakdown?.length ? (
         <div className="mt-6 space-y-4 border-t border-ink-100 pt-6">

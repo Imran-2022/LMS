@@ -173,6 +173,7 @@ export type QuizAttempt = {
   score: number;
   correctCount: number;
   totalQuestions: number;
+  currentQuestionCount?: number;
   passed: boolean;
   answers: { questionIndex: number; selectedOptionIndex: number | null }[];
   submittedAt: string;

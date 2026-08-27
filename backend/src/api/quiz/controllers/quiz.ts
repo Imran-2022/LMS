@@ -218,6 +218,7 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
           score: attempt.score ?? 0,
           correctCount: attempt.correctCount ?? 0,
           totalQuestions: attempt.totalQuestions ?? 0,
+          currentQuestionCount: quiz.questions?.length ?? 0,
           passed: Boolean(attempt.passed),
           submittedAt: attempt.submittedAt ?? attempt.createdAt,
         })),
@@ -229,6 +230,7 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
                 score: latestAttempt.score ?? 0,
                 correctCount: latestAttempt.correctCount ?? 0,
                 totalQuestions: latestAttempt.totalQuestions ?? 0,
+                currentQuestionCount: quiz.questions?.length ?? 0,
                 passed: Boolean(latestAttempt.passed),
                 answers: latestAttempt.answers ?? [],
                 submittedAt:
@@ -241,7 +243,9 @@ export default factories.createCoreController(QUIZ_UID, ({ strapi }) => ({
                 },
                 course: { id: quiz.course.id, title: quiz.course.title },
                 student: null,
-                breakdown: reviewAttempt(quiz, latestAttempt),
+                breakdown: Array.isArray(latestAttempt.questionSnapshot)
+                  ? latestAttempt.questionSnapshot
+                  : reviewAttempt(quiz, latestAttempt),
               }
             : undefined,
       },

@@ -1,19 +1,22 @@
 "use client";
 
 import { useActionState } from "react";
+import { errorOf } from "@/lib/form";
+import { useActionResult } from "@/components/ui/useActionResult";
 import { createPost, updatePost } from "@/lib/actions/blog";
 import { Input, Textarea, FormError, Checkbox } from "@/components/ui/Input";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import type { BlogPost } from "@/lib/types";
 
-export function BlogForm({ post }: { post?: BlogPost }) {
+export function BlogForm({ post, onDone }: { post?: BlogPost; onDone?: () => void }) {
   const [state, action] = useActionState(
     post ? updatePost : createPost,
     undefined,
   );
+  useActionResult(state, onDone ? () => onDone() : undefined);
   return (
     <form action={action} className="space-y-5">
-      <FormError>{state?.error}</FormError>
+      <FormError>{errorOf(state)}</FormError>
       {post ? (
         <>
           <input type="hidden" name="postId" value={post.id} />
@@ -25,30 +28,35 @@ export function BlogForm({ post }: { post?: BlogPost }) {
         name="title"
         required
         defaultValue={post?.title ?? ""}
+        placeholder="Give your blog a clear title"
       />
       <Textarea
         label="Excerpt"
         name="excerpt"
         rows={2}
         defaultValue={post?.excerpt ?? ""}
+        placeholder="Summarize what readers will learn"
       />
       <Textarea
         label="Body"
         name="body"
-        rows={14}
+        rows={7}
         required
         defaultValue={post?.body ?? ""}
+        placeholder="Start writing your blog here..."
       />
       <Input
         label="Cover image URL"
         name="coverImageUrl"
         type="url"
         defaultValue={post?.coverImageUrl ?? ""}
+        placeholder="https://example.com/cover.jpg"
       />
       <Input
         label="Tags"
         name="tags"
         defaultValue={post?.tags.join(", ") ?? ""}
+        placeholder="javascript, learning, career"
         hint="Separate tags with commas."
       />
       <Input
@@ -57,6 +65,7 @@ export function BlogForm({ post }: { post?: BlogPost }) {
         type="number"
         min={0}
         defaultValue={post?.readingMinutes ?? 5}
+        placeholder="5"
       />
       <Checkbox
         name="publishNow"
@@ -64,7 +73,7 @@ export function BlogForm({ post }: { post?: BlogPost }) {
         defaultChecked={post?.status === "published"}
       />
       <SubmitButton pendingLabel="Saving...">
-        {post ? "Save post" : "Create post"}
+        {post ? "Save blog" : "Create blog"}
       </SubmitButton>
     </form>
   );
