@@ -218,3 +218,17 @@ export async function registerAccount(input: {
     body: input,
   });
 }
+
+export async function createAdminUser(input: {
+  username: string;
+  email: string;
+  password: string;
+  fullName: string;
+  mobileNumber: string;
+  role: string;
+}) {
+  return apiFetch("/api/admin/users", {
+    method: "POST",
+    body: input,
+  });
+}

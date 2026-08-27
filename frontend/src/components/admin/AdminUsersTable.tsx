@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserActionsMenu } from "@/components/admin/UserActionsMenu";
 import { UserRoleSelect } from "@/components/admin/UserRoleSelect";
 import { CellStack, DataTable, type Column } from "@/components/ui/DataTable";
@@ -14,6 +14,10 @@ export function AdminUsersTable({
   initialUsers: AdminUser[];
 }) {
   const [users, setUsers] = useState(initialUsers);
+
+  useEffect(() => {
+    setUsers(initialUsers);
+  }, [initialUsers]);
 
   const columns: Column<AdminUser>[] = [
     { key: "user", header: "User", cell: (user) => <CellStack title={user.fullName ?? user.username} meta={user.email} /> },

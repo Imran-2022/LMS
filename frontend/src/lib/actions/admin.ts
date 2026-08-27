@@ -17,12 +17,68 @@
  * The UI mirrors all three (own-row controls are disabled), but as a courtesy, not as
  * the enforcement.
  */
-import { apiFetch } from "@/lib/api";
+import { apiFetch, createAdminUser } from "@/lib/api";
 import { requireAdmin } from "@/lib/session";
+import { revalidatePath } from "next/cache";
 
 import { finish, str } from "./shared";
 
 const ROLES = new Set(["admin", "content_manager", "instructor", "student"]);
+
+export type CreateUserState = {
+  error?: string;
+  success?: boolean;
+  values?: {
+    email?: string;
+    fullName?: string;
+    mobileNumber?: string;
+    role?: string;
+  };
+};
+
+function text(form: FormData, key: string): string {
+  const value = form.get(key);
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export async function createUser(
+  _prev: CreateUserState,
+  form: FormData,
+): Promise<CreateUserState> {
+  await requireAdmin();
+  const email = text(form, "email");
+  const fullName = text(form, "fullName");
+  const mobileNumber = text(form, "mobileNumber");
+  const role = text(form, "role");
+  const password = String(form.get("password") ?? "");
+  const confirm = String(form.get("confirmPassword") ?? "");
+  const values = { email, fullName, mobileNumber, role };
+
+  if (!email || !fullName || !mobileNumber || !password || !role) {
+    return { error: "Fill in every field to create the account.", values };
+  }
+  if (!ROLES.has(role)) return { error: "Choose a valid account type.", values };
+  if (password.length < 8) return { error: "Use a password of at least 8 characters.", values };
+  if (fullName.length > 120) return { error: "Your full name is too long.", values };
+  if (!/^[+\d][\d\s().-]{6,19}$/.test(mobileNumber)) {
+    return { error: "Enter a valid mobile number.", values };
+  }
+  if (password !== confirm) return { error: "Those two passwords do not match.", values };
+
+  const emailName = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 32) || "user";
+  const result = await createAdminUser({
+    username: `${emailName}-${Date.now().toString(36)}`,
+    email,
+    password,
+    fullName,
+    mobileNumber,
+    role,
+  });
+  if (!result.ok) return { error: result.error, values };
+
+  revalidatePath("/admin/users");
+  return { success: true };
+}
 
 /** Everything an admin mutation can change the look of. */
 const ADMIN_PATHS = ["/admin", "/admin/users", "/admin/courses", "/admin/blog"];

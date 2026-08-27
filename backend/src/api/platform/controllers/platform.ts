@@ -268,6 +268,8 @@ export default ({ strapi }: { strapi: any }) => ({
    */
   async listUsers(ctx: any) {
     const { q, role } = ctx.query as Record<string, string | undefined>;
+    const page = Math.max(1, Number.parseInt(String(ctx.query.page ?? "1"), 10) || 1);
+    const pageSize = Math.min(50, Math.max(1, Number.parseInt(String(ctx.query.pageSize ?? "25"), 10) || 25));
 
     const filters: Record<string, any> = {};
 
@@ -280,11 +282,13 @@ export default ({ strapi }: { strapi: any }) => ({
     }
     if (role) filters.role = { type: role };
 
+    const total = await strapi.db.query(USER_UID).count({ where: filters });
     const users = await strapi.db.query(USER_UID).findMany({
       where: filters,
       populate: ["role"],
       orderBy: [{ createdAt: "desc" }],
-      limit: 200,
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     });
 
     // Attach the numbers that make the table useful without a request per row.
@@ -304,7 +308,54 @@ export default ({ strapi }: { strapi: any }) => ({
       }),
     );
 
-    ctx.body = { data: rows, meta: { total: rows.length } };
+    ctx.body = {
+      data: rows,
+      meta: { total, page, pageSize, pageCount: Math.ceil(total / pageSize) },
+    };
+  },
+
+  /** POST /api/admin/users */
+  async createUser(ctx: any) {
+    const body = readBody(ctx);
+    const username = typeof body.username === "string" ? body.username.trim() : "";
+    const email = typeof body.email === "string" ? body.email.trim() : "";
+    const password = typeof body.password === "string" ? body.password : "";
+    const fullName = typeof body.fullName === "string" ? body.fullName.trim() : "";
+    const mobileNumber = typeof body.mobileNumber === "string" ? body.mobileNumber.trim() : "";
+    const roleType = typeof body.role === "string" ? body.role : "";
+
+    if (!username || !email || !password || !fullName || !mobileNumber || !roleType) {
+      throw new ValidationError(
+        "Email, password, full name, mobile number, and account type are required.",
+      );
+    }
+    if (password.length < 8) {
+      throw new ValidationError("Use a password of at least 8 characters.");
+    }
+    if (fullName.length > 120) throw new ValidationError("Your full name is too long.");
+    if (!/^[+\d][\d\s().-]{6,19}$/.test(mobileNumber)) {
+      throw new ValidationError("Enter a valid mobile number.");
+    }
+
+    const existing = await strapi.db.query(USER_UID).findOne({
+      where: { $or: [{ email }, { username }] },
+    });
+    if (existing) throw new ValidationError("Email or username is already taken.");
+
+    const role = await this.resolveRole(roleType);
+    const user = await strapi.plugin("users-permissions").service("user").add({
+      username,
+      email,
+      password,
+      fullName,
+      mobileNumber,
+      provider: "local",
+      confirmed: true,
+      blocked: false,
+      role: role.id,
+    });
+
+    ctx.body = { data: publicUser({ ...user, role }) };
   },
 
   /**
