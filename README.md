@@ -31,7 +31,7 @@ Use the LMS login page for these accounts. The Strapi Admin account at `/admin` 
 
 | Capability | Admin | Content Manager | Instructor | Student |
 | --- | :---: | :---: | :---: | :---: |
-| Manage users and roles | Yes | No | No | No |
+| Create users, manage users and roles | Yes | No | No | No |
 | Create, edit, and delete any course | Yes | Yes | Own only | No |
 | Add, edit, and delete lessons | Yes | Yes | Own courses | No |
 | Create and manage quizzes | Yes | Yes | Own courses | No |
@@ -95,7 +95,8 @@ Permissions are enforced in two layers:
 ### Admin Panel
 
 - Platform statistics for users, courses, enrollments, quizzes, and blog content.
-- User list with role changes, block/unblock controls, and deletion.
+- User list with account creation, role changes, block/unblock controls, and deletion.
+- Admins can create a user with any application role: Student, Instructor, Content Manager, or Admin.
 - All-course overview, including drafts.
 - Full blog-post overview and editing access.
 - Admin-only access is enforced by both the frontend and backend.
@@ -289,7 +290,7 @@ Do not include `/admin` or `/api` in `STRAPI_URL`.
 
 ### Student
 
-1. Sign in as `student@lms.dev`.
+1. Sign in as `student@gmail.com` using `student@gmail.com` as the password.
 2. Open `/courses` and enrol in a published course.
 3. Open `/my-courses`, then open a lesson.
 4. Mark the lesson complete and refresh to verify persistence.
@@ -298,7 +299,7 @@ Do not include `/admin` or `/api` in `STRAPI_URL`.
 
 ### Instructor
 
-1. Sign in as `instructor@lms.dev`.
+1. Sign in as `instructor@gmail.com` using `instructor@gmail.com` as the password.
 2. Create and publish a course from `/manage/courses`.
 3. Add lessons and a quiz.
 4. Open another instructor's course and confirm the edit form is not shown.
@@ -306,7 +307,7 @@ Do not include `/admin` or `/api` in `STRAPI_URL`.
 
 ### Content Manager
 
-1. Sign in as `manager@lms.dev`.
+1. Sign in as `contentmanager@gmail.com` using `contentmanager@gmail.com` as the password.
 2. Create and manage courses.
 3. Create a blog draft from `/manage/blog`.
 4. Publish the post and confirm it appears at `/blog`.
@@ -314,11 +315,12 @@ Do not include `/admin` or `/api` in `STRAPI_URL`.
 
 ### Admin
 
-1. Sign in as `admin@lms.dev`.
+1. Sign in as `admin@gmail.com` using `admin@gmail.com` as the password.
 2. Open `/admin` and verify platform statistics.
-3. Open `/admin/users` and change a user's role.
-4. Open `/admin/courses` and verify drafts are visible.
-5. Open `/admin/blog` and verify posts from all authors are visible.
+3. Open `/admin/users`, create one account of each available type, and verify each appears with the selected role.
+4. Change a user's role, then verify block/unblock and deletion controls.
+5. Open `/admin/courses` and verify drafts are visible.
+6. Open `/admin/blog` and verify posts from all authors are visible.
 
 ## Important Security Decisions
 
