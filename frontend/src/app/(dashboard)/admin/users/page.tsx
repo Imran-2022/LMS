@@ -3,9 +3,8 @@ import { fetchListWithMeta } from "@/lib/api";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { AdminUsersTable } from "@/components/admin/AdminUsersTable";
 import { AdminCreateUser } from "@/components/admin/AdminCreateUser";
-import { Button } from "@/components/ui/Button";
+import { AdminUserFilters } from "@/components/admin/AdminUserFilters";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Input, Select } from "@/components/ui/Input";
 import type { AdminUser } from "@/lib/types";
 
 const PAGE_SIZE = 25;
@@ -49,18 +48,7 @@ export default async function AdminUsersPage({
         description="Review accounts, roles, and access status."
         action={<AdminCreateUser />}
       />
-      <form method="get" className="mt-7 flex flex-col gap-3 rounded border border-ink-200 bg-white p-4 sm:flex-row sm:items-end">
-        <Input label="Search users" name="q" defaultValue={query} placeholder="Name, email, or username" className="sm:min-w-72" />
-        <Select label="Account type" name="role" defaultValue={role} wrapperClassName="sm:w-52">
-          <option value="">All account types</option>
-          <option value="student">Student</option>
-          <option value="instructor">Instructor</option>
-          <option value="content_manager">Content Manager</option>
-          <option value="admin">Admin</option>
-        </Select>
-        <Button type="submit" variant="secondary" size="sm">Apply filters</Button>
-        {query || role ? <a href="/admin/users" className="mb-2 text-sm font-semibold text-brand-700 hover:text-brand-800">Clear</a> : null}
-      </form>
+      <AdminUserFilters query={query} role={role} />
       {result.data.length ? (
         <AdminUsersTable currentUserId={current.id} initialUsers={result.data} />
       ) : (
