@@ -16,12 +16,12 @@
  */
 "use client";
 
-import { Check, Clock, FileText, Lock, Pencil } from "lucide-react";
+import { Check, FileText, Lock } from "lucide-react";
 import Link from "next/link";
 
 import { LessonAuthoringDialog } from "./LessonAuthoringDialog";
 import { LessonRailActions } from "./LessonRailActions";
-import { cx, formatDuration } from "@/lib/format";
+import { cx } from "@/lib/format";
 import type { LessonDetail, LessonSummary } from "@/lib/types";
 
 export function LessonRail({
@@ -79,27 +79,17 @@ export function LessonRail({
             <span className="min-w-0 flex-1">
               <span
                 className={cx(
-                  "block truncate text-[14px] font-semibold transition-colors",
+                  "block truncate whitespace-nowrap text-[14px] font-semibold leading-snug transition-colors",
                   complete ? "text-ink-500" : "text-ink-900",
                   mode !== "locked" && "group-hover:text-brand-700",
                 )}
               >
                 {lesson.title}
               </span>
-              {lesson.summary ? (
-                <span className="mt-0.5 block truncate text-[12.5px] text-ink-500">
-                  {lesson.summary}
-                </span>
-              ) : null}
             </span>
 
             <span className="flex shrink-0 items-center gap-3 text-[12px] text-ink-400">
-              <span className="inline-flex items-center gap-1 tabular-nums">
-                <Clock className="h-3.5 w-3.5" />
-                {formatDuration(lesson.durationMinutes)}
-              </span>
               {mode === "locked" ? <Lock className="h-3.5 w-3.5" /> : null}
-              {mode === "manage" ? <Pencil className="h-3.5 w-3.5" /> : null}
               {mode === "learn" ? <FileText className="h-3.5 w-3.5" /> : null}
             </span>
           </>
@@ -121,10 +111,8 @@ export function LessonRail({
         if (mode === "manage") {
           return (
             <li key={lesson.id}>
-              <div className="flex items-center gap-2">
-                <div className="min-w-0 flex-1">
-                  <LessonAuthoringDialog courseId={courseId} lesson={lesson as LessonDetail} trigger={<button type="button" className={cx(shell, "w-full text-left border-ink-200/70 bg-white hover:border-brand-200")}>{inner}</button>} />
-                </div>
+              <div className="relative">
+                <LessonAuthoringDialog courseId={courseId} lesson={lesson as LessonDetail} trigger={<button type="button" className={cx(shell, "w-full cursor-pointer pr-36 text-left border-ink-200/70 bg-white hover:border-brand-200")}>{inner}</button>} />
                 <LessonRailActions courseId={courseId} lessonId={lesson.id} lessonIds={lessonIds} index={index} />
               </div>
             </li>

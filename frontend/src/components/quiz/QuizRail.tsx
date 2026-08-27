@@ -1,6 +1,8 @@
-import { Check, Clock, FileText } from "lucide-react";
+import { Check, Clock, FileText, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { QuizAuthoringDialog } from "./QuizAuthoringDialog";
+import { deleteQuiz } from "@/lib/actions/quiz";
+import { DangerousSubmit } from "@/components/ui/DangerousSubmit";
 
 import { cx } from "@/lib/format";
 import type { CourseQuizSummary } from "@/lib/types";
@@ -23,7 +25,14 @@ export function QuizRail({
       {quizzes.map((quiz) => (
         <li key={quiz.id}>
           {mode === "manage" ? (
-            <QuizAuthoringDialog courseId={courseId} quiz={quiz} trigger={<button type="button" className="group flex w-full items-center gap-3.5 rounded border border-ink-200/70 bg-white px-3.5 py-3 text-left hover:border-brand-200"><span className="grid h-8 w-8 shrink-0 place-items-center rounded bg-brand-50 text-[12px] font-bold text-brand-600">{quiz.position}</span><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-ink-900">{quiz.title}</span><span className="mt-0.5 block text-xs text-ink-500">{quiz.questionCount} questions</span></span></button>} />
+            <div className="relative">
+              <QuizAuthoringDialog courseId={courseId} quiz={quiz} trigger={<button type="button" className="group flex w-full cursor-pointer items-center gap-3.5 rounded border border-ink-200/70 bg-white px-3.5 py-3 pr-16 text-left hover:border-brand-200"><span className="grid h-8 w-8 shrink-0 place-items-center rounded bg-brand-50 text-[12px] font-bold text-brand-600">{quiz.position}</span><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-ink-900">{quiz.title}</span><span className="mt-0.5 block text-xs text-ink-500">{quiz.questionCount} questions</span></span></button>} />
+              <form action={deleteQuiz} className="absolute right-2 top-1/2 -translate-y-1/2 border-l border-ink-100 bg-white pl-2">
+                <input type="hidden" name="courseId" value={courseId} />
+                <input type="hidden" name="quizId" value={quiz.id} />
+                <DangerousSubmit variant="ghost" size="sm" confirm="Delete this quiz? Its questions and attempts will also be removed." aria-label={`Delete ${quiz.title}`} title="Delete quiz" className="h-9 w-9 px-0 text-danger-600 hover:bg-danger-50 hover:text-danger-700"><Trash2 className="h-4 w-4" /></DangerousSubmit>
+              </form>
+            </div>
           ) : (
           <Link
             href={`/my-courses/${courseId}/quiz/${quiz.id}`}

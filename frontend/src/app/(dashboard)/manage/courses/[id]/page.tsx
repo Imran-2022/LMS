@@ -6,7 +6,11 @@ import { QuizRail } from "@/components/quiz/QuizRail";
 import { BackButton } from "@/components/ui/BackButton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
+import { Avatar } from "@/components/ui/Avatar";
+import { CoverImage } from "@/components/courses/CoverImage";
+import { LevelBadge, StatusBadge } from "@/components/ui/Badge";
 import { fetchItem, fetchList } from "@/lib/api";
+import { formatDuration } from "@/lib/format";
 import { isPrivileged, roleOf } from "@/lib/roles";
 import { requireAuthor } from "@/lib/session";
 import type { Course, InstructorOption, LessonSummary } from "@/lib/types";
@@ -71,6 +75,7 @@ export default async function ManageCoursePage({
             >
               View progress
             </ButtonLink>
+            <CourseAuthoringDialog course={course} instructors={instructors} canAssignInstructor={canAssignInstructor} />
             <BackButton />
           </div>
         </div>
@@ -79,14 +84,33 @@ export default async function ManageCoursePage({
         </p>
       </header>
 
-      <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="rounded border border-ink-200 bg-white p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-ink-400">Course details</p>
-              <p className="mt-3 text-sm leading-relaxed text-ink-600">{course.description || course.summary || "No description yet."}</p>
+      <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="overflow-hidden rounded border border-ink-200 bg-white">
+          <CoverImage src={course.coverImageUrl} alt={course.title} ratio="aspect-[2/1]" />
+          <div className="p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-ink-400">Course details</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <LevelBadge level={course.level} />
+                  <StatusBadge status={course.status} />
+                  {course.category ? <span className="text-sm text-ink-500">{course.category}</span> : null}
+                </div>
+              </div>
             </div>
-            <CourseAuthoringDialog course={course} instructors={instructors} canAssignInstructor={canAssignInstructor} />
+            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-500">
+              <span>{course.lessonCount} {course.lessonCount === 1 ? "lesson" : "lessons"}</span>
+              <span>{formatDuration(course.durationMinutes)}</span>
+              <span>{course.enrollmentCount} enrolled</span>
+            </div>
+            <div className="mt-5 flex items-center gap-3 border-t border-ink-100 pt-5">
+              <Avatar name={course.owner?.fullName ?? course.owner?.username ?? "CPS Academy LMS"} src={course.owner?.avatarUrl} size="sm" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">Instructor</p>
+                <p className="mt-0.5 font-semibold text-ink-800">{course.owner?.fullName ?? course.owner?.username ?? "CPS Academy LMS"}</p>
+              </div>
+            </div>
+            <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-ink-600">{course.description || course.summary || "No description yet."}</p>
           </div>
         </div>
         <div className="space-y-6">
