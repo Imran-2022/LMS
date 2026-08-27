@@ -316,6 +316,10 @@ export default ({ strapi }: { strapi: any }) => ({
 
   /** POST /api/admin/users */
   async createUser(ctx: any) {
+    const actor = requireUser(ctx.state.user);
+    if (actor.role?.type !== ROLES.ADMIN) {
+      throw new ForbiddenError("Administrator access required.");
+    }
     const body = readBody(ctx);
     const username = typeof body.username === "string" ? body.username.trim() : "";
     const email = typeof body.email === "string" ? body.email.trim() : "";

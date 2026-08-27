@@ -16,16 +16,14 @@ The frontend is deployed on Vercel and the Strapi backend is deployed on Railway
 
 ## Demo Accounts
 
-The development seed creates the following accounts. The password for every account is `Password123!`.
+The development seed creates one account for each application role. Each password is the same as that account's email.
 
 | Role | Email | Username | Password |
 | --- | --- | --- | --- |
-| Admin | `admin@lms.dev` | `amara.admin` | `Password123!` |
-| Content Manager | `manager@lms.dev` | `diego.manager` | `Password123!` |
-| Instructor | `instructor@lms.dev` | `priya.instructor` | `Password123!` |
-| Instructor 2 | `instructor2@lms.dev` | `kwame.instructor` | `Password123!` |
-| Student | `student@lms.dev` | `tom.student` | `Password123!` |
-| Student 2 | `student2@lms.dev` | `lena.student` | `Password123!` |
+| Admin | `admin@gmail.com` | `admin` | `admin@gmail.com` |
+| Content Manager | `contentmanager@gmail.com` | `contentmanager` | `contentmanager@gmail.com` |
+| Instructor | `instructor@gmail.com` | `instructor` | `instructor@gmail.com` |
+| Student | `student@gmail.com` | `student` | `student@gmail.com` |
 
 Use the LMS login page for these accounts. The Strapi Admin account at `/admin` is a separate account used only to manage the CMS.
 
