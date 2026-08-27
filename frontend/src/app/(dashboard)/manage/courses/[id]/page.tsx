@@ -4,8 +4,10 @@ import { QuizRail } from "@/components/quiz/QuizRail";
 import { BackButton } from "@/components/ui/BackButton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
-import { fetchItem } from "@/lib/api";
-import type { Course, LessonSummary } from "@/lib/types";
+import { fetchItem, fetchList } from "@/lib/api";
+import { isPrivileged, roleOf } from "@/lib/roles";
+import { requireAuthor } from "@/lib/session";
+import type { Course, InstructorOption, LessonSummary } from "@/lib/types";
 
 type ManagedCourse = Course & {
   canEdit?: boolean;
@@ -19,6 +21,7 @@ export default async function ManageCoursePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const user = await requireAuthor();
   const course = await fetchItem<ManagedCourse>(`/api/courses/${id}`);
   if (!course) return <p className="text-ink-600">Course not found.</p>;
   if (course.canEdit === false) {
@@ -44,6 +47,10 @@ export default async function ManageCoursePage({
       </>
     );
   }
+  const canAssignInstructor = isPrivileged(roleOf(user));
+  const instructors = canAssignInstructor
+    ? await fetchList<InstructorOption>("/api/courses/instructors")
+    : [];
   return (
     <>
       <header>
@@ -72,7 +79,11 @@ export default async function ManageCoursePage({
 
       <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="rounded border border-ink-200 bg-white p-6">
-          <CourseForm course={course} />
+          <CourseForm
+            course={course}
+            instructors={instructors}
+            canAssignInstructor={canAssignInstructor}
+          />
         </div>
         <div className="space-y-6">
           <section className="rounded border border-ink-200 bg-white p-5">

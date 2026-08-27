@@ -28,6 +28,11 @@ export type UserSummary = {
   avatarUrl: string | null;
 };
 
+export type InstructorOption = Pick<
+  UserSummary,
+  "id" | "username" | "fullName" | "avatarUrl"
+>;
+
 /** The signed-in user, from `GET /api/me`. */
 export type SessionUser = {
   id: number;

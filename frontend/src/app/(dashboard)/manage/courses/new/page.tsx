@@ -1,7 +1,17 @@
 import { CourseForm } from "@/components/courses/CourseForm";
 import { BackButton } from "@/components/ui/BackButton";
+import { fetchList } from "@/lib/api";
+import { requireAuthor } from "@/lib/session";
+import { isPrivileged, roleOf } from "@/lib/roles";
+import type { InstructorOption } from "@/lib/types";
 
-export default function NewCoursePage() {
+export default async function NewCoursePage() {
+  const user = await requireAuthor();
+  const canAssignInstructor = isPrivileged(roleOf(user));
+  const instructors = canAssignInstructor
+    ? await fetchList<InstructorOption>("/api/courses/instructors")
+    : [];
+
   return (
     <>
       <header>
@@ -20,7 +30,10 @@ export default function NewCoursePage() {
       </header>
 
       <div className="mt-8 max-w-3xl rounded border border-ink-200 bg-white p-6 sm:p-8">
-        <CourseForm />
+        <CourseForm
+          instructors={instructors}
+          canAssignInstructor={canAssignInstructor}
+        />
       </div>
     </>
   );

@@ -30,16 +30,20 @@ import {
 } from "@/components/ui/Input";
 import { FieldsetLegend } from "@/components/ui/PageHeader";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import type { Course } from "@/lib/types";
+import type { Course, InstructorOption } from "@/lib/types";
 
 export function CourseForm({
   course,
   categories = [],
+  instructors = [],
+  canAssignInstructor = false,
 }: {
   /** Absent when creating. */
   course?: Course;
   /** Existing categories, offered as a datalist so they stay consistent. */
   categories?: string[];
+  instructors?: InstructorOption[];
+  canAssignInstructor?: boolean;
 }) {
   const editing = Boolean(course);
   const [state, action] = useActionState(
@@ -88,6 +92,25 @@ export function CourseForm({
         />
 
         <FieldsetLegend>Classification</FieldsetLegend>
+
+        {canAssignInstructor ? (
+          <Select
+            label="Course instructor"
+            name="owner"
+            required
+            defaultValue={course?.owner?.id ?? ""}
+            hint="The selected instructor will own the course and its teaching content."
+          >
+            <option value="" disabled>
+              Select an instructor
+            </option>
+            {instructors.map((instructor) => (
+              <option key={instructor.id} value={instructor.id}>
+                {instructor.fullName || instructor.username}
+              </option>
+            ))}
+          </Select>
+        ) : null}
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>

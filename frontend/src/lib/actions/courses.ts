@@ -25,6 +25,7 @@ const LEVELS = new Set(["beginner", "intermediate", "advanced"]);
 /** Build the payload both create and update send, from one shared form shape. */
 function coursePayload(form: FormData) {
   const level = str(form, "level");
+  const owner = str(form, "owner");
   return {
     title: str(form, "title"),
     slug: optionalStr(form, "slug"),
@@ -37,6 +38,7 @@ function coursePayload(form: FormData) {
     level: LEVELS.has(level) ? level : "beginner",
     durationMinutes: Math.max(0, num(form, "durationMinutes")),
     status: bool(form, "publishNow") ? "published" : "draft",
+    ...(owner ? { owner: Number(owner) } : {}),
   };
 }
 

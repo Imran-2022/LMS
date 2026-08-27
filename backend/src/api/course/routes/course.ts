@@ -31,6 +31,14 @@ export default {
     },
     {
       method: "GET",
+      path: "/courses/instructors",
+      handler: "course.instructors",
+      config: {
+        policies: ["global::can-author-courses"],
+      },
+    },
+    {
+      method: "GET",
       path: "/courses/:id",
       handler: "course.findOne",
     },

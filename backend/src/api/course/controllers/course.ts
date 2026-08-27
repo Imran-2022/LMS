@@ -340,9 +340,13 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
       const requested = payload.owner?.id ?? payload.owner;
       const target = await strapi.db
         .query("plugin::users-permissions.user")
-        .findOne({ where: { id: Number(requested) } });
-      if (!target)
-        throw new ValidationError("The selected owner does not exist.");
+        .findOne({
+          where: { id: Number(requested) },
+          populate: ["role"],
+        });
+      if (!target || target.blocked || target.role?.type !== "instructor") {
+        throw new ValidationError("Select an active instructor as the owner.");
+      }
       ownerId = target.id;
     }
 
@@ -372,6 +376,26 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
   },
 
   /**
+   * GET /api/courses/instructors
+   *
+   * Staff use this list when assigning a newly created course. Instructors can
+   * reach the route because it shares the author policy, but the frontend only
+   * renders the assignment control for privileged roles.
+   */
+  async instructors(ctx) {
+    const users = await strapi.db.query("plugin::users-permissions.user").findMany({
+      where: { role: { type: "instructor" }, blocked: false },
+      populate: ["role"],
+      orderBy: [{ fullName: "asc" }, { username: "asc" }],
+      limit: 200,
+    });
+
+    ctx.body = {
+      data: users.map((user: any) => authorSummary(user)),
+    };
+  },
+
+  /**
    * PUT /api/courses/:id
    *
    * Ownership was already enforced by `global::owns-course-or-privileged`, which
@@ -394,7 +418,17 @@ export default factories.createCoreController(COURSE_UID, ({ strapi }) => ({
           "Only administrators and content managers can reassign a course.",
         );
       }
-      data.owner = payload.owner?.id ?? payload.owner;
+      const requested = payload.owner?.id ?? payload.owner;
+      const target = await strapi.db
+        .query("plugin::users-permissions.user")
+        .findOne({
+          where: { id: Number(requested) },
+          populate: ["role"],
+        });
+      if (!target || target.blocked || target.role?.type !== "instructor") {
+        throw new ValidationError("Select an active instructor as the owner.");
+      }
+      data.owner = target.id;
     }
 
     // Stamp `publishedAt` the first time a course goes live, and clear it if it is
