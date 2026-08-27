@@ -105,6 +105,7 @@ const PLATFORM_ADMIN = api("platform", [
   "stats",
   "listRoles",
   "listUsers",
+  "createUser",
   "setUserRole",
   "setUserStatus",
   "deleteUser",

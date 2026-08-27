@@ -317,7 +317,11 @@ export default ({ strapi }: { strapi: any }) => ({
   /** POST /api/admin/users */
   async createUser(ctx: any) {
     const actor = requireUser(ctx.state.user);
-    if (actor.role?.type !== ROLES.ADMIN) {
+    const actorRecord = await strapi.db.query(USER_UID).findOne({
+      where: { id: actor.id },
+      populate: ["role"],
+    });
+    if (actorRecord?.role?.type !== ROLES.ADMIN) {
       throw new ForbiddenError("Administrator access required.");
     }
     const body = readBody(ctx);

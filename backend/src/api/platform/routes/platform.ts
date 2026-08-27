@@ -47,7 +47,6 @@ export default {
       method: "POST",
       path: "/admin/users",
       handler: "platform.createUser",
-      config: { policies: ["global::is-admin"] },
     },
     {
       method: "PUT",
