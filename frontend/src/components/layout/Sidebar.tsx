@@ -13,7 +13,7 @@
  */
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   Award,
   BookOpen,
@@ -56,14 +56,13 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const groups = navFor(role);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   // Navigating should dismiss the mobile drawer. Without this, tapping a link on a
   // phone loads the new page behind a panel that is still covering it.
   useEffect(() => {
-    onClose();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally keyed on
-    // the pathname alone: re-running when `onClose` changes identity would close the
-    // drawer the instant it opened.
+    onCloseRef.current();
   }, [pathname]);
 
   return (

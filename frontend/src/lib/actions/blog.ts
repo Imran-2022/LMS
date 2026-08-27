@@ -9,12 +9,17 @@
  * Content Manager gets their own, an Admin gets everyone's). So, as elsewhere, these
  * actions do input handling and leave authorisation to the one place that owns it.
  */
-import { apiFetch } from "@/lib/api";
+import { apiFetch, fetchItem } from "@/lib/api";
 import { requireBlogManager } from "@/lib/session";
 import type { ApiItem, BlogPost } from "@/lib/types";
 
-import { bool, finish, num, optionalStr, str } from "./shared";
+import { bool, done, fail, finish, num, optionalStr, str } from "./shared";
 import type { FormState } from "./shared";
+
+export async function loadPost(id: number): Promise<BlogPost | null> {
+  await requireBlogManager();
+  return fetchItem(`/api/blog-posts/${id}`);
+}
 
 /** Every route that renders a post list or a post. */
 const BLOG_PATHS = ["/blog", "/manage/blog", "/admin/blog", "/admin"];
@@ -40,22 +45,18 @@ export async function createPost(
   await requireBlogManager();
   const payload = postPayload(form);
 
-  if (!payload.title) return { error: "Give the post a title." };
+  if (!payload.title) return fail("Give the post a title.");
   if (!payload.body)
-    return { error: "A post needs a body before it can be saved." };
+    return fail("A post needs a body before it can be saved.");
 
   const result = await apiFetch<ApiItem<BlogPost>>("/api/blog-posts", {
     method: "POST",
     body: payload,
   });
 
-  if (!result.ok) return { error: result.error };
+  if (!result.ok) return fail(result.error);
 
-  finish(
-    [...BLOG_PATHS, `/blog/${result.data.data.slug}`],
-    "/manage/blog",
-    "post-created",
-  );
+  return done([...BLOG_PATHS, `/blog/${result.data.data.slug}`], "Post created.", result.data.data.id);
 }
 
 /**
@@ -77,10 +78,10 @@ export async function updatePost(
   const slug = optionalStr(form, "slug");
   const originalSlug = optionalStr(form, "originalSlug");
 
-  if (!id) return { error: "Missing post reference." };
-  if (!payload.title) return { error: "Give the post a title." };
+  if (!id) return fail("Missing post reference.");
+  if (!payload.title) return fail("Give the post a title.");
   if (!payload.body)
-    return { error: "A post needs a body before it can be saved." };
+    return fail("A post needs a body before it can be saved.");
 
   const body = slug && slug !== originalSlug ? { ...payload, slug } : payload;
 
@@ -89,17 +90,13 @@ export async function updatePost(
     body,
   });
 
-  if (!result.ok) return { error: result.error };
+  if (!result.ok) return fail(result.error);
 
-  finish(
-    [
-      ...BLOG_PATHS,
-      `/blog/${result.data.data.slug}`,
-      ...(originalSlug ? [`/blog/${originalSlug}`] : []),
-    ],
-    "/manage/blog",
-    "post-saved",
-  );
+  return done([
+    ...BLOG_PATHS,
+    `/blog/${result.data.data.slug}`,
+    ...(originalSlug ? [`/blog/${originalSlug}`] : []),
+  ], "Post saved.");
 }
 
 /**

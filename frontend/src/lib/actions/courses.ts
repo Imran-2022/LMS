@@ -13,14 +13,19 @@
  * What they *do* own is input handling: coercing form fields to the right types and
  * refusing obviously-empty submissions before spending a round-trip.
  */
-import { apiFetch } from "@/lib/api";
+import { apiFetch, fetchItem } from "@/lib/api";
 import { requireAuthor } from "@/lib/session";
-import type { ApiItem, Course } from "@/lib/types";
+import type { ApiItem, Course, InstructorOption } from "@/lib/types";
 
-import { bool, coursePaths, finish, num, optionalStr, str } from "./shared";
+import { bool, coursePaths, done, fail, finish, num, optionalStr, str } from "./shared";
 import type { FormState } from "./shared";
 
 const LEVELS = new Set(["beginner", "intermediate", "advanced"]);
+
+export async function loadCourse(id: number): Promise<(Course & { description?: string | null; instructors?: InstructorOption[] }) | null> {
+  await requireAuthor();
+  return fetchItem(`/api/courses/${id}`);
+}
 
 /** Build the payload both create and update send, from one shared form shape. */
 function coursePayload(form: FormData) {
@@ -49,22 +54,18 @@ export async function createCourse(
   await requireAuthor();
   const payload = coursePayload(form);
 
-  if (!payload.title) return { error: "Give the course a title." };
+  if (!payload.title) return fail("Give the course a title.");
 
   const result = await apiFetch<ApiItem<Course>>("/api/courses", {
     method: "POST",
     body: payload,
   });
 
-  if (!result.ok) return { error: result.error };
+  if (!result.ok) return fail(result.error);
 
   // Straight into the editor for the new course, because the next thing anyone does
   // after creating a course is add its first lesson.
-  finish(
-    ["/manage/courses", "/courses"],
-    `/manage/courses/${result.data.data.id}`,
-    "course-created",
-  );
+  return done(["/manage/courses", "/courses"], "Course created.", result.data.data.id);
 }
 
 export async function updateCourse(
@@ -75,17 +76,17 @@ export async function updateCourse(
   const id = str(form, "courseId");
   const payload = coursePayload(form);
 
-  if (!id) return { error: "Missing course reference." };
-  if (!payload.title) return { error: "Give the course a title." };
+  if (!id) return fail("Missing course reference.");
+  if (!payload.title) return fail("Give the course a title.");
 
   const result = await apiFetch<ApiItem<Course>>(`/api/courses/${id}`, {
     method: "PUT",
     body: payload,
   });
 
-  if (!result.ok) return { error: result.error };
+  if (!result.ok) return fail(result.error);
 
-  finish(coursePaths(id), `/manage/courses/${id}`, "course-updated");
+  return done(coursePaths(id), "Course saved.");
 }
 
 /**
