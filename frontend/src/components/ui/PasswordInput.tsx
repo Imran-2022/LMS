@@ -2,25 +2,28 @@
 
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import type { ComponentProps } from "react";
+import type { ChangeEventHandler, ComponentProps } from "react";
 
 import { Input } from "./Input";
 
 type PasswordInputProps = Omit<
   ComponentProps<typeof Input>,
   "type" | "value" | "defaultValue" | "onChange"
->;
+> & {
+  value?: string;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
+};
 
-export function PasswordInput({ className, ...props }: PasswordInputProps) {
+export function PasswordInput({ value, onChange, className, ...props }: PasswordInputProps) {
   const [visible, setVisible] = useState(false);
-  const [value, setValue] = useState("");
+  const [internalValue, setInternalValue] = useState("");
 
   return (
     <Input
       {...props}
       type={visible ? "text" : "password"}
-      value={value}
-      onChange={(event) => setValue(event.target.value)}
+      value={value ?? internalValue}
+      onChange={onChange ?? ((event) => setInternalValue(event.target.value))}
       className={className}
       suffix={
         <button
