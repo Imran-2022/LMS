@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 
 import { signIn } from "@/lib/actions/auth";
@@ -22,12 +22,27 @@ export function AuthForm({ next }: { next?: string }) {
   const [password, setPassword] = useState("");
   const [demoMenuOpen, setDemoMenuOpen] = useState(false);
   const [selectedDemo, setSelectedDemo] = useState<string | null>(null);
+  const demoSelectorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (state?.values?.identifier !== undefined) {
       setIdentifier(state.values.identifier);
     }
   }, [state?.values?.identifier]);
+
+  useEffect(() => {
+    function closeOnOutsideClick(event: PointerEvent) {
+      if (
+        demoSelectorRef.current &&
+        !demoSelectorRef.current.contains(event.target as Node)
+      ) {
+        setDemoMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, []);
 
   function selectDemoAccount(account: (typeof DEMO_ACCOUNTS)[number]) {
     setIdentifier(account.identifier);
@@ -44,7 +59,10 @@ export function AuthForm({ next }: { next?: string }) {
 
   return (
     <>
-      <div className="relative flex items-center justify-between gap-3">
+      <div
+        ref={demoSelectorRef}
+        className="relative flex items-center justify-between gap-3"
+      >
         <h1 className="mt-3 text-3xl font-black tracking-tight text-ink-950">
           Sign in
         </h1>
